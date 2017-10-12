@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<tabs  xmlns:android="http://schemas.android.com/apk/res/android">
+    <tab
+        id="@+id/tab_home"
+        icon="@drawable/ic_home_outline"
+        title="首页" />
+    <tab
+        id="@+id/tab_video"
+        icon="@drawable/ic_play_circle_outline"
+        title="视频" />
+
+    <tab
+        id="@+id/tab_discovery"
+        icon="@drawable/ic_circle_outline"
+        title="发现" />
+    <tab
+        id="@+id/tab_me"
+        icon="@drawable/ic_account_outline"
+        title="我" />
+
+</tabs>

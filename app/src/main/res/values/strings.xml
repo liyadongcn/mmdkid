@@ -1,0 +1,149 @@
+<resources>
+    <string name="app_name">么么哒KID</string>
+    <string name="action_settings">设置</string>
+    <string name="action_add_kid">添加宝贝</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+    <string name="title_activity_main">么么哒KID</string>
+    <string name="title_activity_web_view">WebViewActivity</string>
+    <string name="title_activity_search_results">SearchResultsActivity</string>
+    <string name="title_activity_login">登录</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="search_title">search......</string>
+    <string name="search_hint">搜你想搜的</string>
+    <string name="action_search">搜索</string>
+    <string name="action_refresh">refresh</string>
+    <string name="action_share">分享</string>
+    <string name="action_favorite">favorite</string>
+
+    <string name="actionn_load_more">刚刚看到这里,点击刷新</string>
+
+    <!--Strings related to comment-->
+    <string name="send_comment_hint">写评论</string>
+    <string name="send_comment">评论</string>
+    <string name="error_invalid_comment">The comment is too short or is invalid.</string>
+    <string name="send_comment_success">Comment submit success.</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">邮箱</string>
+    <string name="prompt_identity">用户名/手机/邮箱</string>
+    <string name="prompt_username">用户名</string>
+    <string name="prompt_password">密码</string>
+    <string name="prompt_password_repeat">重复密码</string>
+    <string name="action_sign_in">登录</string>
+    <string name="action_sign_up">注册</string>
+    <string name="action_forgot">忘记密码</string>
+    <string name="oauth_login">使用第三方账号登录</string>
+    <string name="action_sign_in_short">登录</string>
+    <string name="error_invalid_login">This user name or the password is invalid</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_username">This user name is invalid</string>
+    <string name="error_invalid_password">This password is too short</string>
+
+    <string name="error_invalid_identity">This identity is too invalid</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_not_equal_password">The password and the repeat password is not equal </string>
+    <string name="error_field_required">This field is required</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string>
+
+    <!-- Strings related to add kid activity-->
+    <string name="error_invalid_realName">This real name is too short</string>
+    <string name="error_invalid_nickName">This nick name is too short</string>
+    <string name="error_invalid_birthday">This birthday is wrong</string>
+
+    <!-- Strings related to Settings -->
+    <string name="action_logout">退出登录</string>
+    <string name="message_latest_version">已是最新版本</string>
+
+    <!-- Example General settings -->
+    <string name="pref_header_general">General</string>
+
+    <string name="pref_title_social_recommendations">Enable social recommendations</string>
+    <string name="pref_description_social_recommendations">Recommendations for people to contact
+        based on your message history
+    </string>
+
+    <string name="pref_title_check_version">版本更新</string>
+
+    <string name="pref_title_display_name">Display name</string>
+    <string name="pref_default_display_name">John Smith</string>
+
+    <string name="pref_title_add_friends_to_messages">Add friends to messages</string>
+    <string-array name="pref_example_list_titles">
+        <item>Always</item>
+        <item>When possible</item>
+        <item>Never</item>
+    </string-array>
+    <string-array name="pref_example_list_values">
+        <item>1</item>
+        <item>0</item>
+        <item>-1</item>
+    </string-array>
+
+    <!-- Example settings for Favorites -->
+    <string name="favorites_title">选择您喜欢的频道</string>
+    <string name="favorites_summary">选择您喜欢的频道</string>
+    <string name="favorites_dialog_title">选择您喜欢的频道</string>
+
+    <!-- Example settings for Data & Sync -->
+    <string name="pref_header_data_sync">Data &amp; sync</string>
+
+    <string name="pref_title_sync_frequency">Sync frequency</string>
+    <string-array name="pref_sync_frequency_titles">
+        <item>15 minutes</item>
+        <item>30 minutes</item>
+        <item>1 hour</item>
+        <item>3 hours</item>
+        <item>6 hours</item>
+        <item>Never</item>
+    </string-array>
+    <string-array name="pref_sync_frequency_values">
+        <item>15</item>
+        <item>30</item>
+        <item>60</item>
+        <item>180</item>
+        <item>360</item>
+        <item>-1</item>
+    </string-array>
+
+    <string-array name="list_preference_entries">
+        <item>Entry 1</item>
+        <item>Entry 2</item>
+        <item>Entry 3</item>
+    </string-array>
+
+    <string-array name="list_preference_entry_values">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
+    <string-array name="multi_select_list_preference_default_value" />
+
+    <string name="pref_title_system_sync_settings">System sync settings</string>
+
+    <!-- Example settings for Notifications -->
+    <string name="pref_header_notifications">Notifications</string>
+
+    <string name="pref_title_new_message_notifications">New message notifications</string>
+
+    <string name="pref_title_ringtone">Ringtone</string>
+    <string name="pref_ringtone_silent">Silent</string>
+
+    <string name="pref_title_vibrate">Vibrate</string>
+    <string name="title_activity_signup">注册</string>
+    <string name="title_activity_star">收藏</string>
+    <string name="title_activity_follow">关注</string>
+    <string name="title_activity_history">历史</string>
+    <string name="title_activity_bottom">BottomActivity</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="title_activity_diary_list">DiaryListActivity</string>
+    <string name="title_activity_user_group_post_list">UserGroupPostListActivity</string>
+
+</resources>

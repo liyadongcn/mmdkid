@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="favorites">
+        <item>	英语	</item>
+        <item>	新闻	</item>
+        <item>	育儿知识	</item>
+        <item>	钢琴	</item>
+        <item>	机器人	</item>
+        <item>	游泳	</item>
+        <item>	视唱练耳	</item>
+        <item>	入托	</item>
+        <item>	幼升小	</item>
+        <item>	小升初	</item>
+        <item>	中考	</item>
+        <item>	绘本	</item>
+        <item>	高考	</item>
+        <item>	备孕	</item>
+        <item>	亲子	</item>
+        <item>	古筝	</item>
+        <item>	二胡	</item>
+        <item>	扬琴	</item>
+        <item>	笛子	</item>
+        <item>	小提琴	</item>
+        <item>	大提琴	</item>
+        <item>	架子鼓	</item>
+        <item>	舞蹈	</item>
+        <item>	合唱	</item>
+        <item>	独唱	</item>
+        <item>	篮球	</item>
+        <item>	滑雪	</item>
+        <item>	乒乓球	</item>
+        <item>	羽毛球	</item>
+        <item>	足球	</item>
+        <item>	武术	</item>
+        <item>	国际象棋	</item>
+        <item>	中国象棋	</item>
+        <item>	围棋	</item>
+        <item>	跳棋	</item>
+        <item>	国画	</item>
+        <item>	水彩画	</item>
+        <item>	油画	</item>
+
+    </string-array>
+
+    <string-array name="favorite_values">
+        <item>	37	</item>
+        <item>	48	</item>
+        <item>	49	</item>
+        <item>	13	</item>
+        <item>	47	</item>
+        <item>	22	</item>
+        <item>	38	</item>
+        <item>	39	</item>
+        <item>	40	</item>
+        <item>	41	</item>
+        <item>	42	</item>
+        <item>	51	</item>
+        <item>	43	</item>
+        <item>	50	</item>
+        <item>	3	</item>
+        <item>	9	</item>
+        <item>	10	</item>
+        <item>	11	</item>
+        <item>	12	</item>
+        <item>	14	</item>
+        <item>	15	</item>
+        <item>	16	</item>
+        <item>	18	</item>
+        <item>	19	</item>
+        <item>	20	</item>
+        <item>	23	</item>
+        <item>	24	</item>
+        <item>	25	</item>
+        <item>	26	</item>
+        <item>	27	</item>
+        <item>	28	</item>
+        <item>	30	</item>
+        <item>	31	</item>
+        <item>	32	</item>
+        <item>	33	</item>
+        <item>	44	</item>
+        <item>	45	</item>
+        <item>	46	</item>
+    </string-array>
+</resources>

@@ -1,0 +1,417 @@
+package com.mmdkid.mmdkid;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.v4.widget.ContentLoadingProgressBar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.Window;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
+import android.webkit.ValueCallback;
+import android.webkit.WebChromeClient;
+import android.webkit.WebResourceError;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.Toast;
+
+import com.mmdkid.mmdkid.helper.HtmlUtil;
+import com.mmdkid.mmdkid.models.Comment;
+import com.mmdkid.mmdkid.models.Content;
+import com.mmdkid.mmdkid.models.Diary;
+import com.mmdkid.mmdkid.models.Goods;
+import com.mmdkid.mmdkid.models.Model;
+import com.mmdkid.mmdkid.models.Token;
+import com.mmdkid.mmdkid.models.User;
+import com.mmdkid.mmdkid.server.RESTAPIConnection;
+import com.umeng.socialize.ShareAction;
+import com.umeng.socialize.UMShareAPI;
+import com.umeng.socialize.UMShareListener;
+import com.umeng.socialize.bean.SHARE_MEDIA;
+import com.umeng.socialize.media.UMImage;
+import com.umeng.socialize.media.UMWeb;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class WebViewActivity extends AppCompatActivity {
+
+    private final static String TAG = "WebViewActivity";
+
+    private User mCurrentUser;
+    private Token mCurrentToken;
+    private Model mModel;
+
+    private WebView mWebView;
+    private ContentLoadingProgressBar mProgressBar;
+    private LinearLayout mCommentForm;
+    private EditText mCommentView;
+    private ImageButton   mSendButton;
+
+    private List<String> mCookies;
+    private boolean mUsingCookies = true;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        // Let's display the progress in the activity title bar, like the
+        // browser app does.
+        getWindow().requestFeature(Window.FEATURE_PROGRESS);
+
+        setContentView(R.layout.activity_web_view);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("");
+
+        mUsingCookies = getIntent().getBooleanExtra("cookies",true);
+
+        mModel = (Model) getIntent().getSerializableExtra("model");
+
+        getCurrentLoginUserInfo();
+
+        mProgressBar = (ContentLoadingProgressBar) findViewById(R.id.progressBar);
+
+        mCommentForm = (LinearLayout) findViewById(R.id.llCommentForm);
+        if (mModel == null){
+            mCommentForm.setVisibility(View.GONE);
+        }else {
+            mCommentForm.setVisibility(View.VISIBLE);
+        }
+
+        mCommentView = (EditText) findViewById(R.id.comment) ;
+        mSendButton = (ImageButton) findViewById(R.id.send);
+        mSendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sendComment();
+            }
+        });
+
+       /* FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        });*/
+
+
+        if(mCookies!=null && !mCookies.isEmpty() && mUsingCookies){
+            startWebView(mCookies);
+        }else{
+            //getCookie("liyadong","123456");
+            startWebView(null);
+        }
+
+
+        //startWebView(null);
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        //client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+    }
+
+    /**
+     *  当前登录用户的登录信息
+     */
+    private void getCurrentLoginUserInfo() {
+        App app = (App) getApplicationContext();
+        mCurrentUser = app.getCurrentUser();
+        mCurrentToken = app.getCurrentToken();
+        mCookies = app.getCookies();
+    }
+
+    private void sendComment() {
+        if (mCurrentUser == null){
+            // 登录才能发表评论
+            Intent intent = new Intent(WebViewActivity.this,LoginActivity.class);
+            startActivity(intent);
+            return;
+        }
+
+        String modelType = null;
+        int modelId = 0;
+        if(mModel == null){
+            return ;
+        }else if (mModel instanceof Content){
+            modelType = ((Content) mModel).mModelType;
+            modelId = ((Content) mModel).mModelId;
+        }else if (mModel instanceof Diary){
+            modelType = "diary";
+            modelId =((Diary) mModel).mId;
+        }else{
+            return;
+        }
+
+        // Reset errors.
+        mCommentView.setError(null);
+
+        String commentString = mCommentView.getText().toString();
+
+        if (TextUtils.isEmpty(commentString) || !isCommentValid(commentString)){
+            mCommentView.setError(getString(R.string.error_invalid_comment));
+            mCommentView.requestFocus();
+            return;
+        }
+
+        Comment comment = new Comment();
+        comment.mCreated_by = mCurrentUser.mId;
+        comment.mUpdated_by = mCurrentUser.mId;
+        comment.mContent = commentString;
+        comment.mModel_type = modelType;
+        comment.mModel_id = modelId;
+        comment.save(Model.ACTION_CREATE, this, new RESTAPIConnection.OnConnectionListener() {
+            @Override
+            public void onErrorRespose(Class c, String error) {
+                Log.d(TAG,"Save the comment failed.");
+            }
+
+            @Override
+            public void onResponse(Class c, ArrayList responseDataList) {
+                if (c == Comment.class && !responseDataList.isEmpty()){
+                    Log.d(TAG,"Send the comment success.");
+                    Log.d(TAG,"The comment is " + ((Comment)responseDataList.get(0)).toString());
+                    mCommentView.setText(null);
+                    mCommentView.clearFocus();
+                    Toast.makeText(WebViewActivity.this,getString(R.string.send_comment_success)
+                            ,Toast.LENGTH_SHORT).show();
+                    mWebView.reload();
+                }
+            }
+        });
+
+    }
+
+    private boolean isCommentValid(String comment) {
+        return comment.length()>2;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // 刷新登录信息
+        getCurrentLoginUserInfo();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.options_menu_webview, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        String url;
+        UMImage image;
+        UMWeb web = null;
+        url = getIntent().getStringExtra("url");
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                finish();
+                break;
+            case R.id.action_share:
+                // 分享当前页面内容
+                //Log.d(TAG,"Model is " + ((Content)mModel).mImage);
+                if(mModel instanceof Content){
+                    image = new UMImage(WebViewActivity.this, ((Content) mModel).mImage);//网络图片
+                    image.compressStyle = UMImage.CompressStyle.SCALE;//大小压缩，默认为大小压缩，适合普通很大的图
+                    web = new UMWeb(url);
+                    web.setTitle(((Content) mModel).mTitle);//标题
+                    web.setThumb(image);  //缩略图
+                    web.setDescription(HtmlUtil.getTextFromHtml(((Content) mModel).mContent,20));//取最多20字作为描述
+
+                }
+                if (mModel instanceof Goods) {
+                    Goods goods = (Goods) mModel;
+                    web = new UMWeb(url);
+                    web.setTitle(goods.title);//标题
+                    if (goods.imageList!= null && !goods.imageList.isEmpty() ){
+                        image = new UMImage(WebViewActivity.this, goods.imageList.get(0));//网络图片
+                        image.compressStyle = UMImage.CompressStyle.SCALE;//大小压缩，默认为大小压缩，适合普通很大的图
+                        web.setThumb(image);  //缩略图
+                    }
+                    if (goods.editorComment!=null && !goods.editorComment.equals("null")) {
+                        //取最多20字作为描述
+                        web.setDescription(goods.editorComment.length()>20? goods.editorComment.substring(0,20):goods.editorComment) ;
+                    }else{
+                        web.setDescription("");
+                    }
+                }
+                new ShareAction(WebViewActivity.this)
+                        //.withText("hello")
+                        .withMedia(web)
+                        .setDisplayList(SHARE_MEDIA.WEIXIN,SHARE_MEDIA.WEIXIN_CIRCLE,SHARE_MEDIA.QQ,SHARE_MEDIA.SINA)
+                        .setCallback(mShareListener)
+                        .open();
+                break;
+                
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private UMShareListener mShareListener = new UMShareListener() {
+        /**
+         * @descrption 分享开始的回调
+         * @param platform 平台类型
+         */
+        @Override
+        public void onStart(SHARE_MEDIA platform) {
+
+        }
+
+        /**
+         * @descrption 分享成功的回调
+         * @param platform 平台类型
+         */
+        @Override
+        public void onResult(SHARE_MEDIA platform) {
+            Toast.makeText(WebViewActivity.this,"成功了",Toast.LENGTH_LONG).show();
+        }
+
+        /**
+         * @descrption 分享失败的回调
+         * @param platform 平台类型
+         * @param t 错误原因
+         */
+        @Override
+        public void onError(SHARE_MEDIA platform, Throwable t) {
+            Toast.makeText(WebViewActivity.this,"失败"+t.getMessage(),Toast.LENGTH_LONG).show();
+        }
+
+        /**
+         * @descrption 分享取消的回调
+         * @param platform 平台类型
+         */
+        @Override
+        public void onCancel(SHARE_MEDIA platform) {
+            Toast.makeText(WebViewActivity.this,"取消了",Toast.LENGTH_LONG).show();
+
+        }
+    };
+
+
+
+
+    private void startWebView(List<String> cookies) {
+
+        mWebView = (WebView) findViewById(R.id.webViewDetail);
+        WebSettings webSettings = mWebView.getSettings();
+        webSettings.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.SINGLE_COLUMN);
+        webSettings.setUseWideViewPort(true);
+        webSettings.setLoadWithOverviewMode(true);
+        webSettings.setAllowFileAccess(true);
+        webSettings.setDatabaseEnabled(true);
+        webSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
+        webSettings.setJavaScriptEnabled(true);
+
+        //showProgressDialog();
+
+        final Activity activity = this;
+        mWebView.setWebChromeClient(new WebChromeClient() {
+            public void onProgressChanged(WebView view, int progress) {
+                // Activities and WebViews measure progress with different scales.
+                // The progress meter will automatically disappear when we reach 100%
+                activity.setProgress(progress * 1000);
+//                if (progress == 100 ) mProgressDialog.dismiss();
+//                mProgressDialog.setProgress(progress);
+                if (progress == 100) mProgressBar.hide();
+                mProgressBar.setProgress(progress);
+            }
+        });
+        //webSettings.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.SINGLE_COLUMN);
+        Intent intent = getIntent();
+        String url = intent.getStringExtra("url");
+        String htmlData = intent.getStringExtra("htmlData");
+
+        mWebView.setWebViewClient(new WebViewClient(){
+            public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+                Toast.makeText(activity, "Oh no! " + description, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+                super.onReceivedError(view, request, error);
+                Toast.makeText(activity, "Oh no! " + error.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        if (TextUtils.isEmpty(url) ) {
+            //mWebView.loadData("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"+"<html><body>You scored <b>192</b> points.</body></html>","text/html;charset=UTF-8",null);
+            Toast.makeText(this, "No Url,show htmldata " , Toast.LENGTH_SHORT).show();
+            //mWebView.loadDataWithBaseURL(null,"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"+"<html><body>You scored <b>192</b> points.</body></html>","text/html","UTF-8",null);
+            mWebView.loadDataWithBaseURL(null, htmlData, "text/html", "UTF-8", null);
+        } else {
+            //Log.d(TAG,url);
+            if(cookies!=null && !cookies.isEmpty()){
+                //url = "http://www.mmdkid.cn/index.php?r=site/login";
+                //url = "http://10.0.3.2/index.php?r=diary/view&theme=app&id=44";
+                CookieSyncManager.createInstance(this);
+                CookieManager cookieManager = CookieManager.getInstance();
+                //cookieManager.removeAllCookies(null);
+                cookieManager.removeAllCookie();
+                cookieManager.setAcceptCookie(true);
+                //cookieManager.removeSessionCookies(null);//移除
+                //cookieManager.setAcceptThirdPartyCookies(mWebView,true);
+                cookieManager.setAcceptFileSchemeCookies(true);
+
+                for (String cookie : mCookies){
+                    cookieManager.setCookie(url, cookie , new ValueCallback<Boolean>() {
+                        @Override
+                        public void onReceiveValue(Boolean aBoolean) {
+                            if(aBoolean==true){
+                                Log.d(TAG,"Setting a cookie success.");
+                            }else{
+                                Log.d(TAG,"Setting a cookie fail.");
+                            }
+                        }
+                    });//cookies是在HttpClient中获得的cookie
+                    Log.d(TAG,"Set one cookie " + cookie);
+                    //break;
+                }
+                //cookieManager.flush();
+                Log.d(TAG,"Get the cookie manager cookie " + cookieManager.getCookie(url));
+
+                CookieSyncManager.getInstance().sync();
+            }
+            Log.d(TAG,"Loading url " + url);
+            mWebView.loadUrl(url);
+        }
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        UMShareAPI.get(this).onActivityResult(requestCode,resultCode,data);
+    }
+
+}
