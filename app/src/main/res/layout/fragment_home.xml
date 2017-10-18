@@ -27,5 +27,16 @@
             app:layout_behavior="@string/appbar_scrolling_view_behavior" />
     </LinearLayout>
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab"
+        app:borderWidth="0dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|end"
+        android:layout_margin="@dimen/fab_margin_30"
+        app:elevation="1dp"
+        app:backgroundTint="@color/transparent"
+        app:fabSize="mini"
+        app:srcCompat="@drawable/ic_plus" />
 
 </FrameLayout>

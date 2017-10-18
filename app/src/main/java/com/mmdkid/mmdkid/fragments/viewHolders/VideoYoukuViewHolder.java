@@ -2,15 +2,18 @@ package com.mmdkid.mmdkid.fragments.viewHolders;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.android.volley.toolbox.ImageLoader;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.mmdkid.mmdkid.R;
+import com.mmdkid.mmdkid.WebViewActivity;
 import com.mmdkid.mmdkid.models.Content;
 import com.mmdkid.mmdkid.models.Model;
 import com.mmdkid.mmdkid.models.YoukuVideo;
@@ -33,6 +36,7 @@ public class VideoYoukuViewHolder extends ModelViewHolder {
     private SimpleDraweeView mImage;
     private ImageView mPlayIcon;
     private TextView mTextViewTitle;
+    private LinearLayout mLinearLayoutBottom;
 
     public VideoYoukuViewHolder(View itemView) {
         super(itemView);
@@ -45,12 +49,13 @@ public class VideoYoukuViewHolder extends ModelViewHolder {
         mImage = (SimpleDraweeView) itemView.findViewById(R.id.cvContentImage);
         mPlayIcon = (ImageView) itemView.findViewById(R.id.imagePlay);
         mTextViewTitle = (TextView)itemView.findViewById(R.id.tvTitle);
+        mLinearLayoutBottom = (LinearLayout) itemView.findViewById(R.id.llVideoBottom);
     }
 
     @Override
     public void bindHolder(Model model) {
         if ( model instanceof Content){
-            Content content = (Content) model;
+            final Content content = (Content) model;
             ImageLoader imageLoader =  InternetSingleton.getInstance(mContext).getImageLoader();
             mTextViewDate.setText(content.mCreatedAt);
             mTextViewTitle.setText(content.mTitle);
@@ -58,6 +63,17 @@ public class VideoYoukuViewHolder extends ModelViewHolder {
             Log.d(TAG,"Youku Video Vid is : " + vid);
             mVideo.setPreferVideoDefinition(VideoDefinition.VIDEO_HD);
             mImage.setImageURI(content.mImage);
+            mLinearLayoutBottom.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    // 打开webview观看视频
+                    Intent intent = new Intent(mContext,WebViewActivity.class);
+                    intent.putExtra("url",content.getContentUrl());
+                    intent.putExtra("model",content);
+                    Log.d(TAG,content.getContentUrl());
+                    mContext.startActivity(intent);
+                }
+            });
             //mVideo.playYoukuVideo(vid);//"XMjc2NjA5MjM4NA=="
             //mVideo.thumbImageView.setImageURI(Uri.parse(content.mImage));
             //imageLoader.get(content.mImage,imageLoader.getImageListener(mVideo.thumbImageView,R.drawable.test_icon_default,R.drawable.test_icon_erro));

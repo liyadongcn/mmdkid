@@ -167,6 +167,10 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".UserGroupActivity" />
         <activity android:name=".KidFormActivity"></activity>
+        <activity
+            android:name=".channel.ChannelActivity"
+            android:label="@string/title_activity_channel"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

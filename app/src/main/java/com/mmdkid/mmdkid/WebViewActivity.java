@@ -137,6 +137,9 @@ public class WebViewActivity extends AppCompatActivity {
         mCookies = app.getCookies();
     }
 
+    /**
+     *  发表评论
+     */
     private void sendComment() {
         if (mCurrentUser == null){
             // 登录才能发表评论
@@ -242,13 +245,18 @@ public class WebViewActivity extends AppCompatActivity {
                 // 分享当前页面内容
                 //Log.d(TAG,"Model is " + ((Content)mModel).mImage);
                 if(mModel instanceof Content){
-                    image = new UMImage(WebViewActivity.this, ((Content) mModel).mImage);//网络图片
+                    Content content = (Content) mModel;
+                    image = new UMImage(WebViewActivity.this, content.mImage);//网络图片
                     image.compressStyle = UMImage.CompressStyle.SCALE;//大小压缩，默认为大小压缩，适合普通很大的图
                     web = new UMWeb(url);
-                    web.setTitle(((Content) mModel).mTitle);//标题
+                    web.setTitle(content.mTitle);//标题
                     web.setThumb(image);  //缩略图
-                    web.setDescription(HtmlUtil.getTextFromHtml(((Content) mModel).mContent,20));//取最多20字作为描述
-
+                    String text = HtmlUtil.getTextFromHtml(content.mContent,20);
+                    if (text!=null && !text.equals("null")) {
+                        web.setDescription(text);//取最多20字作为描述
+                    }else{
+                        web.setDescription("");
+                    }
                 }
                 if (mModel instanceof Goods) {
                     Goods goods = (Goods) mModel;

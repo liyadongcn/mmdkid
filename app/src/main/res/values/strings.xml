@@ -139,6 +139,7 @@
     <string name="title_activity_star">收藏</string>
     <string name="title_activity_follow">关注</string>
     <string name="title_activity_history">历史</string>
+    <string name="title_activity_channel">频道</string>
     <string name="title_activity_bottom">BottomActivity</string>
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
@@ -146,4 +147,10 @@
     <string name="title_activity_diary_list">DiaryListActivity</string>
     <string name="title_activity_user_group_post_list">UserGroupPostListActivity</string>
 
+    <!--频道设置相关-->
+    <string name="tip_drag">长按编辑,拖拽排序</string>
+    <string name="my_cahnnel">我的频道</string>
+    <string name="other_channel">其他频道</string>
+    <string name="edit">编辑</string>
+    <string name="finish">完成</string>
 </resources>

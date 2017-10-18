@@ -283,16 +283,6 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
                             startActivity(intent);
                             break;
                         case Content.TYPE_VIDEO:
-                        /*intent = new Intent(mContext,VideoActivity.class);
-                        intent.putExtra(VideoActivity.VIDEO_TITLE,content.mTitle);
-                        intent.putExtra(VideoActivity.VIDEO_POSTER,content.mImage);
-                        intent.putExtra(VideoActivity.VIDEO_URL,"http://mmdkid.cn/uploads/media/1466482403260.mp4");
-                        intent.putExtra(VideoActivity.VIDEO_URL,content.mVideo);
-                        startActivity(intent);*/
-                        /*intent = new Intent(mContext,WebViewActivity.class);
-                        intent.putExtra("url",content.getContentUrl());
-                        Log.d(LOG_TAG,content.getContentUrl());
-                        startActivity(intent);*/
                             if (content.getViewType()== Model.VIEW_TYPE_CONTENT_VIDEO_YOUKU ){
                                 // 停止非优酷播放
                                 JCVideoPlayer.releaseAllVideos();

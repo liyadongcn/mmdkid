@@ -47,4 +47,5 @@
         app:bb_tabXmlResource="@xml/bottombar_tabs" />
 
 
+
 </android.support.design.widget.CoordinatorLayout>

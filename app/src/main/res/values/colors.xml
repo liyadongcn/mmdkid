@@ -6,4 +6,7 @@
     <color name="black">#ff000000</color>
     <color name="cardview_initial_background">#71C3DE</color>
     <color name="colorDisable">#fff9f9f9</color>
+    <color name="tip">#9c9c9c</color>
+    <color name="bg_focus">#DDDDDD</color>
+    <color name="red_500">#ef4836</color>
 </resources>

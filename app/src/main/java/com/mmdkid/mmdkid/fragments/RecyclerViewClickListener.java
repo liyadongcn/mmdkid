@@ -24,14 +24,15 @@ public class RecyclerViewClickListener implements RecyclerView.OnItemTouchListen
                 new GestureDetector.SimpleOnGestureListener(){ //这里选择SimpleOnGestureListener实现类，可以根据需要选择重写的方法
                     //单击事件
                     @Override
-                    public boolean onSingleTapUp(MotionEvent e) {
+                    public boolean onSingleTapConfirmed(MotionEvent e) {
                         View childView = recyclerView.findChildViewUnder(e.getX(),e.getY());
                         if(childView != null && mListener != null){
                             mListener.onItemClick(childView,recyclerView.getChildLayoutPosition(childView));
-                            return false; // before , it is true。 false 表示事件可以向下传递，子视图还能接收到该事件；true 将消耗掉该事件
+                            return true; // false 表示事件可以向下传递，子视图还能接收到该事件；true 将消耗掉该事件
                         }
                         return false;
                     }
+
                     //长按事件
                     @Override
                     public void onLongPress(MotionEvent e) {

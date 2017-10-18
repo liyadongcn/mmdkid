@@ -40,7 +40,7 @@ public class HtmlUtil {
     public static String getTextFromHtml(String htmlStr,int length){
         htmlStr = delHTMLTag(htmlStr);
         htmlStr = htmlStr.replaceAll(" ", "");
-        htmlStr = htmlStr.substring(0, length-1);
+        htmlStr = htmlStr.substring(0, htmlStr.length()>length ? length-1: htmlStr.length());
         return htmlStr;
     }
 

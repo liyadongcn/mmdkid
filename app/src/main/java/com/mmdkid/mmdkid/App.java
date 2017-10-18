@@ -3,10 +3,13 @@ package com.mmdkid.mmdkid;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.imagepipeline.core.ImagePipelineConfig;
 import com.facebook.imagepipeline.decoder.SimpleProgressiveJpegConfig;
+import com.mmdkid.mmdkid.channel.ChannelEntity;
+import com.mmdkid.mmdkid.helper.ListDataSave;
 import com.mmdkid.mmdkid.models.Token;
 import com.mmdkid.mmdkid.models.User;
 import com.umeng.socialize.Config;
@@ -184,4 +187,73 @@ public class App extends Application {
         editor.commit();
     }
 
+    public  ArrayList<ChannelEntity> getChannels(){
+        ListDataSave channelListDataSave = new ListDataSave(this, App.PREFS_NAME);
+        List<ChannelEntity> channels = channelListDataSave.getDataList("channels",ChannelEntity.class);
+        Log.d(TAG,"Channels is " + channels.toString());
+        /*if (channels==null || channels.isEmpty()){
+            String[] favorites = getResources().getStringArray(R.array.favorites);
+            String[] favorite_values = getResources().getStringArray(R.array.favorite_values);
+            ArrayList<ChannelEntity> channelEntities = new ArrayList<ChannelEntity>();
+            Log.d(TAG,"Favorites is " + favorites.toString());
+            long id =0;
+            for (String favorite : favorites){
+                ChannelEntity channelEntity= new ChannelEntity();
+                channelEntity.setName(favorite);
+                channelEntity.setId(id);
+                channelEntities.add(channelEntity);
+                Log.d(TAG,"Favorite name is " + favorite);
+                Log.d(TAG,"Favorite id is " + id);
+                id++;
+            }
+            setChannels(channelEntities);
+            return channelEntities;
+        }*/
+        Log.d(TAG,"Get the channels from the channels tag.");
+        return (ArrayList<ChannelEntity>) channels;
+    }
+
+    public void setChannels(ArrayList<ChannelEntity> channelEntities){
+        ListDataSave channelListDataSave = new ListDataSave(this, App.PREFS_NAME);
+        channelListDataSave.setDataList("channels",channelEntities);
+    }
+
+    public void clearChannels(){
+        SharedPreferences settings = getSharedPreferences(App.PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString("channels",null);
+        editor.commit();
+    }
+
+    public  ArrayList<ChannelEntity> getOtherChannels(){
+        ListDataSave channelListDataSave = new ListDataSave(this, App.PREFS_NAME);
+        List<ChannelEntity> channels = channelListDataSave.getDataList("otherchannels",ChannelEntity.class);
+        Log.d(TAG,"Other Channels is " + channels.toString());
+        if (channels==null || channels.isEmpty()){
+            String[] favorites = getResources().getStringArray(R.array.favorites);
+            String[] favorite_values = getResources().getStringArray(R.array.favorite_values);
+            ArrayList<ChannelEntity> channelEntities = new ArrayList<ChannelEntity>();
+            Log.d(TAG,"Favorites is " + favorites.toString());
+            long id =0;
+            for (String favorite : favorites){
+                ChannelEntity channelEntity= new ChannelEntity();
+                channelEntity.setName(favorite);
+                channelEntity.setId(id);
+                channelEntities.add(channelEntity);
+                Log.d(TAG,"Favorite name is " + favorite);
+                Log.d(TAG,"Favorite id is " + id);
+                id++;
+            }
+            setOtherChannels(channelEntities);
+            return channelEntities;
+        }
+        Log.d(TAG,"Get the channels from the channels tag.");
+        return (ArrayList<ChannelEntity>) channels;
+    }
+
+    public void setOtherChannels(ArrayList<ChannelEntity> channelEntities){
+        ListDataSave channelListDataSave = new ListDataSave(this, App.PREFS_NAME);
+        channelListDataSave.setDataList("otherchannels",channelEntities);
+    }
 }
+

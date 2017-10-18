@@ -1,10 +1,10 @@
 package com.mmdkid.mmdkid.fragments;
 
 import android.content.Context;
-import android.content.SharedPreferences;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -16,12 +16,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.mmdkid.mmdkid.App;
 import com.mmdkid.mmdkid.R;
+import com.mmdkid.mmdkid.channel.ChannelActivity;
+import com.mmdkid.mmdkid.channel.ChannelEntity;
 import com.mmdkid.mmdkid.models.Content;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Set;
 
 
 /**
@@ -89,22 +90,7 @@ public class HomeFragment extends Fragment {
         View fragmentView = inflater.inflate(R.layout.fragment_home, container, false);
 
         // get the favorite channels
-        mPageTitleList = new ArrayList<PageTitle>();
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        Set<String> favoritePref = sharedPref.getStringSet("favorites",null);
-        String[] favorites = getResources().getStringArray(R.array.favorites);
-        String[] favorite_values = getResources().getStringArray(R.array.favorite_values);
-        if(favoritePref != null ){
-            for(String f: favoritePref){
-                Log.d(TAG,"select " + f);
-                int position =  Arrays.asList(favorite_values).indexOf(f);;
-                Log.d(TAG,"select name " + favorites[position]);
-                PageTitle pageTitle = new PageTitle();
-                pageTitle.name = favorites[position];
-                pageTitle.id = f;
-                mPageTitleList.add(pageTitle);
-            }
-        }
+        getChannels();
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
@@ -119,7 +105,61 @@ public class HomeFragment extends Fragment {
         tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
         tabLayout.setupWithViewPager(mViewPager);
 
+        FloatingActionButton fab = (FloatingActionButton) fragmentView.findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                /*Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();*/
+                Intent intent = new Intent(getActivity(), ChannelActivity.class);
+                startActivity(intent);
+            }
+        });
+
         return fragmentView;
+    }
+    /*
+    * 读取频道设置,初次设置读取favorites，以后读取channels
+    * */
+    private void getChannels() {
+        mPageTitleList = new ArrayList<PageTitle>();
+        App app = (App)getContext().getApplicationContext();
+        //app.clearChannels();
+        ArrayList<ChannelEntity> channels = app.getChannels();
+        PageTitle pageTitle;
+        if (channels==null || channels.isEmpty()){
+            // 通过读取favorites设置channels
+            Log.d(TAG,"Channels is null or empty.");
+        }else {
+            Log.d(TAG,"Get the channels data." + channels.toString());
+           /* for(int i =0; i<channels.size();i++){
+                Log.d(TAG,"Channel is : " + channels.get(i).getName());
+            }*/
+            for(ChannelEntity channel: channels){
+                Log.d(TAG,"Channel is : " + channel.getName());
+                pageTitle = new PageTitle();
+                pageTitle.name = channel.getName();
+                pageTitle.id = Long.toString(channel.getId());
+                mPageTitleList.add(pageTitle);
+            }
+        }
+    }
+
+    private void resetChannels(ArrayList<ChannelEntity> channelEntities){
+        if (mPageTitleList!=null){
+            mPageTitleList.clear();
+
+        }else{
+            mPageTitleList = new ArrayList<PageTitle>();
+        }
+        PageTitle pageTitle;
+        for(ChannelEntity channel: channelEntities){
+            Log.d(TAG,"Reset Channel is : " + channel.getName());
+            pageTitle = new PageTitle();
+            pageTitle.name = channel.getName();
+            pageTitle.id = Long.toString(channel.getId());
+            mPageTitleList.add(pageTitle);
+        }
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -127,6 +167,27 @@ public class HomeFragment extends Fragment {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
         }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == ChannelActivity.CHANNEL_SETTING_REQUEST){
+            if (resultCode == ChannelActivity.CHANNEL_SETTING_RESULT_OK){
+                ArrayList<ChannelEntity> channelEntities = (ArrayList<ChannelEntity>) data.getSerializableExtra("channels");
+                resetChannels(channelEntities);
+                mSectionsPagerAdapter.notifyDataSetChanged();
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public void onStart() {
+        Log.d(TAG,"Homefragment onStart");
+        // get the favorite channels 新的频道设置
+        getChannels();
+        mSectionsPagerAdapter.notifyDataSetChanged();
+        super.onStart();
     }
 
     @Override
@@ -139,6 +200,7 @@ public class HomeFragment extends Fragment {
                     + " must implement OnFragmentInteractionListener");
         }
     }
+
 
     @Override
     public void onDetach() {
@@ -228,7 +290,7 @@ public class HomeFragment extends Fragment {
                     return ContentFragment.newInstance(Content.TYPE_POST,"");*/
                 default:
                     //return PlaceholderFragment.newInstance(position);
-
+                    // 使用标题头作为搜索依据 过滤内容
                     return ContentFragment.newInstance(Content.TYPE_PUSH,mPageTitleList.get(position-4).name);
             }
 
