@@ -45,6 +45,8 @@ public class Content extends Model {
     public String mModelType;
     public int mModelId;
     public String mVideo;
+    public String mSource_name;
+    public String mSource_url;
     public ArrayList<String> mImageList;
 
     public static Query find(Connection connection)
@@ -80,7 +82,8 @@ public class Content extends Model {
             content.mTitle = jsonObject.getString("title");
             content.mCreatedAt = jsonObject.getString("created_at");
             content.mContent = jsonObject.getString("content");
-
+            if (jsonObject.has("source_name")) content.mSource_name = jsonObject.getString("source_name");
+            if (jsonObject.has("source_url")) content.mSource_url = jsonObject.getString("source_url");
             content.mVideo = jsonObject.has("video") ? jsonObject.getString("video") : "";
             return content;
         } catch (JSONException e) {

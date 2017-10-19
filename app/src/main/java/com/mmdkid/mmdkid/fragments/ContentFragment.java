@@ -293,7 +293,7 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
                                     mCurrentYoukuPlayerPlayIcon = (ImageView) view.findViewById(R.id.imagePlay);
                                     mCurrentYoukuPlayerTitle = (TextView) view.findViewById(R.id.tvTitle);
                                     mCurrentYoukuPlayerPosition = position;
-                                    String vid = new YoukuVideo(content.mVideo).getVid();
+                                    String vid = YoukuVideo.getVid(content);
                                     Log.d(TAG,"Youku Video Vid is : " + vid);
                                     mCurrentYoukuPlayerCoverImage.setVisibility(View.GONE);
                                     mCurrentYoukuPlayerPlayIcon.setVisibility(View.GONE);
@@ -314,7 +314,7 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
                                         mCurrentYoukuPlayerPlayIcon = (ImageView) view.findViewById(R.id.imagePlay);
                                         mCurrentYoukuPlayerTitle = (TextView) view.findViewById(R.id.tvTitle);
                                         mCurrentYoukuPlayerPosition = position;
-                                        String vid = new YoukuVideo(content.mVideo).getVid();
+                                        String vid = YoukuVideo.getVid(content);
                                         Log.d(TAG,"Youku Video Vid is : " + vid);
                                         mCurrentYoukuPlayerCoverImage.setVisibility(View.GONE);
                                         mCurrentYoukuPlayerPlayIcon.setVisibility(View.GONE);
@@ -491,8 +491,7 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
                         content.setViewType(Model.VIEW_TYPE_CONTENT_IMAGE_POST_MAIN);
                         break;
                     case Content.TYPE_VIDEO:
-                        if (VideoSource.getSourceName(content.mVideo)!=null &&
-                                VideoSource.getSourceName(content.mVideo).equals(VideoSource.VIDEO_SOURCE_YOUKU)){
+                        if (content.mSource_name!=null && content.mSource_name.equals(VideoSource.VIDEO_SOURCE_YOUKU)){
                             content.setViewType(Model.VIEW_TYPE_CONTENT_VIDEO_YOUKU);
                         }else {
                             content.setViewType(Model.VIEW_TYPE_CONTENT_VIDEO_MAIN);

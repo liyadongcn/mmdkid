@@ -170,7 +170,7 @@
         <activity
             android:name=".channel.ChannelActivity"
             android:label="@string/title_activity_channel"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
     </application>
 
 </manifest>

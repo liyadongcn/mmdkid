@@ -13,12 +13,21 @@ public class YoukuVideo extends VideoSource {
         super(url);
     }
 
-    public String getVid(){
-        Matcher m= Pattern.compile("/sid/(.*?)/").matcher(this.mUrl);
+    public static String getVid(String url){
+        Matcher m= Pattern.compile("/sid/(.*?)/").matcher(url);
         if (m.find()){
             return m.group(1);
         } else {
             return null;
         }
+    }
+
+    public static String getVid(Content content){
+        if (content.mSource_name!=null && content.mSource_name.equals(VideoSource.VIDEO_SOURCE_YOUKU)){
+            return content.mVideo;
+        }else {
+            return null;
+        }
+
     }
 }

@@ -22,6 +22,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
+import com.mmdkid.mmdkid.channel.ChannelActivity;
 import com.mmdkid.mmdkid.update.CheckUpdateUtil;
 
 public class SettingsActivity extends AppCompatPreferenceActivity {
@@ -79,6 +80,10 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         if (preference.getKey().equals("checkVersion")){
             Log.d(TAG,"CheckVersion is clicked." );
             CheckUpdateUtil.checkUpdate(this,true);//检查更新
+        }else if (preference.getKey().equals("channels")){
+            Log.d(TAG,"Favorite channels is clicked." );
+            Intent intent = new Intent(SettingsActivity.this, ChannelActivity.class);
+            startActivity(intent);
         }
         return super.onPreferenceTreeClick(preferenceScreen, preference);
     }

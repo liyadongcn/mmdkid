@@ -16,6 +16,7 @@ import com.mmdkid.mmdkid.R;
 import com.mmdkid.mmdkid.WebViewActivity;
 import com.mmdkid.mmdkid.models.Content;
 import com.mmdkid.mmdkid.models.Model;
+import com.mmdkid.mmdkid.models.VideoSource;
 import com.mmdkid.mmdkid.models.YoukuVideo;
 import com.mmdkid.mmdkid.singleton.InternetSingleton;
 import com.youku.cloud.player.VideoDefinition;
@@ -59,8 +60,6 @@ public class VideoYoukuViewHolder extends ModelViewHolder {
             ImageLoader imageLoader =  InternetSingleton.getInstance(mContext).getImageLoader();
             mTextViewDate.setText(content.mCreatedAt);
             mTextViewTitle.setText(content.mTitle);
-            String vid = new YoukuVideo(content.mVideo).getVid();
-            Log.d(TAG,"Youku Video Vid is : " + vid);
             mVideo.setPreferVideoDefinition(VideoDefinition.VIDEO_HD);
             mImage.setImageURI(content.mImage);
             mLinearLayoutBottom.setOnClickListener(new View.OnClickListener() {
