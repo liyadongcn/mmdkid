@@ -68,10 +68,13 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
     private Refresh mRefresh = null;
 
     private YoukuPlayerView mCurrentYoukuPlayerView;
-    private int mCurrentYoukuPlayerPosition;
+//    private int mCurrentYoukuPlayerPosition;
     private SimpleDraweeView mCurrentYoukuPlayerCoverImage;
     private ImageView mCurrentYoukuPlayerPlayIcon;
     private TextView mCurrentYoukuPlayerTitle;
+
+    private boolean mIsPlayingVideo = false;
+    private int mVideoPlayingPosition;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -247,6 +250,7 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
         mRefreshLayout = (SwipeRefreshLayout)fragmentView.findViewById(R.id.layout_swipe_refresh);
         mRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener(){
             public void onRefresh() {
+                stopVideoPlayer();
                 // 加载更多数据
                 if(mQuery.hasMore()){
                     //mConnection.Query(mQuery);
@@ -264,12 +268,14 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
         mRecyclerView.addOnItemTouchListener(new RecyclerViewClickListener(mContext, mRecyclerView, new RecyclerViewClickListener.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
+                Log.d(TAG,"Click Position is :" + position);
                 Model model = mDataset.get(position);
                 if (model instanceof Content){
                     Content content = (Content) model;
                     Intent intent;
                     switch (content.mModelType){
                         case Content.TYPE_POST:
+                            stopVideoPlayer();
                             //Toast.makeText(mContext,"Click "+mDataset.get(position).mTitle,Toast.LENGTH_SHORT).show();
                             intent = new Intent(mContext,WebViewActivity.class);
                         /*String url = "http://10.0.2.2/index.php?r="+mDataset.get(position).mModelType+"/view&id="+mDataset.get(position).mModelId;
@@ -283,58 +289,29 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
                             startActivity(intent);
                             break;
                         case Content.TYPE_VIDEO:
-                            if (content.getViewType()== Model.VIEW_TYPE_CONTENT_VIDEO_YOUKU ){
-                                // 停止非优酷播放
-                                JCVideoPlayer.releaseAllVideos();
-                                if (mCurrentYoukuPlayerView==null){
-                                    // 启动优酷播放
-                                    mCurrentYoukuPlayerView = (YoukuPlayerView) view.findViewById(R.id.videoplayer);
-                                    mCurrentYoukuPlayerCoverImage = (SimpleDraweeView) view.findViewById(R.id.cvContentImage);
-                                    mCurrentYoukuPlayerPlayIcon = (ImageView) view.findViewById(R.id.imagePlay);
-                                    mCurrentYoukuPlayerTitle = (TextView) view.findViewById(R.id.tvTitle);
-                                    mCurrentYoukuPlayerPosition = position;
-                                    String vid = YoukuVideo.getVid(content);
-                                    Log.d(TAG,"Youku Video Vid is : " + vid);
-                                    mCurrentYoukuPlayerCoverImage.setVisibility(View.GONE);
-                                    mCurrentYoukuPlayerPlayIcon.setVisibility(View.GONE);
-                                    mCurrentYoukuPlayerTitle.setVisibility(View.GONE);
-                                    mCurrentYoukuPlayerView.setPlayerListener(new MyPlayerListener());
-                                    mCurrentYoukuPlayerView.setShowBackBtn(false);
-                                    mCurrentYoukuPlayerView.playYoukuVideo(vid);
-                                }else {
-                                    if (position != mCurrentYoukuPlayerPosition){
-                                        // 停止原先的播放
-                                        mCurrentYoukuPlayerView.release();
-                                        mCurrentYoukuPlayerCoverImage.setVisibility(View.VISIBLE);
-                                        mCurrentYoukuPlayerPlayIcon.setVisibility(View.VISIBLE);
-                                        mCurrentYoukuPlayerTitle.setVisibility(View.VISIBLE);
-                                        // 启动当前新播放
-                                        mCurrentYoukuPlayerView = (YoukuPlayerView) view.findViewById(R.id.videoplayer);
-                                        mCurrentYoukuPlayerCoverImage = (SimpleDraweeView) view.findViewById(R.id.cvContentImage);
-                                        mCurrentYoukuPlayerPlayIcon = (ImageView) view.findViewById(R.id.imagePlay);
-                                        mCurrentYoukuPlayerTitle = (TextView) view.findViewById(R.id.tvTitle);
-                                        mCurrentYoukuPlayerPosition = position;
-                                        String vid = YoukuVideo.getVid(content);
-                                        Log.d(TAG,"Youku Video Vid is : " + vid);
-                                        mCurrentYoukuPlayerCoverImage.setVisibility(View.GONE);
-                                        mCurrentYoukuPlayerPlayIcon.setVisibility(View.GONE);
-                                        mCurrentYoukuPlayerTitle.setVisibility(View.GONE);
-                                        mCurrentYoukuPlayerView.setPlayerListener(new MyPlayerListener());
-                                        mCurrentYoukuPlayerView.setShowBackBtn(false);
-                                        mCurrentYoukuPlayerView.playYoukuVideo(vid);
+                            if (mIsPlayingVideo){
+                                // 正在播放视频
+                                if (mVideoPlayingPosition != position){
+                                    stopVideoPlayer();
+                                    if (content.getViewType()== Model.VIEW_TYPE_CONTENT_VIDEO_YOUKU){
+                                        // 启动优酷播放
+                                        startYoukuPlayer(view,YoukuVideo.getVid(content));
                                     }
+                                    mIsPlayingVideo = true;
+                                    mVideoPlayingPosition = position;
                                 }
-                            }else {
-                                if (mCurrentYoukuPlayerView!=null){
-                                    // 停止原先的优酷播放
-                                    mCurrentYoukuPlayerView.release();
-                                    mCurrentYoukuPlayerCoverImage.setVisibility(View.VISIBLE);
-                                    mCurrentYoukuPlayerPlayIcon.setVisibility(View.VISIBLE);
-                                    mCurrentYoukuPlayerTitle.setVisibility(View.VISIBLE);
+                            }else{
+                                // 没有当前视频播放
+                                if (content.getViewType()== Model.VIEW_TYPE_CONTENT_VIDEO_YOUKU){
+                                    // 启动优酷播放
+                                    startYoukuPlayer(view,YoukuVideo.getVid(content));
                                 }
+                                mIsPlayingVideo = true;
+                                mVideoPlayingPosition = position;
                             }
                             break;
                         case Content.TYPE_IMAGE:
+                            stopVideoPlayer();
                             Log.d(TAG,content.mImageList.toString());
                         /*intent = new Intent(mContext,ImageActivity.class);
                         intent.putStringArrayListExtra(ImageActivity.IMAGE_LIST,content.mImageList);
@@ -348,6 +325,7 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
                             break;
                     }
                 }else if(model instanceof Refresh){
+                    stopVideoPlayer();
                     // 加载更多数据
                     if(mQuery.hasMore()){
                         //mConnection.Query(mQuery);
@@ -376,6 +354,34 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
         return fragmentView;
     }
 
+    private void startYoukuPlayer(View view,String vid) {
+        Log.d(TAG,"Youku Video Vid is : " + vid);
+        mCurrentYoukuPlayerView = (YoukuPlayerView) view.findViewById(R.id.videoplayer);
+        mCurrentYoukuPlayerCoverImage = (SimpleDraweeView) view.findViewById(R.id.cvContentImage);
+        mCurrentYoukuPlayerPlayIcon = (ImageView) view.findViewById(R.id.imagePlay);
+        mCurrentYoukuPlayerTitle = (TextView) view.findViewById(R.id.tvTitle);
+
+        mCurrentYoukuPlayerCoverImage.setVisibility(View.GONE);
+        mCurrentYoukuPlayerPlayIcon.setVisibility(View.GONE);
+        mCurrentYoukuPlayerTitle.setVisibility(View.GONE);
+        mCurrentYoukuPlayerView.setPlayerListener(new MyPlayerListener());
+        mCurrentYoukuPlayerView.setShowBackBtn(false);
+        mCurrentYoukuPlayerView.playYoukuVideo(vid);
+    }
+
+    private void stopVideoPlayer() {
+        // 停止非优酷播放
+        JCVideoPlayer.releaseAllVideos();
+        if (mCurrentYoukuPlayerView!=null){
+            // 停止优酷播放
+            mCurrentYoukuPlayerView.release();
+            mCurrentYoukuPlayerCoverImage.setVisibility(View.VISIBLE);
+            mCurrentYoukuPlayerPlayIcon.setVisibility(View.VISIBLE);
+            mCurrentYoukuPlayerTitle.setVisibility(View.VISIBLE);
+        }
+        mIsPlayingVideo = false;
+    }
+
     private void getMore() {
         if(mIsFetching) return;
         mQuery.all();
@@ -398,21 +404,30 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
 
     @Override
     public void onPause() {
+        Log.d(TAG,mParam1 +" Fragment onPause");
         super.onPause();
         if (mCurrentYoukuPlayerView!=null)  mCurrentYoukuPlayerView.onPause();
+        //stopVideoPlayer();
     }
 
     @Override
     public void onResume() {
+        Log.d(TAG,mParam1 +" Fragment onResume");
+        stopVideoPlayer();
         super.onResume();
-        JCVideoPlayer.releaseAllVideos();
-        if (mCurrentYoukuPlayerView!=null)  mCurrentYoukuPlayerView.onResume();
+        /*JCVideoPlayer.releaseAllVideos();
+        if (mCurrentYoukuPlayerView!=null) {
+            mCurrentYoukuPlayerView.release();
+            //mCurrentYoukuPlayerView.onResume();
+        }*/
     }
 
     @Override
     public void onStop() {
+        Log.d(TAG,mParam1 +" Fragment onStop");
+        stopVideoPlayer();
         super.onStop();
-        if (mCurrentYoukuPlayerView!=null)  mCurrentYoukuPlayerView.release();
+        //if (mCurrentYoukuPlayerView!=null)  mCurrentYoukuPlayerView.release();
         if (JCVideoPlayer.backPress()) {
             return;
         }
@@ -420,22 +435,41 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
 
     @Override
     public void onDestroy() {
+        Log.d(TAG,mParam1 +" Fragment onDestroy");
         super.onDestroy();
         if (JCVideoPlayer.backPress()) {
             return;
         }
-        if (mCurrentYoukuPlayerView!=null)  mCurrentYoukuPlayerView.onDestroy();
+        //if (mCurrentYoukuPlayerView!=null)  mCurrentYoukuPlayerView.onDestroy();
+        stopVideoPlayer();
     }
 
     @Override
     public void onDetach() {
+        Log.d(TAG,mParam1 +" Fragment onDetach");
         super.onDetach();
         if (JCVideoPlayer.backPress()) {
             return;
         }
-
+        if (mCurrentYoukuPlayerView!=null) {
+            mCurrentYoukuPlayerView.release();
+            mCurrentYoukuPlayerView.onDestroy();
+        }
     }
 
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        Log.d(TAG,mParam1 +" onHiddenChanged");
+        if (hidden) stopVideoPlayer();
+        super.onHiddenChanged(hidden);
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        Log.d(TAG,mParam1 +" setUserVisibleHint");
+        if (!isVisibleToUser) stopVideoPlayer();
+        super.setUserVisibleHint(isVisibleToUser);
+    }
 
     @Override
     public void onErrorRespose(Class c, String error) {
@@ -452,11 +486,7 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
         if(c == Content.class && !responseDataList.isEmpty()){
             Log.d(TAG,"Get the content response from the server.");
             mDataset.addAll(0,responseDataList);
-            try {
-                setViewType(responseDataList);
-            } catch (URISyntaxException e) {
-                e.printStackTrace();
-            }
+            setViewType(responseDataList);
             insertRefresh(responseDataList.size());
             mAdapter.notifyDataSetChanged();
             mRecyclerView.smoothScrollToPosition(0);
@@ -479,7 +509,7 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
     }
 
     // 根据content的类型设置每种类型的显示样式
-    private void setViewType(ArrayList responseDataList) throws URISyntaxException {
+    private void setViewType(ArrayList responseDataList)  {
         for (  Object obj :responseDataList ){
             if ( obj instanceof Content){
                 Content content = (Content) obj;
