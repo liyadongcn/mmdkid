@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -20,6 +21,7 @@ import com.facebook.drawee.view.SimpleDraweeView;
 import com.mmdkid.mmdkid.R;
 import com.mmdkid.mmdkid.WebViewActivity;
 import com.mmdkid.mmdkid.adapters.ModelRecyclerAdapter;
+import com.mmdkid.mmdkid.imagepost.ImageOverlayView;
 import com.mmdkid.mmdkid.models.Content;
 import com.mmdkid.mmdkid.models.Model;
 import com.mmdkid.mmdkid.models.Refresh;
@@ -31,12 +33,13 @@ import com.mmdkid.mmdkid.server.QueryBuilder;
 import com.mmdkid.mmdkid.server.Sort;
 import com.stfalcon.frescoimageviewer.ImageViewer;
 import com.youku.cloud.player.PlayerListener;
+import com.youku.cloud.player.VideoDefinition;
 import com.youku.cloud.player.YoukuPlayerView;
 
 import org.json.JSONObject;
 
-import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.List;
 
 import fm.jiecao.jcvideoplayer_lib.JCVideoPlayer;
 
@@ -75,6 +78,10 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
 
     private boolean mIsPlayingVideo = false;
     private int mVideoPlayingPosition;
+
+    private List<String> mImagePostList; // 当前显示的图片列表
+    private ImageOverlayView mOverlayView; // 叠加在图片上的视图
+
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -316,8 +323,12 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
                         /*intent = new Intent(mContext,ImageActivity.class);
                         intent.putStringArrayListExtra(ImageActivity.IMAGE_LIST,content.mImageList);
                         startActivity(intent);*/
+                            mOverlayView = new ImageOverlayView(mContext);
+                            mImagePostList = content.mImageList;
                             new ImageViewer.Builder<>(mContext, content.mImageList)
                                     .setStartPosition(0)
+                                    .setImageChangeListener(getImageChangeListener())
+                                    .setOverlayView(mOverlayView)
                                     .show();
                             break;
                         default:
@@ -346,7 +357,37 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
                 //Toast.makeText(mContext,"Click "+mDataset.get(position).mContent,Toast.LENGTH_SHORT).show();
             }
         }));
+        // 监听视频移入移出可视窗口 若移出窗口就停止播放
+        mRecyclerView.addOnChildAttachStateChangeListener(new RecyclerView.OnChildAttachStateChangeListener() {
+            @Override
+            public void onChildViewAttachedToWindow(View view) {
 
+            }
+
+            @Override
+            public void onChildViewDetachedFromWindow(View view) {
+                int postion = mRecyclerView.getChildLayoutPosition(view);
+                if (mIsPlayingVideo && postion == mVideoPlayingPosition){
+                    if (view.getTag()!=null && view.getTag().equals(VideoSource.VIDEO_SOURCE_YOUKU)){
+                        // 当优酷视频移出可视时 停止播放
+                        YoukuPlayerView youkuPlayerView = (YoukuPlayerView) view.findViewById(R.id.videoplayer);
+                        SimpleDraweeView youkuPlayerCoverImage = (SimpleDraweeView) view.findViewById(R.id.cvContentImage);
+                        ImageView youkuPlayerPlayIcon = (ImageView) view.findViewById(R.id.imagePlay);
+                        TextView youkuPlayerTitle = (TextView) view.findViewById(R.id.tvTitle);
+
+                        youkuPlayerView.release();
+                        youkuPlayerCoverImage.setVisibility(View.VISIBLE);
+                        youkuPlayerPlayIcon.setVisibility(View.VISIBLE);
+                        youkuPlayerTitle.setVisibility(View.VISIBLE);
+                        mIsPlayingVideo = false;
+                    }
+                }
+
+            }
+        });
+        //添加分割线
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(mRecyclerView.getContext(),
+                DividerItemDecoration.VERTICAL));
        /* mConnection.setAdapter(mAdapter);
         mConnection.setSwiftRefreshLayout(mRefreshLayout);*/
         //mConnection.setProgressDialog(mProgressDialog);
@@ -366,6 +407,7 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
         mCurrentYoukuPlayerTitle.setVisibility(View.GONE);
         mCurrentYoukuPlayerView.setPlayerListener(new MyPlayerListener());
         mCurrentYoukuPlayerView.setShowBackBtn(false);
+        mCurrentYoukuPlayerView.setPreferVideoDefinition(VideoDefinition.VIDEO_HD);
         mCurrentYoukuPlayerView.playYoukuVideo(vid);
     }
 
@@ -457,12 +499,12 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
         }
     }
 
-    @Override
+  /*  @Override
     public void onHiddenChanged(boolean hidden) {
         Log.d(TAG,mParam1 +" onHiddenChanged");
         if (hidden) stopVideoPlayer();
         super.onHiddenChanged(hidden);
-    }
+    }*/
 
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
@@ -534,5 +576,19 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
 
     private class MyPlayerListener extends PlayerListener {
 
+    }
+
+    /*
+    *   图片浏览监听，可以设置图片描述，以及分享链接
+    * */
+    private ImageViewer.OnImageChangeListener getImageChangeListener() {
+        return new ImageViewer.OnImageChangeListener() {
+            @Override
+            public void onImageChange(int position) {
+                //CustomImage image = images.get(position);
+                mOverlayView.setShareText(mImagePostList.get(position));
+                mOverlayView.setDescription(String.valueOf(position+1)+"/"+ Integer.toString(mImagePostList.size()));
+            }
+        };
     }
 }

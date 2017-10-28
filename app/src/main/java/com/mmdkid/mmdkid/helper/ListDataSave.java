@@ -12,6 +12,9 @@ import com.google.gson.JsonParser;
 import java.util.ArrayList;
 import java.util.List;
 
+/* 存储对象列表到sharedpreference中
+*  目前用于频道设置的存储
+*  */
 public class ListDataSave {
     private final static String TAG ="ListDataSave";
 

@@ -159,7 +159,8 @@ public class VideoFragment extends Fragment {
                     return ContentFragment.newInstance(Content.TYPE_VIDEO,"");
 
                 default:
-                    return HomeFragment.PlaceholderFragment.newInstance(position);
+                    return ContentFragment.newInstance(Content.TYPE_VIDEO, (String) getPageTitle(position));
+                    // return HomeFragment.PlaceholderFragment.newInstance(position);
 
                     //return ContentFragment.newInstance(Content.TYPE_PUSH,mPageTitleList.get(position-4).name);
             }
@@ -169,7 +170,7 @@ public class VideoFragment extends Fragment {
         @Override
         public int getCount() {
             // Show 5 total pages.
-            return 5+mPageTitleList.size();
+            return 6+mPageTitleList.size();
         }
 
         @Override
@@ -180,13 +181,15 @@ public class VideoFragment extends Fragment {
                 case 1:
                     return "动画";
                 case 2:
-                    return "历史";
+                    return "旅游";
                 case 3:
-                    return "地理";
+                    return "美食";
                 case 4:
-                    return "体育";
+                    return "英语";
+                case 5:
+                    return "书法";
                 default:
-                    return mPageTitleList.get(position-5).name;
+                    return mPageTitleList.get(position-6).name;
             }
             //return null;
         }

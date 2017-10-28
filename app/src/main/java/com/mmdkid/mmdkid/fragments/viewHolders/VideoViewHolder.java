@@ -1,17 +1,17 @@
 package com.mmdkid.mmdkid.fragments.viewHolders;
 
 import android.content.Context;
+import android.net.Uri;
 import android.support.v7.widget.CardView;
 import android.view.View;
 import android.widget.TextView;
 
 import com.android.volley.toolbox.ImageLoader;
+import com.facebook.drawee.view.SimpleDraweeView;
 import com.mmdkid.mmdkid.R;
 import com.mmdkid.mmdkid.models.Content;
 import com.mmdkid.mmdkid.models.Model;
 import com.mmdkid.mmdkid.singleton.InternetSingleton;
-
-import fm.jiecao.jcvideoplayer_lib.JCVideoPlayerStandard;
 
 /**
  * Created by LIYADONG on 2017/7/25.
@@ -22,7 +22,7 @@ public class VideoViewHolder extends ModelViewHolder {
     public TextView mTextViewDate;
     public TextView mTextViewTitle;
 
-    public JCVideoPlayerStandard mVideo;
+    private SimpleDraweeView mImageViewPoster;
 
     private Context mContext;
 
@@ -32,7 +32,7 @@ public class VideoViewHolder extends ModelViewHolder {
         mCardView.setElevation(10);
         mTextViewDate = (TextView)itemView.findViewById(R.id.cvContentDate);
         mTextViewTitle = (TextView)itemView.findViewById(R.id.cvContentTitle);
-        mVideo = (JCVideoPlayerStandard) itemView.findViewById(R.id.videoplayer);
+        mImageViewPoster = (SimpleDraweeView) itemView.findViewById(R.id.cvContentImage) ;
         mContext = itemView.getContext();
     }
 
@@ -43,10 +43,11 @@ public class VideoViewHolder extends ModelViewHolder {
             ImageLoader imageLoader =  InternetSingleton.getInstance(mContext).getImageLoader();
             mTextViewDate.setText(content.mCreatedAt);
             mTextViewTitle.setText(content.mTitle);
-            mVideo.setUp(content.mVideo
-                    , JCVideoPlayerStandard.SCREEN_LAYOUT_LIST, "");
+            mImageViewPoster.setImageURI(Uri.parse(content.mImage));
+           /* mVideo.setUp(content.mVideo
+                    , JCVideoPlayerStandard.SCREEN_LAYOUT_LIST, "");*/
             //mVideo.thumbImageView.setImageURI(Uri.parse(content.mImage));
-            imageLoader.get(content.mImage,imageLoader.getImageListener(mVideo.thumbImageView,R.drawable.test_icon_default,R.drawable.test_icon_erro));
+            //imageLoader.get(content.mImage,imageLoader.getImageListener(mVideo.thumbImageView,R.drawable.test_icon_default,R.drawable.test_icon_erro));
         }
     }
 }

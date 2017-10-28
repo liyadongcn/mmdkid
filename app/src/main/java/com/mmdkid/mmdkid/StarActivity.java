@@ -111,7 +111,7 @@ public class StarActivity extends AppCompatActivity {
                                 case Content.TYPE_VIDEO:
                                     behavior.mModel.setViewType(Model.VIEW_TYPE_CONTENT_VIDEO);
                             }
-                            mDataset.add(0,(Content) behavior.mModel);
+                            mDataset.add((Content) behavior.mModel);
                         }
                     }
                     mAdapter.notifyDataSetChanged();
@@ -185,16 +185,12 @@ public class StarActivity extends AppCompatActivity {
                         startActivity(intent);
                         break;
                     case Content.TYPE_VIDEO:
-                        /*intent = new Intent(mContext,VideoActivity.class);
-                        intent.putExtra(VideoActivity.VIDEO_TITLE,content.mTitle);
-                        intent.putExtra(VideoActivity.VIDEO_POSTER,content.mImage);
-                        intent.putExtra(VideoActivity.VIDEO_URL,"http://mmdkid.cn/uploads/media/1466482403260.mp4");
-                        intent.putExtra(VideoActivity.VIDEO_URL,content.mVideo);
-                        startActivity(intent);*/
-                        /*intent = new Intent(mContext,WebViewActivity.class);
+                        // 打开webview观看视频
+                        intent = new Intent(StarActivity.this,WebViewActivity.class);
                         intent.putExtra("url",content.getContentUrl());
-                        Log.d(LOG_TAG,content.getContentUrl());
-                        startActivity(intent);*/
+                        intent.putExtra("model",content);
+                        Log.d(TAG,content.getContentUrl());
+                        startActivity(intent);
 
                         break;
                     case Content.TYPE_IMAGE:

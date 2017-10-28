@@ -2,6 +2,7 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:fresco="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="false"
@@ -9,15 +10,17 @@
     tools:context="com.mmdkid.mmdkid.LoginActivity"
     tools:showIn="@layout/activity_login">
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="368dp"
+        android:layout_height="543dp"
         android:gravity="center_horizontal"
         android:orientation="vertical"
         android:paddingBottom="@dimen/activity_vertical_margin"
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:paddingTop="@dimen/activity_vertical_margin"
-        tools:context="com.mmdkid.mmdkid.LoginActivity">
+        tools:context="com.mmdkid.mmdkid.LoginActivity"
+        tools:layout_editor_absoluteY="8dp"
+        tools:layout_editor_absoluteX="8dp">
 
         <!-- Login progress -->
         <ScrollView
@@ -84,7 +87,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
+                    android:autoText="false"
+                    android:background="@android:color/holo_red_light"
                     android:text="@string/action_sign_in"
+                    android:textColor="?android:attr/colorForegroundInverse"
                     android:textStyle="bold" />
 
                 <TextView
@@ -123,25 +129,38 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
                         android:orientation="horizontal">
 
-                        <ImageView
+                        <com.facebook.drawee.view.SimpleDraweeView
                             android:id="@+id/wxLogin"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:src="@drawable/umeng_socialize_wechat" />
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            fresco:placeholderImage ="@drawable/umeng_socialize_wechat"
+                            fresco:roundAsCircle="true"
+                            fresco:roundingBorderWidth = "1dp"
+                            fresco:roundingBorderColor = "@android:color/darker_gray"
+                            android:layout_weight="1"/>
 
-                        <ImageView
+                        <com.facebook.drawee.view.SimpleDraweeView
                             android:id="@+id/qqLogin"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:src="@drawable/umeng_socialize_qq" />
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            fresco:placeholderImage ="@drawable/umeng_socialize_qq"
+                            fresco:roundAsCircle="true"
+                            fresco:roundingBorderWidth = "1dp"
+                            fresco:roundingBorderColor = "@android:color/darker_gray"
+                            android:layout_weight="1"/>
 
-                        <ImageView
+                        <com.facebook.drawee.view.SimpleDraweeView
                             android:id="@+id/sinaLogin"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:src="@drawable/umeng_socialize_sina" />
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            fresco:placeholderImage ="@drawable/umeng_socialize_sina"
+                            fresco:roundAsCircle="true"
+                            fresco:roundingBorderWidth = "1dp"
+                            fresco:roundingBorderColor = "@android:color/darker_gray"
+                            android:layout_weight="1"/>
 
                     </LinearLayout>
                 </LinearLayout>

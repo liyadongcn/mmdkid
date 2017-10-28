@@ -5,8 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.SearchRecentSuggestions;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -24,7 +22,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.mmdkid.mmdkid.adapters.TextAdapter;
 import com.mmdkid.mmdkid.fragments.ContentFragment;
@@ -110,8 +107,8 @@ public class SearchResultsActivity extends AppCompatActivity implements View.OnC
         mHistoryView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
-                Toast.makeText(SearchResultsActivity.this, "" + position,
-                        Toast.LENGTH_SHORT).show();
+//                Toast.makeText(SearchResultsActivity.this, "" + position,
+//                        Toast.LENGTH_SHORT).show();
                 mKeyword = mHistoryList.get(position);
                 Log.d(TAG,"History Keyword Seletction is :" + mKeyword);
                 search();
@@ -125,8 +122,8 @@ public class SearchResultsActivity extends AppCompatActivity implements View.OnC
         mHotView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
-                Toast.makeText(SearchResultsActivity.this, "" + position,
-                        Toast.LENGTH_SHORT).show();
+//                Toast.makeText(SearchResultsActivity.this, "" + position,
+//                        Toast.LENGTH_SHORT).show();
                 mKeyword = mHotList.get(position);
                 search();
             }
@@ -134,14 +131,14 @@ public class SearchResultsActivity extends AppCompatActivity implements View.OnC
 
         //handleIntent(getIntent());
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+       /* FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
-        });
+        });*/
 
     }
 
@@ -266,6 +263,7 @@ public class SearchResultsActivity extends AppCompatActivity implements View.OnC
         mHotView.setVisibility(visibility);
         mHistoryText.setVisibility(visibility);
         mHotText.setVisibility(visibility);
+        mHistoryDelView.setVisibility(visibility);
     }
 
     private void showResultView(int visibility){

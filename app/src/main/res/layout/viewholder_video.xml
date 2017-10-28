@@ -20,11 +20,28 @@
 
                     android:padding="10dp">
 
+                        <RelativeLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
 
-                        <fm.jiecao.jcvideoplayer_lib.JCVideoPlayerStandard
-                            android:id="@+id/videoplayer"
-                            android:layout_width="100dp"
-                            android:layout_height="80dp" />
+
+
+                                <com.facebook.drawee.view.SimpleDraweeView
+                                    android:id="@+id/cvContentImage"
+                                    android:layout_width="100dp"
+                                    android:layout_height="80dp"
+                                    />
+                                <ImageView
+                                    android:id="@+id/imagePlay"
+                                    android:layout_width="20dp"
+                                    android:layout_height="20dp"
+                                    android:layout_centerHorizontal="true"
+                                    android:layout_centerVertical="true"
+                                    card_view:srcCompat="@drawable/ic_play_normal" />
+
+
+                        </RelativeLayout>
+
 
                         <LinearLayout
                             android:layout_width="match_parent"

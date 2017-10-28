@@ -95,7 +95,7 @@ public class CheckUpdateUtil {
                     if (mNewVersion.code == mCurrentVersionCode){
                         if (showMessage) Toast.makeText(context,context.getString(R.string.message_latest_version),Toast.LENGTH_LONG).show();
                         return ;//无更新
-                    }else {
+                    }else if (mNewVersion.code > mCurrentVersionCode){
                         // 版本需要更新
                         Log.d(TAG,"Start updating....");
                         verifyStoragePermissions((Activity) context);

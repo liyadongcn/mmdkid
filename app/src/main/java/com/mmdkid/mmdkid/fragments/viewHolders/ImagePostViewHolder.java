@@ -12,6 +12,8 @@ import com.mmdkid.mmdkid.adapters.ImageAdapter;
 import com.mmdkid.mmdkid.models.Content;
 import com.mmdkid.mmdkid.models.Model;
 
+import java.util.ArrayList;
+
 /**
  * Created by LIYADONG on 2017/7/25.
  */
@@ -39,7 +41,13 @@ public class ImagePostViewHolder extends ModelViewHolder {
             Content content = (Content)model;
             mTextViewTitle.setText(content.mTitle);
             mTextViewDate.setText(content.mCreatedAt);
-            mImageGridView.setAdapter(new ImageAdapter(mContext,content.mImageList));
+            if(content.mImageList.size()>3){
+                // 最多只显示前三张图片作为封面
+                mImageGridView.setAdapter(new ImageAdapter(mContext, new ArrayList<String>(content.mImageList.subList(0,3)) ));
+            }else{
+                mImageGridView.setAdapter(new ImageAdapter(mContext,content.mImageList));
+            }
+
         }
 
     }

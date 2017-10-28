@@ -16,4 +16,16 @@ public class Utility {
         }
         return sb.toString();
     }
+    /**
+     * 小于100000的不转换，大于或等于100000的转换为10万，以此类推，110000转为11万，112000为11.2万
+     * @author liyadong
+     */
+    public static String getNumberString(long num){
+        if(num<100000){
+            return Long.toString(num);
+        }else {
+            int n = (int) num / 10000;
+            return Integer.toString(n) + "万";
+        }
+    }
 }

@@ -47,6 +47,11 @@ public class Content extends Model {
     public String mVideo;
     public String mSource_name;
     public String mSource_url;
+    public int mCommentCount;
+    public int mViewCount;
+    public int mStarCount;
+    public int mThumbsup;
+    public int mThumbsdown;
     public ArrayList<String> mImageList;
 
     public static Query find(Connection connection)
@@ -85,6 +90,11 @@ public class Content extends Model {
             if (jsonObject.has("source_name")) content.mSource_name = jsonObject.getString("source_name");
             if (jsonObject.has("source_url")) content.mSource_url = jsonObject.getString("source_url");
             content.mVideo = jsonObject.has("video") ? jsonObject.getString("video") : "";
+            if (jsonObject.has("thumbsup")) content.mThumbsup = jsonObject.getInt("thumbsup");
+            if (jsonObject.has("thumbsdown")) content.mThumbsdown = jsonObject.getInt("thumbsdown");
+            if (jsonObject.has("comment_count")) content.mCommentCount = jsonObject.getInt("comment_count");
+            if (jsonObject.has("view_count")) content.mViewCount = jsonObject.getInt("view_count");
+            if (jsonObject.has("star_count")) content.mStarCount = jsonObject.getInt("star_count");
             return content;
         } catch (JSONException e) {
             e.printStackTrace();
