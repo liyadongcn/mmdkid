@@ -1,12 +1,15 @@
-package com.mmdkid.mmdkid.models;
+package com.mmdkid.mmdkid.models.gw;
 
+import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
 import com.android.volley.Request;
+import com.mmdkid.mmdkid.models.Model;
 import com.mmdkid.mmdkid.server.Connection;
 import com.mmdkid.mmdkid.server.ElasticConnection;
 import com.mmdkid.mmdkid.server.ElasticQuery;
+import com.mmdkid.mmdkid.server.ElasticsearchConnection;
 import com.mmdkid.mmdkid.server.Query;
 
 import org.json.JSONArray;
@@ -16,27 +19,20 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 /**
- * Created by LIYADONG on 2016/12/19.
+ * 对应给g2gw的content
+ *
+ * Created by LIYADONG on 2017/11/02.
  */
 
 public class Content extends Model {
     private static final String TAG = "Content";
-    private static final String SERVER_URL = "http://www.mmdkid.cn/index.php?r=";
-    private final static String SEARCH_URI = "content/_search";
+    private static final String SERVER_URL = "http://www.g2gw.cn/index.php?r=";
+    private final static String SEARCH_URI =  "http://211.149.212.21:9200/g2gw/_search";
 
-    public static final String TYPE_USER = "user";
-    public static final String TYPE_VIDEO = "media";
-    public static final String TYPE_POST = "post";
-    public static final String TYPE_IMAGE = "imagepost";
-    public static final String TYPE_HOT = "hot";
     public static final String TYPE_PUSH = "push";
-
-
-
-  /*  public static final int TYPE_VIDEO_INT = 1;
-    public static final int TYPE_POST_INT = 2;
-    public static final int TYPE_IMAGE_INT = 3;*/
-
+    public static final String TYPE_HOT = "hot";
+    public static final String TYPE_POSTS = "posts";
+    public static final String TYPE_GOODS = "goods";
 
     public String mTitle;
     public String mCreatedAt;
@@ -52,10 +48,24 @@ public class Content extends Model {
     public int mStarCount;
     public int mThumbsup;
     public int mThumbsdown;
+    public int mBrand;
     public ArrayList<String> mImageList;
+    public ArrayList<String> mLinkList;
+    public JSONObject mEditorComment;
 
     public static Query find(Connection connection)
     {
+        Query query = new ElasticQuery(connection);
+        query.mModelClass = Content.class;
+        Log.d(TAG,connection.URL);
+        return query;
+    }
+
+    public static Query find(Context context, ElasticsearchConnection.OnConnectionListener listener)
+    {
+        ElasticsearchConnection connection = new ElasticsearchConnection(context);
+        connection.setListener(listener);
+        connection.URL = SEARCH_URI;
         Query query = new ElasticQuery(connection);
         query.mModelClass = Content.class;
         Log.d(TAG,connection.URL);
@@ -69,7 +79,7 @@ public class Content extends Model {
             content.mModelId = jsonObject.getInt("model_id");
             if(jsonObject.has("image")){
                 Log.d(TAG,content.mModelType);
-                if( content.mModelType.equalsIgnoreCase(Content.TYPE_IMAGE) ){
+                if( content.mModelType.equalsIgnoreCase(Content.TYPE_GOODS) ){
                     JSONArray imageJsonArray = jsonObject.getJSONArray("image");
                     content.mImageList = new ArrayList<String>();
                     Log.d(TAG,imageJsonArray.toString());
@@ -84,6 +94,13 @@ public class Content extends Model {
                     }
                 }
             }
+            if (jsonObject.has("link")) {
+                JSONArray linkJsonArray = jsonObject.getJSONArray("link");
+                content.mLinkList = new ArrayList<String>();
+                for (int j=0; j<linkJsonArray.length(); j++){
+                    content.mImageList.add(linkJsonArray.getString(j));
+                }
+            }
             content.mTitle = jsonObject.getString("title");
             content.mCreatedAt = jsonObject.getString("created_at");
             content.mContent = jsonObject.getString("content");
@@ -95,6 +112,7 @@ public class Content extends Model {
             if (jsonObject.has("comment_count")) content.mCommentCount = jsonObject.getInt("comment_count");
             if (jsonObject.has("view_count")) content.mViewCount = jsonObject.getInt("view_count");
             if (jsonObject.has("star_count")) content.mStarCount = jsonObject.getInt("star_count");
+            //if (jsonObject.has("brand")) content.mBrand = jsonObject.getInt("brand");
             return content;
         } catch (JSONException e) {
             e.printStackTrace();
@@ -120,20 +138,18 @@ public class Content extends Model {
         }
         return results;
     }
-
-    public String getContentUrl(){
+    @Override
+    public String getUrl(){
         switch(this.mModelType){
-            case TYPE_VIDEO:
-                return SERVER_URL+"media/view&id="+mModelId+"&theme=app";
-            case TYPE_IMAGE:
-                return SERVER_URL+"imagepost/view&id="+mModelId+"&theme=app";
-            case TYPE_POST:
-                return SERVER_URL+"post/view&id="+mModelId+"&theme=app";
+            case TYPE_GOODS:
+                return SERVER_URL+"goods/view&id="+mModelId+"&theme=app";
+            case TYPE_POSTS:
+                return SERVER_URL+"posts/view&id="+mModelId+"&theme=app";
             default:
                 return "";
         }
     }
-    @Override
+    /*@Override
     public int getViewType(){
         if(mViewType == 0){
             switch(this.mModelType){
@@ -146,7 +162,7 @@ public class Content extends Model {
             }
         }
         return mViewType;
-    }
+    }*/
 
     public static JSONObject getRequest(Query query)  {
         ElasticConnection connection = (ElasticConnection) query.getConnection();

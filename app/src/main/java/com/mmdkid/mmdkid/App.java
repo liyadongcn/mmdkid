@@ -12,6 +12,9 @@ import com.mmdkid.mmdkid.channel.ChannelEntity;
 import com.mmdkid.mmdkid.helper.ListDataSave;
 import com.mmdkid.mmdkid.models.Token;
 import com.mmdkid.mmdkid.models.User;
+import com.mmdkid.mmdkid.server.RESTAPIConnection;
+import com.umeng.message.IUmengRegisterCallback;
+import com.umeng.message.PushAgent;
 import com.umeng.socialize.Config;
 import com.umeng.socialize.PlatformConfig;
 import com.umeng.socialize.UMShareAPI;
@@ -27,7 +30,7 @@ import java.util.Set;
  * Created by Alexander Krol (troy379) on 29.08.16.
  */
 public class App extends Application {
-    private static final String TAG = "App";
+    private static final String TAG = "mmdApp";
 
     public static final String PREFS_NAME = "momoda";
 
@@ -63,6 +66,31 @@ public class App extends Application {
         Config.DEBUG = true;
         UMShareAPI.get(this);
 
+       /*
+        * 友盟消息推送注册
+        * 参考：http://dev.umeng.com/push/android/integration#2_2_7
+        * 注意：
+            请勿在调用register方法时做进程判断处理（主进程和channel进程均需要调用register方法才能保证长连接的正确建立）。
+            若有需要，可以在Application的onCreate方法中创建一个子线程，并把mPushAgent.register这一行代码放到该子线程中去执行（请勿将PushAgent.getInstance(this)放到子线程中）。
+            device token是友盟+生成的用于标识设备的id，长度为44位，不能定制和修改。同一台设备上不同应用对应的device token不一样。
+            如需手动获取device token，可以调用mPushAgent.getRegistrationId()方法（需在注册成功后调用）。
+        */
+        PushAgent mPushAgent = PushAgent.getInstance(this);
+        //注册推送服务，每次调用register方法都会回调该接口
+        mPushAgent.register(new IUmengRegisterCallback() {
+
+            @Override
+            public void onSuccess(String deviceToken) {
+                //注册成功会返回device token
+                Log.d(TAG,"Device token is : " + deviceToken);
+            }
+
+            @Override
+            public void onFailure(String s, String s1) {
+                Log.d(TAG,"Register Device failure : " + s + s1);
+            }
+        });
+
         /**
          * IMPORTANT! Enable the configuration below, if you expect to open really large images.
          * Also you can add the {@code android:largeHeap="true"} to Manifest file to avoid an OOM error.*/
@@ -97,6 +125,31 @@ public class App extends Application {
 
     public User getCurrentUser(){
         return User.loadFromLocal(this);
+    }
+
+    public void refreshCurrentUserInfo() {
+        User currentUser = this.getCurrentUser();
+        if (currentUser!=null){
+            User.find(this, new RESTAPIConnection.OnConnectionListener() {
+                @Override
+                public void onErrorRespose(Class c, String error) {
+                    Log.d(TAG,"Refresh user information error.");
+                }
+
+                @Override
+                public void onResponse(Class c, ArrayList responseDataList) {
+                    if(!responseDataList.isEmpty()){
+                        User user = (User)responseDataList.get(0);
+                        Log.d(TAG,"The user name is :" + user.mUsername );
+                        Log.d(TAG,"The user avatar is :" + user.mAvatar );
+                        Log.d(TAG,"The user nickname is :" + user.mNickname );
+                        Log.d(TAG,"The user cellphone is :" + user.mCellphone );
+                        Log.d(TAG,"The user Email is :" + user.mEmail );
+                        user.saveToLocal(App.this);
+                    }
+                }
+            }).where("id",Integer.toString(currentUser.mId)).all();
+        }
     }
 
     public Token getCurrentToken(){

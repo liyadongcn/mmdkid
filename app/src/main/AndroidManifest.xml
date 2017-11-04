@@ -59,9 +59,13 @@
         <meta-data
             android:name="android.app.default_searchable"
             android:value=".SearchResultsActivity" />
+
         <meta-data
             android:name="UMENG_APPKEY"
             android:value="5965bd0bf29d9858b00006e4" />
+        <meta-data
+            android:name="UMENG_MESSAGE_SECRET"
+            android:value="d06f5c7afaafa3bd3f4ec5b9484f6d21" />
 
         <activity
             android:name=".MainActivity"

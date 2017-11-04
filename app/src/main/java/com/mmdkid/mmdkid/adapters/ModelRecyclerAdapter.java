@@ -9,6 +9,8 @@ import android.view.ViewGroup;
 import com.mmdkid.mmdkid.R;
 import com.mmdkid.mmdkid.fragments.viewHolders.DiaryListViewHolder;
 import com.mmdkid.mmdkid.fragments.viewHolders.DiaryViewHolder;
+import com.mmdkid.mmdkid.fragments.viewHolders.GWGoodsImageOnLeftViewHolder;
+import com.mmdkid.mmdkid.fragments.viewHolders.GWPostImageOnMiddleViewHolder;
 import com.mmdkid.mmdkid.fragments.viewHolders.GoodsImageOnLeftViewHolder;
 import com.mmdkid.mmdkid.fragments.viewHolders.ImagePostViewHolder;
 import com.mmdkid.mmdkid.fragments.viewHolders.ModelViewHolder;
@@ -104,6 +106,14 @@ public class ModelRecyclerAdapter extends RecyclerView.Adapter {
                 v =  mInflater
                         .inflate(R.layout.viewholder_goods_image_on_left, parent, false);
                 return  new GoodsImageOnLeftViewHolder(v);
+            case Model.VIEW_TYPE_GWCONTENT_GOODS_IMAGE_ON_LEFT:
+                v =  mInflater
+                        .inflate(R.layout.viewholder_gwcontent_goods_image_on_left, parent, false);
+                return  new GWGoodsImageOnLeftViewHolder(v);
+            case Model.VIEW_TYPE_GWCONTENT_POST_IMAGE_ON_MIDDLE:
+                v =  mInflater
+                        .inflate(R.layout.viewholder_gwcontent_post_image_on_middle, parent, false);
+                return  new GWPostImageOnMiddleViewHolder(v);
         }
         return null;
     }

@@ -1,7 +1,12 @@
 package com.mmdkid.mmdkid;
 
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.app.AppCompatActivity;
@@ -62,6 +67,12 @@ public class WebViewActivity extends AppCompatActivity {
 
     private List<String> mCookies;
     private boolean mUsingCookies = true;
+
+    // 使webview可以打开上载按钮
+    private ValueCallback<Uri> mUploadMessage;
+    private ValueCallback<Uri[]> mUploadMessage5;
+    public static final int FILECHOOSER_RESULTCODE = 5173;
+    public static final int FILECHOOSER_RESULTCODE_FOR_ANDROID_5 = 5174;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -256,7 +267,7 @@ public class WebViewActivity extends AppCompatActivity {
                     if (text!=null && !text.equals("null")) {
                         web.setDescription(text);//取最多20字作为描述
                     }else{
-                        web.setDescription("");
+                        web.setDescription((String) getResources().getText(R.string.share_description_empty));
                     }
                 }
                 if (mModel instanceof Goods) {
@@ -272,8 +283,29 @@ public class WebViewActivity extends AppCompatActivity {
                         //取最多20字作为描述
                         web.setDescription(goods.editorComment.length()>20? goods.editorComment.substring(0,20):goods.editorComment) ;
                     }else{
-                        web.setDescription("");
+                        web.setDescription((String) getResources().getText(R.string.share_description_empty));
                     }
+                }
+                if (mModel instanceof com.mmdkid.mmdkid.models.gw.Content){
+                    com.mmdkid.mmdkid.models.gw.Content gwContent = (com.mmdkid.mmdkid.models.gw.Content)mModel;
+                    web = new UMWeb(url);
+                    web.setTitle(gwContent.mTitle);//标题
+                    if (gwContent.mImage!=null && !gwContent.mImage.isEmpty()){
+                        image = new UMImage(WebViewActivity.this, gwContent.mImage);//网络图片
+                        image.compressStyle = UMImage.CompressStyle.SCALE;//大小压缩，默认为大小压缩，适合普通很大的图
+                        web.setThumb(image);  //缩略图
+                    }else if (gwContent.mImageList!= null && !gwContent.mImageList.isEmpty() ){
+                        image = new UMImage(WebViewActivity.this, gwContent.mImageList.get(0));//网络图片
+                        image.compressStyle = UMImage.CompressStyle.SCALE;//大小压缩，默认为大小压缩，适合普通很大的图
+                        web.setThumb(image);  //缩略图
+                    }
+                    web.setDescription((String) getResources().getText(R.string.share_description_empty));
+                   /* if (goods.editorComment!=null && !goods.editorComment.equals("null")) {
+                        //取最多20字作为描述
+                        web.setDescription(goods.editorComment.length()>20? goods.editorComment.substring(0,20):goods.editorComment) ;
+                    }else{
+                        web.setDescription("");
+                    }*/
                 }
                 new ShareAction(WebViewActivity.this)
                         //.withText("hello")
@@ -355,6 +387,49 @@ public class WebViewActivity extends AppCompatActivity {
                 if (progress == 100) mProgressBar.hide();
                 mProgressBar.setProgress(progress);
             }
+
+            // For Android < 3.0
+            public void openFileChooser(ValueCallback<Uri> uploadMsg){
+                this.openFileChooser(uploadMsg, "*/*");
+            }
+
+            // For Android >= 3.0
+            public void openFileChooser(ValueCallback<Uri> uploadMsg,
+                                        String acceptType) {
+                this.openFileChooser(uploadMsg, acceptType, null);
+            }
+
+            // For Android >= 4.1
+            public void openFileChooser(ValueCallback<Uri> uploadMsg,
+                                        String acceptType, String capture) {
+                mUploadMessage = uploadMsg;
+                Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+                i.addCategory(Intent.CATEGORY_OPENABLE);
+                i.setType("*/*");
+                startActivityForResult(Intent.createChooser(i, "File Browser"),
+                        FILECHOOSER_RESULTCODE);
+            }
+
+            // For Lollipop 5.0+ Devices
+            @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+            public boolean onShowFileChooser(WebView mWebView,
+                                             ValueCallback<Uri[]> filePathCallback,
+                                             WebChromeClient.FileChooserParams fileChooserParams) {
+                if (mUploadMessage5 != null) {
+                    mUploadMessage5.onReceiveValue(null);
+                    mUploadMessage5 = null;
+                }
+                mUploadMessage5 = filePathCallback;
+                Intent intent = fileChooserParams.createIntent();
+                try {
+                    startActivityForResult(intent,
+                            FILECHOOSER_RESULTCODE_FOR_ANDROID_5);
+                } catch (ActivityNotFoundException e) {
+                    mUploadMessage5 = null;
+                    return false;
+                }
+                return true;
+            }
         });
         //webSettings.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.SINGLE_COLUMN);
         Intent intent = getIntent();
@@ -417,10 +492,27 @@ public class WebViewActivity extends AppCompatActivity {
 
     }
 
+    @SuppressLint("NewApi")
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        UMShareAPI.get(this).onActivityResult(requestCode,resultCode,data);
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+        UMShareAPI.get(this).onActivityResult(requestCode,resultCode,intent);
+        if (requestCode == FILECHOOSER_RESULTCODE) {
+            if (null == mUploadMessage) {
+                return;
+            }
+            Uri result = intent == null || resultCode != Activity.RESULT_OK ? null
+                    : intent.getData();
+            mUploadMessage.onReceiveValue(result);
+            mUploadMessage = null;
+        } else if (requestCode == FILECHOOSER_RESULTCODE_FOR_ANDROID_5) {
+            if (null == mUploadMessage5) {
+                return;
+            }
+            mUploadMessage5.onReceiveValue(WebChromeClient.FileChooserParams
+                    .parseResult(resultCode, intent));
+            mUploadMessage5 = null;
+        }
     }
 
 }

@@ -14,6 +14,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 /**
+ * 通过RestfulAPI获取的产品信息
+ *
  * Created by LIYADONG on 2017/9/29.
  */
 

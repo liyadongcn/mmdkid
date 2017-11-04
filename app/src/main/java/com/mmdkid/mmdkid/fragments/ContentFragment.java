@@ -323,7 +323,7 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
                         /*intent = new Intent(mContext,ImageActivity.class);
                         intent.putStringArrayListExtra(ImageActivity.IMAGE_LIST,content.mImageList);
                         startActivity(intent);*/
-                            mOverlayView = new ImageOverlayView(mContext);
+                            mOverlayView = new ImageOverlayView(mContext,content);
                             mImagePostList = content.mImageList;
                             new ImageViewer.Builder<>(mContext, content.mImageList)
                                     .setStartPosition(0)

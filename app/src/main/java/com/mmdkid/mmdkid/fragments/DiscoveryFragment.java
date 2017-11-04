@@ -1,28 +1,19 @@
 package com.mmdkid.mmdkid.fragments;
 
-import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.util.Log;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.mmdkid.mmdkid.R;
-import com.mmdkid.mmdkid.WebViewActivity;
-import com.mmdkid.mmdkid.adapters.ModelRecyclerAdapter;
-import com.mmdkid.mmdkid.models.Goods;
-import com.mmdkid.mmdkid.models.Model;
-import com.mmdkid.mmdkid.models.Refresh;
-import com.mmdkid.mmdkid.server.Query;
-import com.mmdkid.mmdkid.server.RESTAPIConnection;
+import com.mmdkid.mmdkid.models.gw.Content;
 
 import java.util.ArrayList;
 
@@ -34,22 +25,8 @@ import java.util.ArrayList;
  * Use the {@link DiscoveryFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class DiscoveryFragment extends Fragment {
-    private static final String TAG = "DiscoveryFragment";
-
-    private Context mContext;
-    private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
-    SwipeRefreshLayout mRefreshLayout;
-    private ProgressDialog mProgressDialog;
-
-    private ArrayList<Model> mDataset;
-    private Query mQuery;
-    private Refresh mRefresh;
-
-    private boolean mIsFetching = false;
-
+public class DiscoveryFragment extends Fragment implements
+        com.mmdkid.mmdkid.fragments.gw.ContentFragment.OnFragmentInteractionListener{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -58,7 +35,9 @@ public class DiscoveryFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-
+    private ViewPager mViewPager;
+    private SectionsPagerAdapter mSectionsPagerAdapter;
+    private ArrayList<PageTitle> mPageTitleList;
     private OnFragmentInteractionListener mListener;
 
     public DiscoveryFragment() {
@@ -71,7 +50,7 @@ public class DiscoveryFragment extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment DiscoveryFragment.
+     * @return A new instance of fragment VideoFragment.
      */
     // TODO: Rename and change types and number of parameters
     public static DiscoveryFragment newInstance(String param1, String param2) {
@@ -90,130 +69,32 @@ public class DiscoveryFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-        mContext = getActivity();
-        mDataset = new ArrayList<Model>();
-        initData();
-
-        // show the progress dialog
-        mProgressDialog = new ProgressDialog(mContext);
-        mProgressDialog.setIndeterminate(true);
-        mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        mProgressDialog.setMessage("Loading...");
-        mProgressDialog.show();
-    }
-
-    private void initData() {
-        // 建立查询
-        mQuery = Goods.find(mContext, new RESTAPIConnection.OnConnectionListener() {
-            @Override
-            public void onErrorRespose(Class c, String error) {
-                Log.d(TAG,"Get the error response from the server");
-                mIsFetching = false;
-                mProgressDialog.dismiss();
-                mRefreshLayout.setRefreshing(false);
-            }
-
-            @Override
-            public void onResponse(Class c, ArrayList responseDataList) {
-                Log.d(TAG,"Get correct response from the server.");
-                mIsFetching = false;
-                if (c== Goods.class && !responseDataList.isEmpty()){
-                    Log.d(TAG,"Get the goods response from the server.");
-                    for(Object obj : responseDataList) {
-                        Goods goods = (Goods) obj;
-                        Log.d(TAG,"Goods title is :" + goods.title);
-                        goods.setViewType(Model.VIEW_TYPE_GOODS_IMAGE_ON_LEFT);
-                    }
-                    mDataset.addAll(0,responseDataList);
-                    insertRefresh(responseDataList.size());
-                    mAdapter.notifyDataSetChanged();
-                    mRecyclerView.smoothScrollToPosition(0);
-                }
-                mProgressDialog.dismiss();
-                mRefreshLayout.setRefreshing(false);
-            }
-        }).where("expand","image,editorComment");
-        // 开始查询
-        mQuery.all();
-        mIsFetching = true;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View fragmentView = inflater.inflate(R.layout.fragment_discovery, container, false);
-        // use the recycler view
-        mRecyclerView = (RecyclerView) fragmentView.findViewById(R.id.rvContent);
-        // use this setting to improve performance if you know that changes
-        // in content do not change the layout size of the RecyclerView
-        // mRecyclerView.setHasFixedSize(true);
+        View fragmentView = inflater.inflate(R.layout.fragment_video, container, false);
 
-        // use a linear layout manager
-        mLayoutManager = new LinearLayoutManager(fragmentView.getContext());
-        //mLayoutManager = new GridLayoutManager(this,2);
-        mRecyclerView.setLayoutManager(mLayoutManager);
+        // get the favorite channels
+        mPageTitleList = new ArrayList<PageTitle>();
 
-        // specify an adapter (see also next example)
-        mAdapter = new ModelRecyclerAdapter(fragmentView.getContext(),mDataset);
-        mRecyclerView.setAdapter(mAdapter);
 
-        // RecyclerView item 点击监听
-        mRecyclerView.addOnItemTouchListener(new RecyclerViewClickListener(mContext, mRecyclerView, new RecyclerViewClickListener.OnItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position) {
-                Model model = mDataset.get(position);
-                if(model instanceof Goods){
-                    Intent intent = new Intent(mContext, WebViewActivity.class);
-                    intent.putExtra("model",model);
-                    intent.putExtra("url",model.getUrl());
-                    intent.putExtra("cookies",false);
-                    startActivity(intent);
-                }else if(model instanceof Refresh){
-                    // 加载更多数据
-                    if(mQuery.hasMore()){
-                        //mConnection.Query(mQuery);
-                        mRefreshLayout.setRefreshing(true);
-                        getMore();
-                    }else {
-                        // 提示没有更多数可以加载
-                        Toast.makeText(mContext, "no more data.", Toast.LENGTH_LONG).show();
-                        mRefreshLayout.setRefreshing(false);
-                    }
-                }
+        // Create the adapter that will return a fragment for each of the three
+        // primary sections of the activity.
+        mSectionsPagerAdapter = new SectionsPagerAdapter(getChildFragmentManager());
 
-            }
+        // Set up the ViewPager with the sections adapter.
+        mViewPager = (ViewPager) fragmentView.findViewById(R.id.container);
+        mViewPager.setAdapter(mSectionsPagerAdapter);
+        mSectionsPagerAdapter.notifyDataSetChanged();
 
-            @Override
-            public void onItemLongClick(View view, int position) {
-                //Toast.makeText(mContext,"Click "+mDataset.get(position).mContent,Toast.LENGTH_SHORT).show();
-            }
-        }));
-
-        // Swipe refresh listener
-        mRefreshLayout = (SwipeRefreshLayout)fragmentView.findViewById(R.id.layout_swipe_refresh);
-        mRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener(){
-            public void onRefresh() {
-                // 加载更多数据
-                if(mQuery.hasMore()){
-                    //mConnection.Query(mQuery);
-                    getMore();
-                }else {
-                    // 提示没有更多数可以加载
-                    Toast.makeText(mContext, "no more data.", Toast.LENGTH_LONG).show();
-                    mRefreshLayout.setRefreshing(false);
-                }
-
-            }
-        });
+        TabLayout tabLayout = (TabLayout) fragmentView.findViewById(R.id.tabs);
+        tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
+        tabLayout.setupWithViewPager(mViewPager);
 
         return fragmentView;
-    }
-
-    private void getMore() {
-        if(mIsFetching) return;
-        mQuery.all();
-        mIsFetching = true;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -240,6 +121,11 @@ public class DiscoveryFragment extends Fragment {
         mListener = null;
     }
 
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -255,17 +141,71 @@ public class DiscoveryFragment extends Fragment {
         void onFragmentInteraction(Uri uri);
     }
 
+    /**
+     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
+     * one of the sections/tabs/pages.
+     */
+    public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-    //  插入刷新点，用户点击后自动刷新获得新数据
-    private void insertRefresh(int position) {
-        if (mRefresh == null){
-            mRefresh = new Refresh();
-            mRefresh.setViewType(Model.VIEW_TYPE_REFRESH);
+        public SectionsPagerAdapter(FragmentManager fm) {
+            super(fm);
         }
-        mRefresh.mText = getString(R.string.actionn_load_more);
-        if (mDataset.contains(mRefresh)) {
-            mDataset.remove(mRefresh);
+
+        @Override
+        public int getItemPosition(Object object) {
+            return POSITION_NONE;
         }
-        mDataset.add(position,mRefresh);
+
+        @Override
+        public Fragment getItem(int position) {
+            // getItem is called to instantiate the fragment for the given page.
+            // Return a PlaceholderFragment (defined as a static inner class below).
+            switch (position) {
+                case 0:
+                    return com.mmdkid.mmdkid.fragments.gw.ContentFragment.newInstance(Content.TYPE_PUSH,"");
+                case 1:
+                    return com.mmdkid.mmdkid.fragments.gw.ContentFragment.newInstance(Content.TYPE_GOODS,"");
+                case 2:
+                    return com.mmdkid.mmdkid.fragments.gw.ContentFragment.newInstance(Content.TYPE_POSTS,"");
+                default:
+                    //return ContentFragment.newInstance(Content.TYPE_VIDEO, (String) getPageTitle(position));
+                    return HomeFragment.PlaceholderFragment.newInstance(position);
+
+                    //return ContentFragment.newInstance(Content.TYPE_PUSH,mPageTitleList.get(position-4).name);
+            }
+
+        }
+
+        @Override
+        public int getCount() {
+            // Show 5 total pages.
+            return 3+mPageTitleList.size();
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            switch (position) {
+                case 0:
+                    return "推荐";
+                case 1:
+                    return "行品";
+                case 2:
+                    return "新闻";
+               /* case 3:
+                    return "美食";
+                case 4:
+                    return "英语";
+                case 5:
+                    return "书法";*/
+                default:
+                    return mPageTitleList.get(position-6).name;
+            }
+            //return null;
+        }
+    }
+
+    private class PageTitle{
+        String name;
+        String id;
     }
 }

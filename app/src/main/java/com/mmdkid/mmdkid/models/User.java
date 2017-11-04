@@ -79,8 +79,17 @@ public class User extends Model {
     {
         Query query = new Query(connection);
         query.mModelClass = User.class;
-        connection.URL = connection.URL + "v1/users";
+        //connection.URL = connection.URL + "v1/users";
         Log.d(TAG,connection.URL);
+        return query;
+    }
+
+    public static Query find(Context context, RESTAPIConnection.OnConnectionListener listener)
+    {
+        RESTAPIConnection connection = new RESTAPIConnection(context);
+        connection.setListener(listener);
+        Query query = new Query(connection);
+        query.mModelClass = User.class;
         return query;
     }
 
@@ -91,7 +100,7 @@ public class User extends Model {
     public static JSONObject getRequest(Query query)  {
         RESTAPIConnection connection = (RESTAPIConnection) query.getConnection();
         connection.REQUEST_METHOD = Request.Method.GET;
-        connection.URL = connection.URL + "?"
+        connection.URL = connection.URL + URI+ "?"
                     + RESTAPIConnection.ACCESS_TOKEN_NAME + "="
                     + connection.ACCESS_TOKEN;
         Map<String,String> parameters = query.getmParameters();
@@ -344,6 +353,7 @@ public class User extends Model {
                 return "未知";
         }
     }
+
 
     /*@Override
     public void save(String action ,Context context, RESTAPIConnection.OnConnectionListener listener) {

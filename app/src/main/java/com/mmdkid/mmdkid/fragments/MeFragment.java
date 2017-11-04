@@ -13,7 +13,9 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.facebook.imagepipeline.core.ImagePipeline;
 import com.mmdkid.mmdkid.App;
 import com.mmdkid.mmdkid.FollowActivity;
 import com.mmdkid.mmdkid.HistoryActivity;
@@ -21,8 +23,7 @@ import com.mmdkid.mmdkid.LoginActivity;
 import com.mmdkid.mmdkid.R;
 import com.mmdkid.mmdkid.SettingsActivity;
 import com.mmdkid.mmdkid.StarActivity;
-import com.mmdkid.mmdkid.models.Model;
-import com.mmdkid.mmdkid.models.Refresh;
+import com.mmdkid.mmdkid.WebViewActivity;
 import com.mmdkid.mmdkid.models.User;
 
 /**
@@ -58,6 +59,8 @@ public class MeFragment extends Fragment implements View.OnClickListener{
     private LinearLayout mStar;
     private LinearLayout mFollow;
     private LinearLayout mHistory;
+
+    private boolean isUpdatingUserInfo = false;
 
     public MeFragment() {
         // Required empty public constructor
@@ -141,8 +144,20 @@ public class MeFragment extends Fragment implements View.OnClickListener{
         Log.d(TAG,"MeFrament is onResume.");
         App app = (App) mContext.getApplicationContext();
         if(!app.isGuest()){
+            // 用户已登录
+            if (isUpdatingUserInfo){
+                app.refreshCurrentUserInfo();
+                isUpdatingUserInfo =false;
+                // 清除Fresco的缓存
+                ImagePipeline imagePipeline = Fresco.getImagePipeline();
+                imagePipeline.evictFromMemoryCache(Uri.parse(mCurrentUser.mAvatar));
+                imagePipeline.evictFromDiskCache(Uri.parse(mCurrentUser.mAvatar));
+                // combines above two lines
+                imagePipeline.evictFromCache(Uri.parse(mCurrentUser.mAvatar));
+            }
             mCurrentUser = app.getCurrentUser();
             mAvatar.setImageURI(mCurrentUser.mAvatar);
+            mAvatar.setOnClickListener(this);
             mUsername.setText(mCurrentUser.getDisplayName());
             mUsername.setOnClickListener(null);
             mFollower.setText(String.valueOf(mCurrentUser.mFollower));
@@ -152,6 +167,7 @@ public class MeFragment extends Fragment implements View.OnClickListener{
             Log.d(TAG,"User user name is " + mCurrentUser.mUsername);
             Log.d(TAG,"User avatar is " + mCurrentUser.mAvatar);
         }else {
+            // 用户未登录
             Log.d(TAG,"There is no user yet! Please go to login. ");
             mUsername.setText("请点击登录");
             mUsername.setOnClickListener(new View.OnClickListener() {
@@ -162,6 +178,7 @@ public class MeFragment extends Fragment implements View.OnClickListener{
                 }
             });
             mAvatar.setImageResource(R.drawable.account_off);
+            mAvatar.setOnClickListener(null);
             mFollower.setText("");
             mFollowing.setText("");
         }
@@ -212,6 +229,12 @@ public class MeFragment extends Fragment implements View.OnClickListener{
                 break;
             case R.id.llFollow:
                 intent = new Intent(mContext, FollowActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.sdvAvatar:
+                isUpdatingUserInfo = true;
+                intent = new Intent(mContext, WebViewActivity.class);
+                intent.putExtra("url","http://www.mmdkid.cn/index.php?r=user/update&theme=app&id="+mCurrentUser.mId);
                 startActivity(intent);
                 break;
         }

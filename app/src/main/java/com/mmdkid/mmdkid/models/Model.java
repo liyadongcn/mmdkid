@@ -41,6 +41,9 @@ public class Model extends Object implements Serializable{
 
     public static final int VIEW_TYPE_GOODS_IMAGE_ON_LEFT= 70;
 
+    public static final int VIEW_TYPE_GWCONTENT_GOODS_IMAGE_ON_LEFT= 90;
+    public static final int VIEW_TYPE_GWCONTENT_POST_IMAGE_ON_MIDDLE= 91;
+
     protected int mViewType=0;
 
     public static final String ACTION_CREATE = "create";

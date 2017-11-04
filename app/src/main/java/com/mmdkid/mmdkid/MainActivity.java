@@ -27,6 +27,7 @@ import com.mmdkid.mmdkid.fragments.DiscoveryFragment;
 import com.mmdkid.mmdkid.fragments.HomeFragment;
 import com.mmdkid.mmdkid.fragments.MeFragment;
 import com.mmdkid.mmdkid.fragments.VideoFragment;
+import com.mmdkid.mmdkid.fragments.gw.ContentFragment;
 import com.mmdkid.mmdkid.models.Token;
 import com.mmdkid.mmdkid.models.User;
 import com.mmdkid.mmdkid.server.RESTAPIConnection;
@@ -34,6 +35,7 @@ import com.mmdkid.mmdkid.update.CheckUpdateUtil;
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnTabReselectListener;
 import com.roughike.bottombar.OnTabSelectListener;
+import com.umeng.message.PushAgent;
 
 import java.util.ArrayList;
 
@@ -43,7 +45,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
         ,VideoFragment.OnFragmentInteractionListener
         ,DiscoveryFragment.OnFragmentInteractionListener
         ,MeFragment.OnFragmentInteractionListener
-
+        ,ContentFragment.OnFragmentInteractionListener
         ,RESTAPIConnection.OnConnectionListener{
 
     private static final String TAG = "MainActivity";
@@ -84,6 +86,17 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        /*
+        * 参考：http://dev.umeng.com/push/android/integration#2_2_7
+        * 注意：
+            此方法与统计分析sdk中统计日活的方法无关！请务必调用此方法！
+            如果不调用此方法，不仅会导致按照"几天不活跃"条件来推送失效，
+            还将导致广播发送不成功以及设备描述红色等问题发生。可以只在
+            应用的主Activity中调用此方法，但是由于SDK的日志发送策略，
+            有可能由于主activity的日志没有发送成功，而导致未统计到日活数据。
+         */
+        PushAgent.getInstance(this).onAppStart();
 
         CheckUpdateUtil.checkUpdate(this,false);//检查更新
 

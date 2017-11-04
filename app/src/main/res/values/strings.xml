@@ -20,6 +20,9 @@
 
     <string name="actionn_load_more">刚刚看到这里,点击刷新</string>
 
+    <!--String related to share-->
+    <string name="share_description_empty">下载么么哒KID APP观看更多精彩内容,做合格家长</string>
+
     <!--Strings related to comment-->
     <string name="send_comment_hint">写评论</string>
     <string name="send_comment">评论</string>

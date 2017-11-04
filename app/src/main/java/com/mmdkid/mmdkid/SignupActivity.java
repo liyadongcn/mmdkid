@@ -3,6 +3,7 @@ package com.mmdkid.mmdkid;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -23,7 +24,15 @@ import com.mmdkid.mmdkid.models.Token;
 import com.mmdkid.mmdkid.models.User;
 import com.mmdkid.mmdkid.server.RESTAPIConnection;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.FormBody;
+import okhttp3.Headers;
+import okhttp3.OkHttpClient;
 
 /**
  * A login screen that offers login via email/password.
@@ -44,6 +53,9 @@ public class SignupActivity extends AppCompatActivity  implements RESTAPIConnect
     private boolean mIsRegistering = false;
     private boolean mTokenValid = false;
     private boolean mIsGettingToken = false;
+
+    // 注册成功后 同步登录到webview的cookies
+    private List<String> mCookies;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -264,8 +276,10 @@ public class SignupActivity extends AppCompatActivity  implements RESTAPIConnect
         }
         if(!mIsGettingToken && !mIsRegistering && mTokenValid){
             app.setIsGuest(false);
-            showProgress(false);
-            finish();
+
+            // 同步登录到webview取得登录cookies
+            getCookies(mUsernameView.getText().toString(),mPasswordView.getText().toString());
+
         }
 
     }
@@ -275,6 +289,96 @@ public class SignupActivity extends AppCompatActivity  implements RESTAPIConnect
         mIsGettingToken = true;
         RESTAPIConnection connection = new RESTAPIConnection(this);
         Token.find(connection).where("username",identity).where("password",password).all();
+    }
+
+    /**
+     * 使用用户输入的用户名密码模拟登陆web系统获取cookies
+     * 在使用webview时加载cookies自动登录web系统
+     */
+    private void getCookies(String identity, String password) {
+        String loginUrl = "http://www.mmdkid.cn/index.php?r=site/login";
+        final App app = (App) getApplicationContext();
+
+        //step 1: 同样的需要创建一个OkHttpClick对象
+        OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
+                .followRedirects(false) // 禁用OkHttp的自动重定向功能 否则cookie信息不完整 没有_identity信息 不能完成自动登录的功能
+                .build();
+
+        //step 2: 创建  FormBody.Builder
+        FormBody formBody = new FormBody.Builder()
+                .add("LoginForm[username]",identity)
+                .add("LoginForm[password]",password)
+                .add("LoginForm[rememberMe]","1")
+                .add("login-button","")
+                .build();
+
+        //step 3: 创建请求
+        okhttp3.Request request = new okhttp3.Request.Builder().url(loginUrl)
+//                .addHeader("User-Agent","Mozilla/5.0 (Linux; Android 6.0; Custom Phone - 6.0.0 - API 23 - 768x1280 Build/MRA58K) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/40.0.0.0 Mobile Safari/537.36")
+//                .addHeader("cache-control","max-age=0")
+//                .addHeader("accept-encoding","gzip, deflate")
+//                .addHeader("referer","http://10.0.3.2/index.php?r=site%2Flogin")
+//                .addHeader("origin","http://10.0.3.2")
+//                .addHeader("accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
+//                .addHeader("accept-language","zh-CN,zh;q=0.8")
+                .post(formBody)
+                .build();
+
+        //step 4： 建立联系 创建Call对象
+        okHttpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                // TODO: 17-1-4  请求失败
+                Log.d(TAG,"Login the web and get the failure response.");
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        showProgress(false);
+                    }
+                });
+            }
+
+            @Override
+            public void onResponse(Call call, okhttp3.Response response) throws IOException {
+                // TODO: 17-1-4 请求成功
+                //获得响应头
+                Headers headers =  response.headers();//response.headers();
+                //遍历响应头信息
+                String cookies = "";
+                for (int i = 0; i < headers.size(); i++){
+                    Log.d(TAG,headers.name(i) + "--->" + headers.value(i));
+                }
+                Log.d(TAG,response.body().string());
+                if ( !headers.values("Set-Cookie").isEmpty()){
+                    // 登录成功 获取Response Cookies
+                    // 若模拟登录失败 则返回的Response中没有Set-Cookie信息
+                    mCookies =  headers.values("Set-Cookie");
+                    // 将Cookie保存得到SharedPreference中
+                    app.setCookies(mCookies);
+                    // 所有登录过程全部成功
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showProgress(false);
+                            // 结束注册过程 返回主界面
+                            Intent intent = new Intent(SignupActivity.this, MainActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            startActivity(intent);
+                            finish();
+                        }
+                    });
+
+                }else{
+                    Log.d(TAG,"Login the web and get the cookies failed.");
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showProgress(false);
+                        }
+                    });
+                }
+            }
+        });
     }
 }
 
