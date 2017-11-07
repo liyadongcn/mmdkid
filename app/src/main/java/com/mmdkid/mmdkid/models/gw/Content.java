@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.android.volley.Request;
+import com.mmdkid.mmdkid.models.Comment;
 import com.mmdkid.mmdkid.models.Model;
 import com.mmdkid.mmdkid.server.Connection;
 import com.mmdkid.mmdkid.server.ElasticConnection;
@@ -51,7 +52,7 @@ public class Content extends Model {
     public int mBrand;
     public ArrayList<String> mImageList;
     public ArrayList<String> mLinkList;
-    public JSONObject mEditorComment;
+    public Model mEditorComment;
 
     public static Query find(Connection connection)
     {
@@ -113,6 +114,9 @@ public class Content extends Model {
             if (jsonObject.has("view_count")) content.mViewCount = jsonObject.getInt("view_count");
             if (jsonObject.has("star_count")) content.mStarCount = jsonObject.getInt("star_count");
             //if (jsonObject.has("brand")) content.mBrand = jsonObject.getInt("brand");
+            if (jsonObject.has("editor_comment")){
+                content.mEditorComment = Comment.populateModel(jsonObject.getJSONObject("editor_comment"));
+            }
             return content;
         } catch (JSONException e) {
             e.printStackTrace();

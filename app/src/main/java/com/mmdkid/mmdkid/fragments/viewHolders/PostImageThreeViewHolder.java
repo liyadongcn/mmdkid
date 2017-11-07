@@ -15,7 +15,7 @@ import com.mmdkid.mmdkid.models.Model;
  * Created by LIYADONG on 2017/7/25.
  */
 
-public class ImagePostViewHolder extends ModelViewHolder {
+public class PostImageThreeViewHolder extends ModelViewHolder {
     public CardView mCardView;
     public TextView mTextViewTitle;
     public TextView mTextViewDate;
@@ -25,7 +25,7 @@ public class ImagePostViewHolder extends ModelViewHolder {
     //public GridView mImageGridView;
     private Context mContext;
 
-    public ImagePostViewHolder(View itemView) {
+    public PostImageThreeViewHolder(View itemView) {
         super(itemView);
         mCardView = (CardView) itemView.findViewById(R.id.cvContent);
         mCardView.setElevation(10);

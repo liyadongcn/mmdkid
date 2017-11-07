@@ -46,7 +46,7 @@
                             android:padding="2dp"
                             android:layout_weight="1"
                             fresco:placeholderImageScaleType="fitCenter"
-                            fresco:placeholderImage="@drawable/blank_image_100_80" />
+                            card_view:placeholderImage="@drawable/blank_image_100_80" />
                         <com.facebook.drawee.view.SimpleDraweeView
                             android:id="@+id/sdvImage2"
                             android:layout_width="100dp"
@@ -54,15 +54,15 @@
                             android:padding="2dp"
                             fresco:placeholderImageScaleType="fitCenter"
                             android:layout_weight="1"
-                            fresco:placeholderImage="@drawable/blank_image_100_80" />
+                            card_view:placeholderImage="@drawable/blank_image_100_80" />
                         <com.facebook.drawee.view.SimpleDraweeView
                             android:id="@+id/sdvImage3"
                             android:layout_width="100dp"
                             android:layout_height="80dp"
                             android:padding="2dp"
-                            android:layout_weight="1"
                             fresco:placeholderImageScaleType="fitCenter"
-                            fresco:placeholderImage="@drawable/blank_image_100_80" />
+                            android:layout_weight="1"
+                            card_view:placeholderImage="@drawable/blank_image_100_80" />
 
                 </LinearLayout>
         <TextView

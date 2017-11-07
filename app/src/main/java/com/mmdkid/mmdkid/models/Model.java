@@ -26,14 +26,19 @@ public class Model extends Object implements Serializable{
     public static final int VIEW_TYPE_CONTENT = 20;
     public static final int VIEW_TYPE_NOTIFICATION = 50;
 
-    public static final int VIEW_TYPE_CONTENT_POST= 33;
+    //public static final int VIEW_TYPE_CONTENT_POST= 33;
     public static final int VIEW_TYPE_CONTENT_IMAGE_POST= 34;
     public static final int VIEW_TYPE_CONTENT_VIDEO= 35;
 
-    public static final int VIEW_TYPE_CONTENT_POST_MAIN= 30;
+    //public static final int VIEW_TYPE_CONTENT_POST_MAIN= 30;
     public static final int VIEW_TYPE_CONTENT_IMAGE_POST_MAIN= 31;
     public static final int VIEW_TYPE_CONTENT_VIDEO_MAIN= 32;
     public static final int VIEW_TYPE_CONTENT_VIDEO_YOUKU= 36;
+
+    public static final int VIEW_TYPE_CONTENT_POST_IMAGE_LEFT= 137;
+    public static final int VIEW_TYPE_CONTENT_POST_IMAGE_RIGHT= 138;
+    public static final int VIEW_TYPE_CONTENT_POST_IMAGE_MIDDLE= 139;
+    public static final int VIEW_TYPE_CONTENT_POST_IMAGE_THREE= 140;
 
     public static final int VIEW_TYPE_USER_GROUP= 40;
 

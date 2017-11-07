@@ -14,8 +14,10 @@ import com.mmdkid.mmdkid.fragments.viewHolders.GWPostImageOnMiddleViewHolder;
 import com.mmdkid.mmdkid.fragments.viewHolders.GoodsImageOnLeftViewHolder;
 import com.mmdkid.mmdkid.fragments.viewHolders.ImagePostViewHolder;
 import com.mmdkid.mmdkid.fragments.viewHolders.ModelViewHolder;
-import com.mmdkid.mmdkid.fragments.viewHolders.PostMainViewHolder;
-import com.mmdkid.mmdkid.fragments.viewHolders.PostViewHolder;
+import com.mmdkid.mmdkid.fragments.viewHolders.PostImageMiddleViewHolder;
+import com.mmdkid.mmdkid.fragments.viewHolders.PostImageLeftViewHolder;
+import com.mmdkid.mmdkid.fragments.viewHolders.PostImageRightViewHolder;
+import com.mmdkid.mmdkid.fragments.viewHolders.PostImageThreeViewHolder;
 import com.mmdkid.mmdkid.fragments.viewHolders.RefreshViewHolder;
 import com.mmdkid.mmdkid.fragments.viewHolders.StudentViewHolder;
 import com.mmdkid.mmdkid.fragments.viewHolders.UserGroupViewHolder;
@@ -66,10 +68,10 @@ public class ModelRecyclerAdapter extends RecyclerView.Adapter {
                 v =  mInflater
                         .inflate(R.layout.viewholder_today_student, parent, false);
                 return  new StudentViewHolder(v);
-            case Model.VIEW_TYPE_CONTENT_POST:
+            case Model.VIEW_TYPE_CONTENT_POST_IMAGE_LEFT:
                 v =  mInflater
-                        .inflate(R.layout.viewholder_post_layout, parent, false);
-                return  new PostViewHolder(v);
+                        .inflate(R.layout.viewholder_post_image_left, parent, false);
+                return  new PostImageLeftViewHolder(v);
             case Model.VIEW_TYPE_CONTENT_IMAGE_POST:
                 v =  mInflater
                         .inflate(R.layout.viewholder_imagepost, parent, false);
@@ -86,10 +88,18 @@ public class ModelRecyclerAdapter extends RecyclerView.Adapter {
                 v =  mInflater
                         .inflate(R.layout.viewholder_refresh, parent, false);
                 return  new RefreshViewHolder(v);
-            case Model.VIEW_TYPE_CONTENT_POST_MAIN:
+            case Model.VIEW_TYPE_CONTENT_POST_IMAGE_MIDDLE:
                 v =  mInflater
-                        .inflate(R.layout.content_post_viewholder, parent, false);
-                return  new PostMainViewHolder(v);
+                        .inflate(R.layout.viewholder_post_image_middle, parent, false);
+                return  new PostImageMiddleViewHolder(v);
+            case Model.VIEW_TYPE_CONTENT_POST_IMAGE_RIGHT:
+                v =  mInflater
+                        .inflate(R.layout.viewholder_post_image_right, parent, false);
+                return  new PostImageRightViewHolder(v);
+            case Model.VIEW_TYPE_CONTENT_POST_IMAGE_THREE:
+                v =  mInflater
+                        .inflate(R.layout.viewholder_post_image_three, parent, false);
+                return  new PostImageThreeViewHolder(v);
             case Model.VIEW_TYPE_CONTENT_IMAGE_POST_MAIN:
                 v =  mInflater
                         .inflate(R.layout.content_image_viewholder, parent, false);

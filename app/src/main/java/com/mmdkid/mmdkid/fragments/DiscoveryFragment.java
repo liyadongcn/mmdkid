@@ -75,7 +75,7 @@ public class DiscoveryFragment extends Fragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View fragmentView = inflater.inflate(R.layout.fragment_video, container, false);
+        View fragmentView = inflater.inflate(R.layout.fragment_discovery, container, false);
 
         // get the favorite channels
         mPageTitleList = new ArrayList<PageTitle>();
@@ -190,7 +190,7 @@ public class DiscoveryFragment extends Fragment implements
                 case 1:
                     return "行品";
                 case 2:
-                    return "新闻";
+                    return "官宣";
                /* case 3:
                     return "美食";
                 case 4:

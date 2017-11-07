@@ -53,6 +53,7 @@ public class Content extends Model {
     public int mThumbsup;
     public int mThumbsdown;
     public ArrayList<String> mImageList;
+    public ArrayList<String> mImageDescriptionList;
 
     public static Query find(Connection connection)
     {
@@ -142,7 +143,7 @@ public class Content extends Model {
                 case TYPE_IMAGE:
                     return Model.VIEW_TYPE_CONTENT_IMAGE_POST;
                 case TYPE_POST:
-                    return Model.VIEW_TYPE_CONTENT_POST;
+                    return Model.VIEW_TYPE_CONTENT_POST_IMAGE_MIDDLE;
             }
         }
         return mViewType;

@@ -249,7 +249,7 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter (see also next example)
-        //mAdapter = new ContentRecyclerAdapter(fragmentView.getContext(),mDataset);
+        //mAdapter = new ContentRecyclerAdapterDel(fragmentView.getContext(),mDataset);
         mAdapter = new ModelRecyclerAdapter(fragmentView.getContext(),mDataset);
         mRecyclerView.setAdapter(mAdapter);
 
@@ -557,7 +557,13 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
                 Content content = (Content) obj;
                 switch (content.mModelType){
                     case Content.TYPE_POST:
-                        content.setViewType(Model.VIEW_TYPE_CONTENT_POST_MAIN);
+                        java.util.Random random=new java.util.Random();// 定义随机类
+                        int result=random.nextInt(5);// 返回[0,5)集合中的整数，注意不包括5
+                        if (result == 2){
+                            content.setViewType(Model.VIEW_TYPE_CONTENT_POST_IMAGE_MIDDLE);
+                        }else{
+                            content.setViewType(Model.VIEW_TYPE_CONTENT_POST_IMAGE_RIGHT);
+                        }
                         break;
                     case Content.TYPE_IMAGE:
                         content.setViewType(Model.VIEW_TYPE_CONTENT_IMAGE_POST_MAIN);

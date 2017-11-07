@@ -16,15 +16,15 @@ import com.mmdkid.mmdkid.models.Model;
 
 import java.util.ArrayList;
 
-public class ContentRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private static final String LOG_TAG ="ContentRecyclerAdapter";
+public class ContentRecyclerAdapterDel extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    private static final String LOG_TAG ="ContentRecyclerAdapterDel";
 
     private ArrayList<Content> mDataset;
     private Context mContext;
     private LayoutInflater mInflater;
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public ContentRecyclerAdapter(Context context, ArrayList<Content> myDataset) {
+    public ContentRecyclerAdapterDel(Context context, ArrayList<Content> myDataset) {
         mDataset =  myDataset;
         mContext = context.getApplicationContext();
         mInflater = LayoutInflater.from(context);
@@ -43,7 +43,7 @@ public class ContentRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                 //View v = mInflater.inflate(R.layout.content_card_view,parent,false);
                 // set the view's size, margins, paddings and layout parameters
                 return  new ImageViewHolder(v);
-            case Model.VIEW_TYPE_CONTENT_POST:
+            case Model.VIEW_TYPE_CONTENT_POST_IMAGE_MIDDLE:
                 // create a new view
                 v =  mInflater
                         .inflate(R.layout.content_post_viewholder, parent, false);

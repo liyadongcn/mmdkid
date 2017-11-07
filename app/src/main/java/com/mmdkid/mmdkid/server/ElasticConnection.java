@@ -3,15 +3,12 @@ package com.mmdkid.mmdkid.server;
 import android.app.Activity;
 import android.content.Context;
 import android.support.v4.app.Fragment;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.mmdkid.mmdkid.adapters.ContentRecyclerAdapter;
-import com.mmdkid.mmdkid.models.Content;
 import com.mmdkid.mmdkid.singleton.InternetSingleton;
 
 import org.json.JSONArray;
@@ -102,13 +99,13 @@ public class ElasticConnection extends Connection {
 
     }
 
-    public ElasticConnection(Context context,ContentRecyclerAdapter adapter,SwipeRefreshLayout refreshLayout,ArrayList<Content> dataSet){
+    /*public ElasticConnection(Context context,ContentRecyclerAdapterDel adapter,SwipeRefreshLayout refreshLayout,ArrayList<Content> dataSet){
         this.URL = SERVER_URL;
         //this.mDataset = dataSet;
         this.mContext = context;
-     /*   this.mAdapter = adapter;
-        this.mRefreshLayout = refreshLayout;*/
-    }
+     *//*   this.mAdapter = adapter;
+        this.mRefreshLayout = refreshLayout;*//*
+    }*/
 
     public void setRequestMethod(int method){
         REQUEST_METHOD = method;

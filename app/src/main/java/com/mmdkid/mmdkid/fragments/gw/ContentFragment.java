@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -199,7 +200,7 @@ public class ContentFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View fragmentView = inflater.inflate(R.layout.fragment_discovery, container, false);
+        View fragmentView = inflater.inflate(R.layout.fragment_content, container, false);
         // use the recycler view
         mRecyclerView = (RecyclerView) fragmentView.findViewById(R.id.rvContent);
         // use this setting to improve performance if you know that changes
@@ -266,6 +267,10 @@ public class ContentFragment extends Fragment {
 
             }
         });
+
+        //添加分割线
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(mRecyclerView.getContext(),
+                DividerItemDecoration.VERTICAL));
 
         return fragmentView;
     }

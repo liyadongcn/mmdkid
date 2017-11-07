@@ -17,7 +17,7 @@ import com.mmdkid.mmdkid.models.Content;
 
 public class PostViewHolder extends ContentViewHolder {
 
-    private static final String TAG = "PostViewHolder";
+    private static final String TAG = "PostImageLeftViewHolder";
 
     public CardView mCardView;
     public TextView mTextViewTitle;

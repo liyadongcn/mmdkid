@@ -9,23 +9,22 @@ import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.mmdkid.mmdkid.R;
-import com.mmdkid.mmdkid.models.gw.Content;
+import com.mmdkid.mmdkid.models.Content;
 import com.mmdkid.mmdkid.models.Model;
 
 /**
- * Created by LIYADONG on 2017/9/16.
+ * Created by LIYADONG on 2017/7/25.
  */
 
-public class GWPostImageOnMiddleViewHolder extends ModelViewHolder {
+public class PostImageRightViewHolder extends ModelViewHolder {
+    private static final String TAG = "PostImageLeftViewHolder";
 
-    private static final String TAG = "GWPostIMViewHolder";
+    public CardView mCardView;
+    public TextView mTextViewTitle;
+    public TextView mTextViewDate;
+    public SimpleDraweeView mImageViewContent;
 
-    private CardView mCardView;
-    private TextView mTextViewTitle;
-    private TextView mTextViewDate;
-    private SimpleDraweeView mImageViewContent;
-
-    public GWPostImageOnMiddleViewHolder(View itemView) {
+    public PostImageRightViewHolder(View itemView) {
         super(itemView);
         mCardView = (CardView) itemView.findViewById(R.id.cvContent);
         mCardView.setElevation(10);
@@ -34,10 +33,9 @@ public class GWPostImageOnMiddleViewHolder extends ModelViewHolder {
         mImageViewContent =(SimpleDraweeView)itemView.findViewById(R.id.cvContentImage);
     }
 
-    @Override
-    public void bindHolder(Model model) {
-        if (model instanceof Content){
-            Content content = (Content) model;
+    public void bindHolder(Model model){
+        if(model instanceof Content){
+            Content content = (Content)model;
             mTextViewTitle.setText(content.mTitle);
             mTextViewDate.setText(content.mCreatedAt);
             if(TextUtils.isEmpty(content.mImage)){

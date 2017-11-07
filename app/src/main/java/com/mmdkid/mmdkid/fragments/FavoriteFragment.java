@@ -18,8 +18,9 @@ import android.widget.Toast;
 import com.mmdkid.mmdkid.App;
 import com.mmdkid.mmdkid.R;
 import com.mmdkid.mmdkid.WebViewActivity;
-import com.mmdkid.mmdkid.adapters.ContentRecyclerAdapter;
+import com.mmdkid.mmdkid.adapters.ModelRecyclerAdapter;
 import com.mmdkid.mmdkid.models.Content;
+import com.mmdkid.mmdkid.models.Model;
 import com.mmdkid.mmdkid.models.Notification;
 import com.mmdkid.mmdkid.models.Token;
 import com.mmdkid.mmdkid.models.User;
@@ -48,7 +49,7 @@ public class FavoriteFragment extends Fragment {
 
     private ProgressDialog mProgressDialog;
 
-    private ArrayList<Content> mDataset;
+    private ArrayList<Model> mDataset;
     private Query mQuery;
     private RESTAPIConnection mConnection;
 
@@ -101,7 +102,7 @@ public class FavoriteFragment extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
         mContext = getActivity();
-        mDataset = new ArrayList<Content>();
+        mDataset = new ArrayList<Model>();
     }
 
     private void initData() {
@@ -177,7 +178,7 @@ public class FavoriteFragment extends Fragment {
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter (see also next example)
-        mAdapter = new ContentRecyclerAdapter(fragmentView.getContext(),mDataset);
+        mAdapter = new ModelRecyclerAdapter(fragmentView.getContext(),mDataset);
         mRecyclerView.setAdapter(mAdapter);
 
         // Swipe refresh listener
@@ -201,7 +202,7 @@ public class FavoriteFragment extends Fragment {
         mRecyclerView.addOnItemTouchListener(new RecyclerViewClickListener(mContext, mRecyclerView, new RecyclerViewClickListener.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                Content content = mDataset.get(position);
+                Content content = (Content) mDataset.get(position);
                 Intent intent;
                 switch (content.mModelType){
                     case Content.TYPE_POST:

@@ -2,7 +2,6 @@ package com.mmdkid.mmdkid.fragments.viewHolders;
 
 import android.net.Uri;
 import android.support.v7.widget.CardView;
-import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -14,18 +13,19 @@ import com.mmdkid.mmdkid.models.Content;
 import com.mmdkid.mmdkid.models.Model;
 
 /**
- * Created by LIYADONG on 2017/7/25.
+ * Created by LIYADONG on 2017/9/16.
  */
 
-public class PostViewHolder extends ModelViewHolder {
-    private static final String TAG = "PostViewHolder";
+public class PostImageMiddleViewHolder extends ModelViewHolder {
 
-    public CardView mCardView;
-    public TextView mTextViewTitle;
-    public TextView mTextViewDate;
-    public SimpleDraweeView mImageViewContent;
+    private static final String TAG = "PostImageMiddleViewHolder";
 
-    public PostViewHolder(View itemView) {
+    private CardView mCardView;
+    private TextView mTextViewTitle;
+    private TextView mTextViewDate;
+    private SimpleDraweeView mImageViewContent;
+
+    public PostImageMiddleViewHolder(View itemView) {
         super(itemView);
         mCardView = (CardView) itemView.findViewById(R.id.cvContent);
         mCardView.setElevation(10);
@@ -34,9 +34,10 @@ public class PostViewHolder extends ModelViewHolder {
         mImageViewContent =(SimpleDraweeView)itemView.findViewById(R.id.cvContentImage);
     }
 
-    public void bindHolder(Model model){
-        if(model instanceof Content){
-            Content content = (Content)model;
+    @Override
+    public void bindHolder(Model model) {
+        if (model instanceof Content){
+            Content content = (Content) model;
             mTextViewTitle.setText(content.mTitle);
             mTextViewDate.setText(content.mCreatedAt);
             if(TextUtils.isEmpty(content.mImage)){
