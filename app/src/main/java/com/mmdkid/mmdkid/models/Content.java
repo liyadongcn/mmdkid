@@ -69,7 +69,7 @@ public class Content extends Model {
             content.mModelType = jsonObject.getString("model_type");
             content.mModelId = jsonObject.getInt("model_id");
             if(jsonObject.has("image")){
-                Log.d(TAG,content.mModelType);
+                /*Log.d(TAG,content.mModelType);
                 if( content.mModelType.equalsIgnoreCase(Content.TYPE_IMAGE) ){
                     JSONArray imageJsonArray = jsonObject.getJSONArray("image");
                     content.mImageList = new ArrayList<String>();
@@ -82,6 +82,20 @@ public class Content extends Model {
                     Uri uri = Uri.parse(content.mImage);
                     if(uri.getScheme()==null){
                         content.mImage = "http:"+content.mImage;
+                    }
+                }*/
+                if (jsonObject.get("image") instanceof String){
+                    content.mImage =  jsonObject.getString("image") ;
+                    Uri uri = Uri.parse(content.mImage);
+                    if(uri.getScheme()==null){
+                        content.mImage = "http:"+content.mImage;
+                    }
+                }else if (jsonObject.get("image") instanceof JSONArray){
+                    JSONArray imageJsonArray = jsonObject.getJSONArray("image");
+                    content.mImageList = new ArrayList<String>();
+                    Log.d(TAG,imageJsonArray.toString());
+                    for (int j=0; j<imageJsonArray.length(); j++){
+                        content.mImageList.add(imageJsonArray.getString(j));
                     }
                 }
             }

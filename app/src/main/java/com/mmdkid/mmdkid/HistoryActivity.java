@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -110,6 +111,7 @@ public class HistoryActivity extends AppCompatActivity {
                         }
                     }
                     mAdapter.notifyDataSetChanged();
+                    ((LinearLayoutManager)mRecyclerView.getLayoutManager()).scrollToPositionWithOffset(mDataset.size()-responseDataList.size(),0);
                 }
                 mProgressDialog.dismiss();
                 mRefreshLayout.setRefreshing(false);
@@ -210,6 +212,9 @@ public class HistoryActivity extends AppCompatActivity {
                 //Toast.makeText(mContext,"Click "+mDataset.get(position).mContent,Toast.LENGTH_SHORT).show();
             }
         }));
+        //添加分割线
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(mRecyclerView.getContext(),
+                DividerItemDecoration.VERTICAL));
 
         mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
 

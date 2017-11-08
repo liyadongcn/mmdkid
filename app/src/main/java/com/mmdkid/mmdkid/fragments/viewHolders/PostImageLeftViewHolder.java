@@ -33,15 +33,18 @@ public class PostImageLeftViewHolder extends ModelViewHolder {
         mTextViewDate = (TextView)itemView.findViewById(R.id.cvContentDate);
         mImageViewContent =(SimpleDraweeView)itemView.findViewById(R.id.cvContentImage);
     }
-
+    /**
+     *  content 数据中image若是字符串，则使用image的值
+     *  若image是数组表示多个图像，则使用mImageList的首图片作为主图显示
+     */
     public void bindHolder(Model model){
         if(model instanceof Content){
             Content content = (Content)model;
             mTextViewTitle.setText(content.mTitle);
             mTextViewDate.setText(content.mCreatedAt);
-            if(TextUtils.isEmpty(content.mImage)){
+            if(TextUtils.isEmpty(content.mImage) && content.mImageList!=null  && content.mImageList.isEmpty()){
                 mImageViewContent.setVisibility(View.GONE);
-            }else{
+            }else if (!TextUtils.isEmpty(content.mImage)){
                 Uri uri = Uri.parse(content.mImage);
                 if(uri.getScheme()==null){
                     uri = Uri.parse("http:"+content.mImage);
@@ -52,6 +55,13 @@ public class PostImageLeftViewHolder extends ModelViewHolder {
                 Log.d(TAG,"Image is " + content.mImage);
                 Log.d(TAG,"Image URI is " + uri);
                 Log.d(TAG,"Image URI scheme is " + uri.getScheme());
+            }else if (content.mImageList!=null && !content.mImageList.isEmpty()){
+                Uri uri = Uri.parse(content.mImageList.get(0));
+                if(uri.getScheme()==null){
+                    uri = Uri.parse("http:"+content.mImageList.get(0));
+                }
+                mImageViewContent.setVisibility(View.VISIBLE);
+                mImageViewContent.setImageURI(uri);
             }
         }
     }

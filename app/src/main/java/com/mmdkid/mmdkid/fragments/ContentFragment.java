@@ -336,6 +336,7 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
                             break;
                     }
                 }else if(model instanceof Refresh){
+                    // 停止当前所有播放
                     stopVideoPlayer();
                     // 加载更多数据
                     if(mQuery.hasMore()){
@@ -557,13 +558,39 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
                 Content content = (Content) obj;
                 switch (content.mModelType){
                     case Content.TYPE_POST:
-                        java.util.Random random=new java.util.Random();// 定义随机类
-                        int result=random.nextInt(5);// 返回[0,5)集合中的整数，注意不包括5
-                        if (result == 2){
-                            content.setViewType(Model.VIEW_TYPE_CONTENT_POST_IMAGE_MIDDLE);
-                        }else{
-                            content.setViewType(Model.VIEW_TYPE_CONTENT_POST_IMAGE_RIGHT);
+                        if (content.mImage!=null && !content.mImage.isEmpty()){
+                            // 文章图片少于三张 则随机使用单图显示或使用有图显示
+                            /*java.util.Random random=new java.util.Random();// 定义随机类
+                            int result=random.nextInt(5);// 返回[0,5)集合中的整数，注意不包括5
+                            if (result == 2){
+                                content.setViewType(Model.VIEW_TYPE_CONTENT_POST_IMAGE_MIDDLE);
+                            }else{
+                                content.setViewType(Model.VIEW_TYPE_CONTENT_POST_IMAGE_RIGHT);
+                            }*/
+                            content.setViewType(getRandomViewType(1));
+
+                        } else if (content.mImageList!=null && content.mImageList.size()<3){
+                            // 文章图片少于三张 则随机使用单图显示或使用有图显示
+                           /* java.util.Random random=new java.util.Random();// 定义随机类
+                            int result=random.nextInt(5);// 返回[0,5)集合中的整数，注意不包括5
+                            if (result == 2){
+                                content.setViewType(Model.VIEW_TYPE_CONTENT_POST_IMAGE_MIDDLE);
+                            }else{
+                                content.setViewType(Model.VIEW_TYPE_CONTENT_POST_IMAGE_RIGHT);
+                            }*/
+                            content.setViewType(getRandomViewType(1));
+                        }else if (content.mImageList!=null &&  content.mImageList.size()>=3){
+                            // 文章图片大于三张 50%的概率显示三图 50%的概率显示单图
+                            /*java.util.Random random=new java.util.Random();// 定义随机类
+                            int result=random.nextInt(2);// 返回[0,2)集合中的整数，注意不包括5
+                            if (result == 0){
+                                content.setViewType(Model.VIEW_TYPE_CONTENT_POST_IMAGE_MIDDLE);
+                            }else{
+                                content.setViewType(Model.VIEW_TYPE_CONTENT_POST_IMAGE_RIGHT);
+                            }*/
+                            content.setViewType(getRandomViewType(3));
                         }
+
                         break;
                     case Content.TYPE_IMAGE:
                         content.setViewType(Model.VIEW_TYPE_CONTENT_IMAGE_POST_MAIN);
@@ -578,6 +605,30 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
                 }
             }
         }
+    }
+
+    private int getRandomViewType(int imageNum){
+        if (imageNum < 3 ){
+            // 图片数小于3张
+            java.util.Random random=new java.util.Random();// 定义随机类
+            int result=random.nextInt(5);// 返回[0,5)集合中的整数，注意不包括5
+            if (result == 2){
+                return Model.VIEW_TYPE_CONTENT_POST_IMAGE_MIDDLE;
+            }else{
+                return Model.VIEW_TYPE_CONTENT_POST_IMAGE_RIGHT;
+            }
+        }else{
+            // 图片数大于3张
+            java.util.Random random=new java.util.Random();// 定义随机类
+            int result=random.nextInt(5);// 返回[0,2)集合中的整数，注意不包括5
+            if (result == 2){
+                return Model.VIEW_TYPE_CONTENT_POST_IMAGE_MIDDLE;
+            }else{
+                return Model.VIEW_TYPE_CONTENT_POST_IMAGE_RIGHT;
+            }
+        }
+
+
     }
 
     private class MyPlayerListener extends PlayerListener {

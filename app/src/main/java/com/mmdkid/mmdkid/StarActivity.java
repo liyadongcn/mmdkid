@@ -7,6 +7,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -35,6 +36,7 @@ public class StarActivity extends AppCompatActivity {
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     SwipeRefreshLayout mRefreshLayout;
+    private int mLastVisibleItem;
 
     private ProgressDialog mProgressDialog;
 
@@ -164,6 +166,36 @@ public class StarActivity extends AppCompatActivity {
 
             }
         });
+        // 滚动监听 当滚动到最后一个时自动加载数据
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView,
+                                             int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (newState == RecyclerView.SCROLL_STATE_IDLE
+                        && mLastVisibleItem + 1 == mAdapter.getItemCount()) {
+                    mRefreshLayout.setRefreshing(true);
+                    Log.d(TAG,"Get more data.....");
+                    // 加载更多数据
+                    if(mQuery.hasMore()){
+                        //mConnection.Query(mQuery);
+                        mQuery.all();
+                    }else {
+                        // 提示没有更多数可以加载
+                        Toast.makeText(StarActivity.this, "no more data.", Toast.LENGTH_LONG).show();
+                        mRefreshLayout.setRefreshing(false);
+                    }
+                }
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                mLastVisibleItem = ((LinearLayoutManager)mLayoutManager).findLastVisibleItemPosition();
+            }
+
+        });
 
         // RecyclerView item 点击监听
         mRecyclerView.addOnItemTouchListener(new RecyclerViewClickListener(this, mRecyclerView, new RecyclerViewClickListener.OnItemClickListener() {
@@ -214,6 +246,9 @@ public class StarActivity extends AppCompatActivity {
                 //Toast.makeText(mContext,"Click "+mDataset.get(position).mContent,Toast.LENGTH_SHORT).show();
             }
         }));
+        //添加分割线
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(mRecyclerView.getContext(),
+                DividerItemDecoration.VERTICAL));
     }
 
 }

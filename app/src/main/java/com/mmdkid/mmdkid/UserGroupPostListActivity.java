@@ -119,7 +119,7 @@ public class UserGroupPostListActivity extends AppCompatActivity {
                                     content.setViewType(Model.VIEW_TYPE_CONTENT_IMAGE_POST);
                                     break;
                                 case Content.TYPE_POST:
-                                    content.setViewType(Model.VIEW_TYPE_CONTENT_POST);
+                                    content.setViewType(Model.VIEW_TYPE_CONTENT_POST_IMAGE_LEFT);
                                     break;
                                 case Content.TYPE_VIDEO:
                                     content.setViewType(Model.VIEW_TYPE_CONTENT_VIDEO);

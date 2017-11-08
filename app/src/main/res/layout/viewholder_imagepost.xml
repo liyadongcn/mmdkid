@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:fresco = "http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -12,34 +13,58 @@
             android:layout_height="wrap_content"
             android:padding="2dp"
             card_view:cardCornerRadius="0dp"
-           >
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="10dp">
+            >
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp">
 
-        <TextView
-            android:id="@+id/cvContentTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-        <GridView xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/gridview"
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
+                        <TextView
+                            android:id="@+id/cvContentTitle"
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/title_font"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
 
-            android:numColumns="3"
-            android:verticalSpacing="10dp"
-            android:horizontalSpacing="10dp"
+                        <LinearLayout
+                            android:layout_marginTop="10dp"
+                            android:layout_marginBottom="10dp"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+                                <com.facebook.drawee.view.SimpleDraweeView
+                                    android:id="@+id/sdvImage1"
+                                    android:layout_width="100dp"
+                                    android:layout_height="80dp"
+                                    android:padding="2dp"
+                                    android:layout_weight="1"
+                                    fresco:placeholderImageScaleType="fitCenter"
+                                    fresco:placeholderImage="@drawable/blank_image_100_80" />
+                                <com.facebook.drawee.view.SimpleDraweeView
+                                    android:id="@+id/sdvImage2"
+                                    android:layout_width="100dp"
+                                    android:layout_height="80dp"
+                                    android:padding="2dp"
+                                    fresco:placeholderImageScaleType="fitCenter"
+                                    android:layout_weight="1"
+                                    fresco:placeholderImage="@drawable/blank_image_100_80" />
+                                <com.facebook.drawee.view.SimpleDraweeView
+                                    android:id="@+id/sdvImage3"
+                                    android:layout_width="100dp"
+                                    android:layout_height="80dp"
+                                    android:padding="2dp"
+                                    android:layout_weight="1"
+                                    fresco:placeholderImageScaleType="fitCenter"
+                                    fresco:placeholderImage="@drawable/blank_image_100_80" />
 
-            android:gravity="center"
-            />
-
-        <TextView
-            android:id="@+id/cvContentDate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/common_google_signin_btn_text_dark_disabled"/>
-        </LinearLayout>
+                        </LinearLayout>
+                        <TextView
+                            android:id="@+id/cvContentDate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="@dimen/date_font"
+                            android:textColor="@color/tip"/>
+                </LinearLayout>
         </android.support.v7.widget.CardView>
 </FrameLayout>

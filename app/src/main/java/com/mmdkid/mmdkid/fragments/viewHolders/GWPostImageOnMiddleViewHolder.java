@@ -9,8 +9,11 @@ import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.mmdkid.mmdkid.R;
+import com.mmdkid.mmdkid.helper.RelativeDateFormat;
 import com.mmdkid.mmdkid.models.gw.Content;
 import com.mmdkid.mmdkid.models.Model;
+
+import java.text.ParseException;
 
 /**
  * Created by LIYADONG on 2017/9/16.
@@ -39,7 +42,12 @@ public class GWPostImageOnMiddleViewHolder extends ModelViewHolder {
         if (model instanceof Content){
             Content content = (Content) model;
             mTextViewTitle.setText(content.mTitle);
-            mTextViewDate.setText(content.mCreatedAt);
+            try {
+                mTextViewDate.setText(RelativeDateFormat.format(content.mCreatedAt));
+            } catch (ParseException e) {
+                e.printStackTrace();
+                mTextViewDate.setText(content.mCreatedAt);
+            }
             if(TextUtils.isEmpty(content.mImage)){
                 mImageViewContent.setVisibility(View.GONE);
             }else{

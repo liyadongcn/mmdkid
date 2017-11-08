@@ -5,4 +5,8 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="fab_margin_30">30dp</dimen>
     <dimen name="appbar_padding_top">8dp</dimen>
+
+    <!--Title and date font size-->
+    <dimen name="title_font">16sp</dimen>
+    <dimen name="date_font">12sp</dimen>
 </resources>
