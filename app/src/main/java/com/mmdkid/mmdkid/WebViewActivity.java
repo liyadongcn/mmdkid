@@ -257,7 +257,17 @@ public class WebViewActivity extends AppCompatActivity {
                 //Log.d(TAG,"Model is " + ((Content)mModel).mImage);
                 if(mModel instanceof Content){
                     Content content = (Content) mModel;
-                    image = new UMImage(WebViewActivity.this, content.mImage);//网络图片
+                    if (content.mImage!=null && !content.mImage.isEmpty() && !content.mImage.equalsIgnoreCase("null")){
+                        // 使用image字段
+                        image = new UMImage(WebViewActivity.this, content.mImage);//网络图片
+                    }else if(content.mImageList!=null && !content.mImageList.isEmpty()){
+                        // 使用第一张图片
+                        image = new UMImage(WebViewActivity.this, content.mImageList.get(0));//网络图片
+                    }else{
+                        // 使用默认图标
+                        image = new UMImage(WebViewActivity.this,R.mipmap.ic_launcher);
+                    }
+
                     image.compressStyle = UMImage.CompressStyle.SCALE;//大小压缩，默认为大小压缩，适合普通很大的图
                     url = url+"&showIn=wx"; // 通过该标识显示出app下载提示
                     web = new UMWeb(url);
