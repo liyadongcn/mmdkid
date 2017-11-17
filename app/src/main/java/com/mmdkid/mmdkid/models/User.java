@@ -2,7 +2,6 @@ package com.mmdkid.mmdkid.models;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.android.volley.Request;
@@ -25,6 +24,8 @@ import java.util.Map;
 public class User extends Model {
     private final static String TAG = "User";
     private final static String URI_SIGNUP = "v1/signup";
+    private final static String URI_SIGNUP_PHONE = "v1/signupphone";
+    private final static String URI_SIGNUP_EMAIL = "v1/signupemail";
     private final static String URI_AUTO_SINGUP = "v1/auto";
     private final static String URI = "v1/users";
     private final static String AUTO_CREATE_SECRET_KEY = "123456";
@@ -40,6 +41,9 @@ public class User extends Model {
 
     public static final String ACTION_AUTO_SIGNUP= "auto_signup";
     public static final String ACTION_SIGNUP= "signup";
+    public static final String ACTION_SIGNUP_PHONE= "signupphone";
+    public static final String ACTION_SIGNUP_EMAIL= "signupemail";
+
 
     public int mId;
     public String mUsername;
@@ -73,6 +77,7 @@ public class User extends Model {
         this.mFieldNameMap.put("mGender","gender");
         this.mFieldNameMap.put("mScenario","scenario");
         this.mFieldNameMap.put("mBirthday","birthday");
+        this.mFieldNameMap.put("mCellphone","cellphone");
     }
 
     public static Query find(Connection connection)
@@ -186,6 +191,7 @@ public class User extends Model {
             if(response.has("following")) user.mFollowing = response.getInt("following");
             if(response.has("cellphone")) user.mCellphone = response.getString("cellphone");
             if(response.has("role")) user.mRole = response.getInt("role");
+
             return user;
         } catch (JSONException e) {
             e.printStackTrace();
@@ -205,16 +211,20 @@ public class User extends Model {
         editor.putInt("user_id",this.mId);
         editor.putInt("following",this.mFollowing);
         editor.putInt("follower",this.mFollower);
+        editor.putInt("role",this.mRole);
         editor.commit();
     }
 
     public static User loadFromLocal(Context context){
         User user = new User();
         SharedPreferences settings = context.getSharedPreferences(App.PREFS_NAME,Context.MODE_PRIVATE);
-        if((user.mId=settings.getInt("user_id",-1))==-1) return null;
-        if(TextUtils.isEmpty(user.mUsername=settings.getString("user_name",""))) return null;
-        user.mFollower=settings.getInt("follower",-1);
-        user.mFollowing=settings.getInt("following",-1);
+        //if((user.mId=settings.getInt("user_id",-1))==-1) return null;
+        //if(TextUtils.isEmpty(user.mUsername=settings.getString("user_name",""))) return null;
+        user.mId=settings.getInt("user_id",-1);
+        user.mUsername=settings.getString("user_name","");
+        user.mRole=settings.getInt("role",ROLE_PARENT);
+        user.mFollower=settings.getInt("follower",0);
+        user.mFollowing=settings.getInt("following",0);
         user.mNickname=settings.getString("nick_name","");
         user.mRealname=settings.getString("real_name","");
         user.mAvatar=settings.getString("avatar","");
@@ -254,6 +264,7 @@ public class User extends Model {
                     e.printStackTrace();
                 }
                 return request;
+
         }
         return null;
     }
@@ -318,6 +329,28 @@ public class User extends Model {
                     e.printStackTrace();
                 }
                 return request;
+            case User.ACTION_SIGNUP_PHONE:
+                ((RESTAPIConnection) connection).setRequestMethod(Request.Method.POST);
+                connection.URL = connection.URL + URI_SIGNUP_PHONE;
+                try {
+                    request.put("cellphone",mCellphone);
+                    request.put("password",mPassword);
+                    request.put("role",mRole);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                return request;
+            case User.ACTION_SIGNUP_EMAIL:
+                ((RESTAPIConnection) connection).setRequestMethod(Request.Method.POST);
+                connection.URL = connection.URL + URI_SIGNUP_EMAIL;
+                try {
+                    request.put("email",mEmail);
+                    request.put("password",mPassword);
+                    request.put("role",mRole);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                return request;
             case User.ACTION_CREATE:
                 ((RESTAPIConnection) connection).setRequestMethod(Request.Method.POST);
                 connection.URL = connection.URL + URI;
@@ -352,6 +385,16 @@ public class User extends Model {
             default:
                 return "未知";
         }
+    }
+
+    /**
+     * 服务器返回的json数据有可能含有字符串"null"
+     */
+    public String getIdentity(){
+        if (mUsername!=null && !mUsername.isEmpty()&& !mUsername.equalsIgnoreCase("null")) return mUsername;
+        if (mCellphone!=null && !mCellphone.isEmpty() && !mCellphone.equalsIgnoreCase("null")) return mCellphone;
+        if (mEmail!=null && !mEmail.isEmpty()&& !mEmail.equalsIgnoreCase("null")) return mEmail;
+        return null;
     }
 
 

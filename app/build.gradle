@@ -13,7 +13,7 @@ android {
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
         ndk {
-            abiFilters  "armeabi-v7a"  // 指定要ndk需要兼容的架构(这样其他依赖包里mips,x86,armeabi,arm-v8之类的so会被过滤掉)
+            abiFilters "armeabi-v7a"  // 指定要ndk需要兼容的架构(这样其他依赖包里mips,x86,armeabi,arm-v8之类的so会被过滤掉)
         }
     }
     buildTypes {
@@ -104,5 +104,10 @@ dependencies {
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
     //sdk
     compile(name: 'YoukuPlayerOpenSDK-release', ext: 'aar')
+    // mob
+    compile name:'SMSSDK-3.0.0',ext:'aar'
+    compile name:'SMSSDKGUI-3.0.0',ext:'aar'
+
     compile project(':PushSDK')
+
 }

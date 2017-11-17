@@ -7,7 +7,7 @@
     <string name="title_activity_web_view">WebViewActivity</string>
     <string name="title_activity_search_results">SearchResultsActivity</string>
     <string name="title_activity_login">登录</string>
-    <string name="title_activity_settings">Settings</string>
+    <string name="title_activity_settings">设置</string>
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
@@ -20,6 +20,11 @@
 
     <string name="actionn_load_more">刚刚看到这里,点击刷新</string>
 
+    <!--String related to volley error-->
+    <string name="volley_error_no_internet">无网络连接~！</string>
+    <string name="volley_error_generic_server_down">连接服务器失败~！</string>
+    <string name="volley_error_generic_error">网络异常,请稍后再试~！</string>
+
     <!--String related to share-->
     <string name="share_description_empty">下载么么哒KID APP观看更多精彩内容,做合格家长</string>
 
@@ -31,7 +36,7 @@
 
     <!-- Strings related to login -->
     <string name="prompt_email">邮箱</string>
-    <string name="prompt_identity">用户名/手机/邮箱</string>
+    <string name="prompt_identity">手机/邮箱/用户名</string>
     <string name="prompt_username">用户名</string>
     <string name="prompt_password">密码</string>
     <string name="prompt_password_repeat">重复密码</string>
@@ -52,6 +57,15 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+
+    <!--String related to register a new user-->
+    <string name="register_phone">手机注册</string>
+    <string name="register_email">邮箱注册</string>
+    <string name="prompt_phone_number">手机号</string>
+    <string name="prompt_verification_code">验证码</string>
+    <string name="prompt_get_verification_code">获取短信验证码</string>
+    <string name="prompt_verification_code_sent">短信验证码已发送</string>
+    <string name="register_already">已经有么么哒KID账号?去登录</string>
 
     <!-- Strings related to add kid activity-->
     <string name="error_invalid_realName">This real name is too short</string>
@@ -156,4 +170,5 @@
     <string name="other_channel">其他频道</string>
     <string name="edit">编辑</string>
     <string name="finish">完成</string>
+    <string name="title_activity_register">RegisterActivity</string>
 </resources>

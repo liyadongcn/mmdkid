@@ -63,6 +63,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             int color = Color.parseColor("#ffff4444"); //"#ff00ff"
             ColorDrawable drawable = new ColorDrawable(color);
             actionBar.setBackgroundDrawable(drawable);
+            actionBar.setTitle(getResources().getString(R.string.title_activity_settings));
         }
     }
 

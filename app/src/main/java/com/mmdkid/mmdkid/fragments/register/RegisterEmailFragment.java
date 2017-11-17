@@ -1,25 +1,30 @@
-package com.mmdkid.mmdkid;
+package com.mmdkid.mmdkid.fragments.register;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.MenuItem;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.mmdkid.mmdkid.App;
+import com.mmdkid.mmdkid.MainActivity;
+import com.mmdkid.mmdkid.R;
 import com.mmdkid.mmdkid.models.Token;
 import com.mmdkid.mmdkid.models.User;
 import com.mmdkid.mmdkid.server.RESTAPIConnection;
@@ -35,17 +40,31 @@ import okhttp3.Headers;
 import okhttp3.OkHttpClient;
 
 /**
- * A login screen that offers login via email/password.
+ * A simple {@link Fragment} subclass.
+ * Activities that contain this fragment must implement the
+ * {@link RegisterEmailFragment.OnFragmentInteractionListener} interface
+ * to handle interaction events.
+ * Use the {@link RegisterEmailFragment#newInstance} factory method to
+ * create an instance of this fragment.
  */
-public class SignupActivity extends AppCompatActivity  implements RESTAPIConnection.OnConnectionListener{
+public class RegisterEmailFragment extends Fragment{
+    private final String TAG = "RegisterEmailFragment";
+    // TODO: Rename parameter arguments, choose names that match
+    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+    private static final String ARG_PARAM1 = "param1";
+    private static final String ARG_PARAM2 = "param2";
 
-    private static final String TAG = "SignupActivity";
+    // TODO: Rename and change types of parameters
+    private String mParam1;
+    private String mParam2;
+
+    private OnFragmentInteractionListener mListener;
 
     // UI references.
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
-    private EditText mPasswordRepeatView;
-    private EditText mUsernameView;
+    //private EditText mPasswordRepeatView;
+    //private EditText mUsernameView;
     private View mProgressView;
     private View mLoginFormView;
 
@@ -57,18 +76,47 @@ public class SignupActivity extends AppCompatActivity  implements RESTAPIConnect
     // 注册成功后 同步登录到webview的cookies
     private List<String> mCookies;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_signup);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        // Set up the sign up form.
-        mUsernameView = (EditText) findViewById(R.id.username);
-        mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
+    public RegisterEmailFragment() {
+        // Required empty public constructor
+    }
 
-        mPasswordView = (EditText) findViewById(R.id.password);
+    /**
+     * Use this factory method to create a new instance of
+     * this fragment using the provided parameters.
+     *
+     * @param param1 Parameter 1.
+     * @param param2 Parameter 2.
+     * @return A new instance of fragment RegisterEmailFragment.
+     */
+    // TODO: Rename and change types and number of parameters
+    public static RegisterEmailFragment newInstance(String param1, String param2) {
+        RegisterEmailFragment fragment = new RegisterEmailFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_PARAM1, param1);
+        args.putString(ARG_PARAM2, param2);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            mParam1 = getArguments().getString(ARG_PARAM1);
+            mParam2 = getArguments().getString(ARG_PARAM2);
+        }
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View fragmentView = inflater.inflate(R.layout.fragment_register_email, container, false);
+        // Set up the sign up form.
+        //mUsernameView = (EditText) fragmentView.findViewById(R.id.username);
+        mEmailView = (AutoCompleteTextView) fragmentView.findViewById(R.id.email);
+
+        mPasswordView = (EditText) fragmentView.findViewById(R.id.password);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
@@ -80,27 +128,19 @@ public class SignupActivity extends AppCompatActivity  implements RESTAPIConnect
             }
         });
 
-        mPasswordRepeatView = (EditText) findViewById(R.id.password_repeat);
+        //mPasswordRepeatView = (EditText) fragmentView.findViewById(R.id.password_repeat);
 
-        Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_up_button);
-        mEmailSignInButton.setOnClickListener(new OnClickListener() {
+        Button mEmailSignInButton = (Button) fragmentView.findViewById(R.id.email_sign_up_button);
+        mEmailSignInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 attemptSignup();
             }
         });
 
-        mLoginFormView = findViewById(R.id.signup_form);
-        mProgressView = findViewById(R.id.signup_progress);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()){
-            case android.R.id.home:
-                finish();
-        }
-        return super.onOptionsItemSelected(item);
+        mLoginFormView = fragmentView.findViewById(R.id.signup_form);
+        mProgressView = fragmentView.findViewById(R.id.signup_progress);
+        return fragmentView;
     }
 
     /**
@@ -114,16 +154,16 @@ public class SignupActivity extends AppCompatActivity  implements RESTAPIConnect
         }
 
         // Reset errors.
-        mUsernameView.setError(null);
+        //mUsernameView.setError(null);
         mEmailView.setError(null);
         mPasswordView.setError(null);
-        mPasswordRepeatView.setError(null);
+        //mPasswordRepeatView.setError(null);
 
         // Store values at the time of the login attempt.
-        String username = mUsernameView.getText().toString();
+        //String username = mUsernameView.getText().toString();
         String email = mEmailView.getText().toString();
         String password = mPasswordView.getText().toString();
-        String password_repeat = mPasswordRepeatView.getText().toString();
+        //String password_repeat = mPasswordRepeatView.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
@@ -135,7 +175,7 @@ public class SignupActivity extends AppCompatActivity  implements RESTAPIConnect
             cancel = true;
         }
 
-        if (!TextUtils.isEmpty(password_repeat) && !isPasswordValid(password_repeat)) {
+       /* if (!TextUtils.isEmpty(password_repeat) && !isPasswordValid(password_repeat)) {
             mPasswordRepeatView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordRepeatView;
             cancel = true;
@@ -145,10 +185,10 @@ public class SignupActivity extends AppCompatActivity  implements RESTAPIConnect
             mPasswordRepeatView.setError(getString(R.string.error_not_equal_password));
             focusView = mPasswordRepeatView;
             cancel = true;
-        }
+        }*/
 
         // Check for a valid username.
-        if (TextUtils.isEmpty(username)) {
+       /* if (TextUtils.isEmpty(username)) {
             mUsernameView.setError(getString(R.string.error_field_required));
             focusView = mUsernameView;
             cancel = true;
@@ -156,7 +196,7 @@ public class SignupActivity extends AppCompatActivity  implements RESTAPIConnect
             mUsernameView.setError(getString(R.string.error_invalid_username));
             focusView = mUsernameView;
             cancel = true;
-        }
+        }*/
 
         // Check for a valid email address.
         if (TextUtils.isEmpty(email)) {
@@ -178,8 +218,7 @@ public class SignupActivity extends AppCompatActivity  implements RESTAPIConnect
             // perform the user sign up attempt.
             showProgress(true);
 
-            RESTAPIConnection connection = new RESTAPIConnection(this);
-            User.signup(connection,username,email,password,password_repeat,User.ROLE_PARENT);
+           registerEmail(email,password);
 
         }
     }
@@ -197,6 +236,48 @@ public class SignupActivity extends AppCompatActivity  implements RESTAPIConnect
     private boolean isPasswordValid(String password) {
         //TODO: Replace this with your own logic
         return password.length() > 4;
+    }
+
+    /**
+     * 使用邮箱注册新用户
+     */
+    private void registerEmail(String email,String password){
+        if (!isEmailValid(email) || !isPasswordValid(password)){
+            Toast.makeText(getContext(), "邮箱或密码错误", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        User user = new User();
+        user.mEmail = email;
+        user.mPassword = password;
+        user.mRole = User.ROLE_PARENT;
+        user.save(User.ACTION_SIGNUP_EMAIL, getContext(), new RESTAPIConnection.OnConnectionListener() {
+            @Override
+            public void onErrorRespose(Class c, String error) {
+                Log.d(TAG,"Register a user by the email has error :"+ error);
+                Toast.makeText(getContext(),"注册错误:"+error,Toast.LENGTH_LONG).show();
+                showProgress(false);
+            }
+
+            @Override
+            public void onResponse(Class c, ArrayList responseDataList) {
+                App app = (App)getActivity().getApplication();
+                if(!responseDataList.isEmpty()){
+                    // 创建账号成功
+                    User user = (User) responseDataList.get(0);
+                    Log.d(TAG,"register a user is successful.");
+                    Log.d(TAG,"user's email is " + user.mEmail);
+                    Log.d(TAG,"user's id is " + user.mId);
+                    Log.d(TAG,"user's avatar is " + user.mAvatar);
+                    Log.d(TAG,"user's nick name is " + user.mNickname);
+                    Toast.makeText(getContext(),"邮箱注册成功,正在自动登录",Toast.LENGTH_LONG).show();
+                    app.setCurrentUser(user);
+                    // 使用新创建的手机账号登录系统
+                    attemptGetToken(mEmailView.getText().toString(),mPasswordView.getText().toString());
+                }else{
+                    Log.d(TAG,"Register a new user by the email,Get right response , but no user info from the server.");
+                }
+            }
+        });
     }
 
     /**
@@ -235,63 +316,45 @@ public class SignupActivity extends AppCompatActivity  implements RESTAPIConnect
         }
     }
 
-
-    @Override
-    public void onErrorRespose(Class c, String error) {
-
-        if(c == User.class){
-            mIsRegistering = false;
-            Log.d(TAG,"Register a new user error " + error);
-        }
-
-        if(c == Token.class){
-            mIsGettingToken =false;
-            Log.d(TAG,"Get the user token error." + error);
-        }
-        showProgress(false);
-    }
-
-    @Override
-    public void onResponse(Class c, ArrayList responseDataList) {
-        App app = (App)getApplicationContext();
-        if(c == User.class){
-            mIsRegistering = false;
-            if(responseDataList.isEmpty()){
-                Log.d(TAG,"Register a new user with no user info.");
-            }else{
-                User user = (User) responseDataList.get(0);
-                Log.d(TAG,"Register a new user success.");
-                Log.d(TAG,"User avatar is " + user.mAvatar);
-                app.setCurrentUser(user);
-                Log.d(TAG,"Try to get the user token.");
-                attemptGetToken(mUsernameView.getText().toString(),mPasswordView.getText().toString());
-            }
-        }
-        if(c==Token.class){
-            mIsGettingToken =false;
-            Token token = (Token) responseDataList.get(0);
-            Log.d(TAG,"The access token is :" + token.mAccessToken);
-            mTokenValid = true;
-            token.saveToLocal(this);
-        }
-        if(!mIsGettingToken && !mIsRegistering && mTokenValid){
-            app.setIsGuest(false);
-
-            // 同步登录到webview取得登录cookies
-            getCookies(mUsernameView.getText().toString(),mPasswordView.getText().toString());
-
-        }
-
-    }
-    /**
+     /**
      *  通过用户名密码获得访问Token
      *
      */
     private void attemptGetToken(String identity, String password) {
-        if(mIsGettingToken) return;
+        if(mIsGettingToken){
+            Log.d(TAG,"Is getting token return.");
+            return;
+        }
+        Log.d(TAG,"Try to get the token.");
         mIsGettingToken = true;
-        RESTAPIConnection connection = new RESTAPIConnection(this);
-        Token.find(connection).where("username",identity).where("password",password).all();
+        Token.find(getContext(), new RESTAPIConnection.OnConnectionListener() {
+            @Override
+            public void onErrorRespose(Class c, String error) {
+                if(c == Token.class){
+                    mIsGettingToken =false;
+                    Log.d(TAG,"Get the user token error." + error);
+                }
+                showProgress(false);
+            }
+
+            @Override
+            public void onResponse(Class c, ArrayList responseDataList) {
+                App app = (App)getActivity().getApplication();
+                if(c==Token.class){
+                    mIsGettingToken =false;
+                    Token token = (Token) responseDataList.get(0);
+                    Log.d(TAG,"The access token is :" + token.mAccessToken);
+                    mTokenValid = true;
+                    token.saveToLocal(getContext());
+                }
+                if(!mIsGettingToken  && mTokenValid){
+                    app.setIsGuest(false);
+                    // 同步登录到webview取得登录cookies
+                    getCookies(mEmailView.getText().toString(),mPasswordView.getText().toString());
+
+                }
+            }
+        }).where("username",identity).where("password",password).all();
     }
 
     /**
@@ -300,7 +363,7 @@ public class SignupActivity extends AppCompatActivity  implements RESTAPIConnect
      */
     private void getCookies(String identity, String password) {
         String loginUrl = "http://www.mmdkid.cn/index.php?r=site/login";
-        final App app = (App) getApplicationContext();
+        final App app = (App) getActivity().getApplication();
 
         //step 1: 同样的需要创建一个OkHttpClick对象
         OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
@@ -333,7 +396,7 @@ public class SignupActivity extends AppCompatActivity  implements RESTAPIConnect
             public void onFailure(Call call, IOException e) {
                 // TODO: 17-1-4  请求失败
                 Log.d(TAG,"Login the web and get the failure response.");
-                runOnUiThread(new Runnable() {
+                getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         showProgress(false);
@@ -359,21 +422,21 @@ public class SignupActivity extends AppCompatActivity  implements RESTAPIConnect
                     // 将Cookie保存得到SharedPreference中
                     app.setCookies(mCookies);
                     // 所有登录过程全部成功
-                    runOnUiThread(new Runnable() {
+                    getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             showProgress(false);
                             // 结束注册过程 返回主界面
-                            Intent intent = new Intent(SignupActivity.this, MainActivity.class);
+                            Intent intent = new Intent(getContext(), MainActivity.class);
                             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                             startActivity(intent);
-                            finish();
+                            getActivity().finish();
                         }
                     });
 
                 }else{
                     Log.d(TAG,"Login the web and get the cookies failed.");
-                    runOnUiThread(new Runnable() {
+                    getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             showProgress(false);
@@ -383,5 +446,43 @@ public class SignupActivity extends AppCompatActivity  implements RESTAPIConnect
             }
         });
     }
-}
 
+    // TODO: Rename method, update argument and hook method into UI event
+    public void onButtonPressed(Uri uri) {
+        if (mListener != null) {
+            mListener.onFragmentInteraction(uri);
+        }
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnFragmentInteractionListener) {
+            mListener = (OnFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnFragmentInteractionListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
+
+    /**
+     * This interface must be implemented by activities that contain this
+     * fragment to allow an interaction in this fragment to be communicated
+     * to the activity and potentially other fragments contained in that
+     * activity.
+     * <p>
+     * See the Android Training lesson <a href=
+     * "http://developer.android.com/training/basics/fragments/communicating.html"
+     * >Communicating with Other Fragments</a> for more information.
+     */
+    public interface OnFragmentInteractionListener {
+        // TODO: Update argument type and name
+        void onFragmentInteraction(Uri uri);
+    }
+}

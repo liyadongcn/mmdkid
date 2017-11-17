@@ -42,6 +42,16 @@ public class Token extends Model {
         return query;
     }
 
+    public static Query find(Context context, RESTAPIConnection.OnConnectionListener listener)
+    {
+        RESTAPIConnection connection = new RESTAPIConnection(context);
+        connection.URL = connection.URL + "oauth2/token";
+        connection.setListener(listener);
+        Query query = new Query(connection);
+        query.mModelClass = Token.class;
+        return query;
+    }
+
     public static JSONObject getRequest(Query query)  {
         JSONObject jsonObject = new JSONObject();
         RESTAPIConnection connection = (RESTAPIConnection) query.getConnection();

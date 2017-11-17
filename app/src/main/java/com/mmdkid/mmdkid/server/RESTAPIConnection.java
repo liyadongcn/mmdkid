@@ -8,6 +8,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.mmdkid.mmdkid.App;
+import com.mmdkid.mmdkid.helper.VolleyErrorHelper;
 import com.mmdkid.mmdkid.models.Model;
 import com.mmdkid.mmdkid.models.Token;
 import com.mmdkid.mmdkid.singleton.InternetSingleton;
@@ -119,7 +120,8 @@ public class RESTAPIConnection extends Connection {
                             byte[] htmlBodyBytes = error.networkResponse.data;
                             Log.e(TAG, new String(htmlBodyBytes), error);
                         }
-                        if(mListener!=null) mListener.onErrorRespose(query.mModelClass,error.toString());
+                        if(mListener!=null) mListener.onErrorRespose(query.mModelClass,
+                                VolleyErrorHelper.getMessage(error,mContext));
 
                     }
                 });
@@ -164,7 +166,8 @@ public class RESTAPIConnection extends Connection {
                             byte[] htmlBodyBytes = error.networkResponse.data;
                             Log.e(TAG, new String(htmlBodyBytes), error);
                         }
-                        if(mListener!=null) mListener.onErrorRespose(model.getClass(),error.toString());
+                        if(mListener!=null) mListener.onErrorRespose(model.getClass(),
+                                VolleyErrorHelper.getMessage(error,mContext));
 
                     }
                 });
@@ -207,7 +210,8 @@ public class RESTAPIConnection extends Connection {
                             byte[] htmlBodyBytes = error.networkResponse.data;
                             Log.e(TAG, new String(htmlBodyBytes), error);
                         }
-                        if(mListener!=null) mListener.onErrorRespose(model.getClass(),error.toString());
+                        if(mListener!=null) mListener.onErrorRespose(model.getClass(),
+                                VolleyErrorHelper.getMessage(error,mContext));
 
                     }
                 });
@@ -253,7 +257,8 @@ public class RESTAPIConnection extends Connection {
                             byte[] htmlBodyBytes = error.networkResponse.data;
                             Log.e(TAG, new String(htmlBodyBytes), error);
                         }
-                        if(mListener!=null) mListener.onErrorRespose(modelClass,error.toString());
+                        if(mListener!=null) mListener.onErrorRespose(modelClass,
+                                VolleyErrorHelper.getMessage(error,mContext));
 
                     }
                 });

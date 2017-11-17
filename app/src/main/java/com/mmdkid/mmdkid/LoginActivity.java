@@ -193,7 +193,10 @@ public class LoginActivity extends AppCompatActivity implements RESTAPIConnectio
                 break;
             case R.id.register:
                 // 注册新用户
-                intent = new Intent(LoginActivity.this,SignupActivity.class);
+                /*intent = new Intent(LoginActivity.this,SignupActivity.class);
+                startActivity(intent);
+                finish();*/
+                intent = new Intent(LoginActivity.this,RegisterActivity.class);
                 startActivity(intent);
                 finish();
             default:
@@ -494,7 +497,10 @@ public class LoginActivity extends AppCompatActivity implements RESTAPIConnectio
         if(c==User.class){
             if(!responseDataList.isEmpty()){
                 mUser = (User)responseDataList.get(0);
-                Log.d(TAG,"The user information is :" + mUser.mUsername + mUser.mAvatar);
+                Log.d(TAG,"The user user_name is :" + mUser.mUsername );
+                Log.d(TAG,"The user cellphone is :" + mUser.mCellphone);
+                Log.d(TAG,"The user email is :" + mUser.mEmail);
+                Log.d(TAG,"The user avatar is :" + mUser.mAvatar);
                 mUserValid = true;
                 mUser.saveToLocal(this);
                 App app = (App)getApplicationContext();

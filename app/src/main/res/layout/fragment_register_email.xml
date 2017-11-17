@@ -1,13 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="false"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.mmdkid.mmdkid.StarActivity"
-    tools:showIn="@layout/activity_star">
+    tools:context="com.mmdkid.mmdkid.fragments.register.RegisterEmailFragment">
+
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
@@ -15,7 +11,7 @@
         android:gravity="center_horizontal"
         android:orientation="vertical"
         android:padding="10dp"
-        tools:context="com.mmdkid.mmdkid.SignupActivity">
+        tools:context="com.mmdkid.mmdkid.RegisterActivity">
 
         <!-- signup progress -->
         <ProgressBar
@@ -38,7 +34,7 @@
                 android:orientation="vertical">
 
 
-                <android.support.design.widget.TextInputLayout
+               <!-- <android.support.design.widget.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
@@ -50,7 +46,7 @@
                         android:maxLines="1"
                         android:singleLine="true" />
 
-                </android.support.design.widget.TextInputLayout>
+                </android.support.design.widget.TextInputLayout>-->
 
                 <android.support.design.widget.TextInputLayout
                     android:layout_width="match_parent"
@@ -76,16 +72,14 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/prompt_password"
-                        android:imeActionId="@+id/signup"
-                        android:imeActionLabel="@string/action_sign_in_short"
-                        android:imeOptions="actionUnspecified"
+
                         android:inputType="textPassword"
                         android:maxLines="1"
                         android:singleLine="true" />
 
                 </android.support.design.widget.TextInputLayout>
 
-                <android.support.design.widget.TextInputLayout
+                <!--<android.support.design.widget.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
@@ -101,7 +95,7 @@
                         android:maxLines="1"
                         android:singleLine="true" />
 
-                </android.support.design.widget.TextInputLayout>
+                </android.support.design.widget.TextInputLayout>-->
 
                 <Button
                     android:id="@+id/email_sign_up_button"
@@ -118,4 +112,4 @@
         </ScrollView>
     </LinearLayout>
 
-</android.support.constraint.ConstraintLayout>
+</FrameLayout>

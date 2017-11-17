@@ -52,9 +52,8 @@ public class PostImageMiddleViewHolder extends ModelViewHolder {
                 e.printStackTrace();
                 mTextViewDate.setText(content.mCreatedAt);
             }
-            if(TextUtils.isEmpty(content.mImage) && content.mImageList!=null  && content.mImageList.isEmpty()){
-                mImageViewContent.setVisibility(View.GONE);
-            }else if (!TextUtils.isEmpty(content.mImage)){
+            mImageViewContent.setVisibility(View.GONE);
+            if (!TextUtils.isEmpty(content.mImage)&& !content.mImage.equalsIgnoreCase("null")){
                 Uri uri = Uri.parse(content.mImage);
                 if(uri.getScheme()==null){
                     uri = Uri.parse("http:"+content.mImage);
@@ -72,6 +71,10 @@ public class PostImageMiddleViewHolder extends ModelViewHolder {
                 }
                 mImageViewContent.setVisibility(View.VISIBLE);
                 mImageViewContent.setImageURI(uri);
+                Log.d(TAG,"Title is " + content.mTitle);
+                Log.d(TAG,"Image form image list is " + content.mImage);
+                Log.d(TAG,"Image Image form image list URI is " + uri);
+                Log.d(TAG,"Image Image form image list URI scheme is " + uri.getScheme());
             }
         }
     }

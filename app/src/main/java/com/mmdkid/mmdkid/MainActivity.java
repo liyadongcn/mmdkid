@@ -277,6 +277,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
 
     @Override
     public void onErrorRespose(Class c, String error) {
+
         if(c == User.class){
             App app = (App)getApplicationContext();
             app.setIsGuest(true);
@@ -295,7 +296,9 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
                 app.setCurrentUser(user);
                 app.setIsGuest(false);
                 Log.d(TAG,"Get the user info from the server.");
-                Log.d(TAG,"The user is " + user.mUsername);
+                Log.d(TAG,"The username is " + user.mUsername );
+                Log.d(TAG,"The cellphone is " + user.mCellphone );
+                Log.d(TAG,"The email is " + user.mEmail );
                 mBottomBar.getTabWithId(R.id.tab_me).setTitle("已登录");
             }else {
                 // there is no user info
@@ -428,9 +431,10 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
             Log.d(TAG,"There is no user in the local.");
             mBottomBar.getTabWithId(R.id.tab_me).setTitle("未登录");
         }else{
-            if(app.isUserAccessTokenValid()){
+            if(app.isUserAccessTokenValid()&& currentUser.getIdentity()!=null){
                 // user accesstoken is valid
-                attemptToGetUserInfo(currentUser.mUsername,token.mAccessToken);
+                Log.d(TAG,"Login identity is :" + currentUser.getIdentity());
+                attemptToGetUserInfo(currentUser.getIdentity(),token.mAccessToken);
             }else{
                 // user accesstoken is not valid
                 app.setIsGuest(true);

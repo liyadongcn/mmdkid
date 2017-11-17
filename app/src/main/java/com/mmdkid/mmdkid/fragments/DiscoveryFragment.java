@@ -188,9 +188,9 @@ public class DiscoveryFragment extends Fragment implements
                 case 0:
                     return "推荐";
                 case 1:
-                    return "行品";
+                    return "精品";
                 case 2:
-                    return "官宣";
+                    return "新闻";
                /* case 3:
                     return "美食";
                 case 4:

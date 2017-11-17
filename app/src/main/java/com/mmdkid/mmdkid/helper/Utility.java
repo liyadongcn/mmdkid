@@ -1,5 +1,8 @@
 package com.mmdkid.mmdkid.helper;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * Created by LIYADONG on 2017/9/6.
  */
@@ -27,5 +30,19 @@ public class Utility {
             int n = (int) num / 10000;
             return Integer.toString(n) + "万";
         }
+    }
+
+    /**
+     * 利用正则表达式判断字符串是否是数字
+     * @param str
+     * @return
+     */
+    public static boolean isNumeric(String str){
+        Pattern pattern = Pattern.compile("[0-9]*");
+        Matcher isNum = pattern.matcher(str);
+        if( !isNum.matches() ){
+            return false;
+        }
+        return true;
     }
 }
