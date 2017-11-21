@@ -4,7 +4,6 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -23,21 +22,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mmdkid.mmdkid.App;
-import com.mmdkid.mmdkid.MainActivity;
 import com.mmdkid.mmdkid.R;
 import com.mmdkid.mmdkid.models.Token;
 import com.mmdkid.mmdkid.models.User;
+import com.mmdkid.mmdkid.models.login.Login;
 import com.mmdkid.mmdkid.server.RESTAPIConnection;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.FormBody;
-import okhttp3.Headers;
-import okhttp3.OkHttpClient;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -272,7 +264,9 @@ public class RegisterEmailFragment extends Fragment{
                     Toast.makeText(getContext(),"邮箱注册成功,正在自动登录",Toast.LENGTH_LONG).show();
                     app.setCurrentUser(user);
                     // 使用新创建的手机账号登录系统
-                    attemptGetToken(mEmailView.getText().toString(),mPasswordView.getText().toString());
+                    //attemptGetToken(mEmailView.getText().toString(),mPasswordView.getText().toString());
+                    Login login = new Login(getContext(), mLoginListener);
+                    login.start(mEmailView.getText().toString(),mPasswordView.getText().toString());
                 }else{
                     Log.d(TAG,"Register a new user by the email,Get right response , but no user info from the server.");
                 }
@@ -320,7 +314,7 @@ public class RegisterEmailFragment extends Fragment{
      *  通过用户名密码获得访问Token
      *
      */
-    private void attemptGetToken(String identity, String password) {
+   /* private void attemptGetToken(String identity, String password) {
         if(mIsGettingToken){
             Log.d(TAG,"Is getting token return.");
             return;
@@ -356,12 +350,12 @@ public class RegisterEmailFragment extends Fragment{
             }
         }).where("username",identity).where("password",password).all();
     }
-
+*/
     /**
      * 使用用户输入的用户名密码模拟登陆web系统获取cookies
      * 在使用webview时加载cookies自动登录web系统
      */
-    private void getCookies(String identity, String password) {
+   /* private void getCookies(String identity, String password) {
         String loginUrl = "http://www.mmdkid.cn/index.php?r=site/login";
         final App app = (App) getActivity().getApplication();
 
@@ -385,7 +379,7 @@ public class RegisterEmailFragment extends Fragment{
 //                .addHeader("accept-encoding","gzip, deflate")
 //                .addHeader("referer","http://10.0.3.2/index.php?r=site%2Flogin")
 //                .addHeader("origin","http://10.0.3.2")
-//                .addHeader("accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
+//                .addHeader("accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,///;q=0.8")
 //                .addHeader("accept-language","zh-CN,zh;q=0.8")
                 .post(formBody)
                 .build();
@@ -445,7 +439,7 @@ public class RegisterEmailFragment extends Fragment{
                 }
             }
         });
-    }
+    }*/
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
@@ -485,4 +479,38 @@ public class RegisterEmailFragment extends Fragment{
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
+
+    private Login.LoginListener mLoginListener = new Login.LoginListener() {
+        @Override
+        public void onError(Class c, String error) {
+            showProgress(false);
+            if (c==Token.class)  Log.d(TAG,"Token Error:"+error);
+            if (c==User.class)  Log.d(TAG,"User Error:"+error);
+            if (c==null)  Log.d(TAG,"Web Error:"+error);
+            //mIsLogging = false;
+            Toast.makeText(getContext(),error,Toast.LENGTH_LONG).show();
+        }
+
+        @Override
+        public void onSuccess(Object user, Object token, Object cookies) {
+            Log.d(TAG,"User cellphone is :"+((User)user).mCellphone);
+            Log.d(TAG,"User email is :"+((User)user).mEmail);
+            Log.d(TAG,"User name is :"+((User)user).mUsername);
+            Log.d(TAG,"Token is:" + ((Token)token).mAccessToken);
+            Log.d(TAG,"Cookies is :" + ((List<String>)cookies));
+            App app = (App) getActivity().getApplication();
+            ((Token)token).saveToLocal(getContext());
+            ((User)user).saveToLocal(getContext());
+            app.setCookies(((List<String>)cookies));
+            app.setIsGuest(false);
+            // 所有登录过程全部成功
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    showProgress(false);
+                    getActivity().finish();
+                }
+            });
+        }
+    };
 }

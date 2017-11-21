@@ -12,6 +12,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * Created by LIYADONG on 2017/10/8.
@@ -45,12 +46,25 @@ public class Version extends Model {
             if(response.has("created_at")) model.created_at = response.getString("created_at");
             if(response.has("status")) model.status = response.getInt("status");
             if(response.has("locations")){
-                JSONArray jsonArray = response.getJSONArray("locations");
-                model.locations = new ArrayList<String>();
-                Log.d(TAG,jsonArray.toString());
-                for (int j=0; j<jsonArray.length(); j++){
-                    model.locations.add(jsonArray.getString(j));
+                if (response.get("locations") instanceof JSONArray){
+                    JSONArray jsonArray = response.getJSONArray("locations");
+                    model.locations = new ArrayList<String>();
+                    Log.d(TAG,jsonArray.toString());
+                    for (int j=0; j<jsonArray.length(); j++){
+                        model.locations.add(jsonArray.getString(j));
+                    }
+                } else if (response.get("locations") instanceof JSONObject){
+                    JSONObject jsonObject = (JSONObject) response.get("locations");
+                    Iterator iterator = jsonObject.keys();
+                    model.locations = new ArrayList<String>();
+                    String key,value;
+                    while(iterator.hasNext()){
+                        key = (String) iterator.next();
+                        value = jsonObject.getString(key);
+                        model.locations.add(value);
+                    }
                 }
+
             }
             return model;
         } catch (JSONException e) {

@@ -1,5 +1,6 @@
 package com.mmdkid.mmdkid.helper;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -44,5 +45,19 @@ public class Utility {
             return false;
         }
         return true;
+    }
+
+    /**
+     * java List转换为字符串并加入分隔符
+     */
+    public String listToString(List list, char separator) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < list.size(); i++) {
+            sb.append(list.get(i));
+            if (i < list.size() - 1) {
+                sb.append(separator);
+            }
+        }
+        return sb.toString();
     }
 }

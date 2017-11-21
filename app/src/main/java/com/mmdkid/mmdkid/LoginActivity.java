@@ -27,22 +27,16 @@ import com.mmdkid.mmdkid.models.Auth;
 import com.mmdkid.mmdkid.models.Model;
 import com.mmdkid.mmdkid.models.Token;
 import com.mmdkid.mmdkid.models.User;
+import com.mmdkid.mmdkid.models.login.Login;
 import com.mmdkid.mmdkid.server.RESTAPIConnection;
 import com.umeng.socialize.UMAuthListener;
 import com.umeng.socialize.UMShareAPI;
 import com.umeng.socialize.UMShareConfig;
 import com.umeng.socialize.bean.SHARE_MEDIA;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.FormBody;
-import okhttp3.Headers;
-import okhttp3.OkHttpClient;
 
 /**
  * A login screen that offers login via email/password.
@@ -51,7 +45,7 @@ import okhttp3.OkHttpClient;
  * 2、根据Token信息取得用户的用户信息
  * 3、使用用户名密码模拟web登录，取得网站的访问cookie
  */
-public class LoginActivity extends AppCompatActivity implements RESTAPIConnection.OnConnectionListener,OnClickListener {
+public class LoginActivity extends AppCompatActivity implements OnClickListener {
 
     private static final String TAG = "LoginActivity" ;
 
@@ -227,7 +221,9 @@ public class LoginActivity extends AppCompatActivity implements RESTAPIConnectio
                             //  使用关联账号登录
                             mIdentity = auth.mUsername;
                             mPassword = auth.mSecret;
-                            attemptGetToken(mIdentity,mPassword);
+                            //attemptGetToken(mIdentity,mPassword);
+                            Login login = new Login(getApplicationContext(), mLoginListener);
+                            login.start(mIdentity,mPassword);
                         }else{
                             // 本地没有关联的账号 需要创建一个关联账号
                             Log.d(TAG,"Get right response from the server.but it is empty.");
@@ -302,7 +298,9 @@ public class LoginActivity extends AppCompatActivity implements RESTAPIConnectio
                     Log.d(TAG,"Auth user id is " + auth.mUserId);
                     Log.d(TAG,"Auth user secret is " + auth.mSecret);
                     // 使用新创建的关联账号登录系统
-                    attemptGetToken(mIdentity,mPassword);
+                    //attemptGetToken(mIdentity,mPassword);
+                    Login login = new Login(getApplicationContext(), mLoginListener);
+                    login.start(mIdentity,mPassword);
                 }else{
                     Log.d(TAG,"Get right response from the server,but has error to create a new auth.");
                 }
@@ -381,30 +379,32 @@ public class LoginActivity extends AppCompatActivity implements RESTAPIConnectio
             /*
             * 使用用户唯一标识获取授权Token，该标识可以是用户名、手机号、邮箱号
             * */
-            attemptGetToken(mIdentity,mPassword);
+            //attemptGetToken(mIdentity,mPassword);
+            Login login = new Login(getApplicationContext(), mLoginListener);
+            login.start(mIdentity,mPassword);
         }
     }
 
     /*
     *  通过有效的Token获得登录用户的信息
     * */
-    private void attemptGetUser(String identity,String accessToken) {
+  /*  private void attemptGetUser(String identity,String accessToken) {
         if(mIsGettingUserInfo) return;
         mIsGettingUserInfo = true;
         RESTAPIConnection connection = new RESTAPIConnection(this);
         connection.ACCESS_TOKEN = accessToken;
         User.find(connection).where("user_name",identity).all();
-    }
+    }*/
     /*
     *  通过用户名密码获得访问Token
     *
     * */
-    private void attemptGetToken(String identity, String password) {
+  /*  private void attemptGetToken(String identity, String password) {
         if(mIsGettingToken) return;
         mIsGettingToken = true;
         RESTAPIConnection connection = new RESTAPIConnection(this);
         Token.find(connection).where("username",identity).where("password",password).all();
-    }
+    }*/
 
     private boolean isEmailValid(String email) {
         //TODO: Replace this with your own logic
@@ -457,7 +457,7 @@ public class LoginActivity extends AppCompatActivity implements RESTAPIConnectio
         }
     }
 
-    @Override
+   /* @Override
     public void onErrorRespose(Class c, String error) {
         showProgress(false);
         Log.d(TAG,"Get erro from the server.");
@@ -474,14 +474,14 @@ public class LoginActivity extends AppCompatActivity implements RESTAPIConnectio
 
         mIsLogging = false;
 
-        /*
+        *//*
         * 获取Token或者用户信息错误，清除本地缓存的token信息及用户信息
-        * */
+        * *//*
         App app = (App) getApplicationContext();
         app.setCurrentUser(null);
-    }
+    }*/
 
-    @Override
+    /*@Override
     public void onResponse(Class c, ArrayList responseDataList) {
 
         Log.d(TAG,"Get response from the server.");
@@ -519,7 +519,7 @@ public class LoginActivity extends AppCompatActivity implements RESTAPIConnectio
             getCookies(mIdentity,mPassword);
         }
 
-    }
+    }*/
 
 
 
@@ -586,7 +586,7 @@ public class LoginActivity extends AppCompatActivity implements RESTAPIConnectio
      * 使用用户输入的用户名密码模拟登陆web系统获取cookies
      * 在使用webview时加载cookies自动登录web系统
      */
-    private void getCookies(String identity, String password) {
+    /*private void getCookies(String identity, String password) {
         String loginUrl = "http://www.mmdkid.cn/index.php?r=site/login";
         final App app = (App) getApplicationContext();
 
@@ -610,7 +610,7 @@ public class LoginActivity extends AppCompatActivity implements RESTAPIConnectio
 //                .addHeader("accept-encoding","gzip, deflate")
 //                .addHeader("referer","http://10.0.3.2/index.php?r=site%2Flogin")
 //                .addHeader("origin","http://10.0.3.2")
-//                .addHeader("accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
+//                .addHeader("accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,/;q=0.8")
 //                .addHeader("accept-language","zh-CN,zh;q=0.8")
                 .post(formBody)
                 .build();
@@ -666,6 +666,40 @@ public class LoginActivity extends AppCompatActivity implements RESTAPIConnectio
                 }
             }
         });
-    }
+    }*/
+
+    private Login.LoginListener mLoginListener = new Login.LoginListener() {
+        @Override
+        public void onError(Class c, String error) {
+            showProgress(false);
+            if (c==Token.class)  Log.d(TAG,"Token Error:"+error);
+            if (c==User.class)  Log.d(TAG,"User Error:"+error);
+            if (c==null)  Log.d(TAG,"Web Error:"+error);
+            mIsLogging = false;
+            Toast.makeText(getApplicationContext(),error,Toast.LENGTH_LONG).show();
+        }
+
+        @Override
+        public void onSuccess(Object user, Object token, Object cookies) {
+            Log.d(TAG,"User cellphone is :"+((User)user).mCellphone);
+            Log.d(TAG,"User email is :"+((User)user).mEmail);
+            Log.d(TAG,"User name is :"+((User)user).mUsername);
+            Log.d(TAG,"Token is:" + ((Token)token).mAccessToken);
+            Log.d(TAG,"Cookies is :" + ((List<String>)cookies));
+            App app = (App) getApplicationContext();
+            ((Token)token).saveToLocal(getApplicationContext());
+            ((User)user).saveToLocal(getApplicationContext());
+            app.setCookies(((List<String>)cookies));
+            app.setIsGuest(false);
+            // 所有登录过程全部成功
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    showProgress(false);
+                    finish();
+                }
+            });
+        }
+    };
 }
 

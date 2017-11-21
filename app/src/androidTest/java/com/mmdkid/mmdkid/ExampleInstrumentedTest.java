@@ -5,10 +5,16 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 
+import com.mmdkid.mmdkid.models.Token;
+import com.mmdkid.mmdkid.models.User;
+import com.mmdkid.mmdkid.models.login.Login;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
@@ -20,7 +26,7 @@ import static org.junit.Assert.assertEquals;
 @RunWith(AndroidJUnit4.class)
 public class ExampleInstrumentedTest {
     private final static String TAG = "ExampleInstrumentedTest";
-    @Test
+
     public void useAppContext() throws Exception {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
@@ -28,6 +34,27 @@ public class ExampleInstrumentedTest {
         assertEquals("com.mmdkid.mmdkid", appContext.getPackageName());
     }
     @Test
+    public void loginTest() throws Exception{
+        // Context of the app under test.
+        Context appContext = InstrumentationRegistry.getTargetContext();
+        Login login = new Login(appContext, new Login.LoginListener() {
+            @Override
+            public void onError(Class c, String error) {
+                Log.d(TAG,"Error:"+error);
+            }
+
+            @Override
+            public void onSuccess(Object user, Object token, Object cookies) {
+                Log.d(TAG,"User cellphone is :"+((User)user).mCellphone);
+                Log.d(TAG,"User email is :"+((User)user).mEmail);
+                Log.d(TAG,"User name is :"+((User)user).mUsername);
+                Log.d(TAG,"Token is:" + ((Token)token).mAccessToken);
+                Log.d(TAG,"Cookies is :" + ((List<String>)cookies));
+            }
+        });
+        login.start("liyadong","123456");
+    }
+
     public void check_json() throws Exception {
         String jsonString = "{\n" +
                 "    \"id\": \"596a35495c3c7\",\n" +

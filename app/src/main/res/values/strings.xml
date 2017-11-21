@@ -21,8 +21,12 @@
     <string name="actionn_load_more">刚刚看到这里,点击刷新</string>
 
     <!--String related to volley error-->
-    <string name="volley_error_no_internet">无网络连接~！</string>
-    <string name="volley_error_generic_server_down">连接服务器失败~！</string>
+    <string name="volley_error_generic_timeout">网络连接超时~！</string>
+    <string name="volley_error_generic_parse">Json数据错误~！</string>
+    <string name="volley_error_generic_network">服务器无法连接~！</string>
+    <string name="volley_error_generic_no_connection">无网络连接~！</string>
+    <string name="volley_error_generic_auth_failure">无法认证用户~！</string>
+    <string name="volley_error_generic_server">服务器响应错误~！</string>
     <string name="volley_error_generic_error">网络异常,请稍后再试~！</string>
 
     <!--String related to share-->

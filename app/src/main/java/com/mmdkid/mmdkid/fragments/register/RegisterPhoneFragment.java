@@ -26,6 +26,7 @@ import com.mmdkid.mmdkid.R;
 import com.mmdkid.mmdkid.helper.Utility;
 import com.mmdkid.mmdkid.models.Token;
 import com.mmdkid.mmdkid.models.User;
+import com.mmdkid.mmdkid.models.login.Login;
 import com.mmdkid.mmdkid.server.RESTAPIConnection;
 import com.mob.MobSDK;
 
@@ -78,6 +79,7 @@ public class RegisterPhoneFragment extends Fragment implements
     private int mTimeOut = 60;
 
     private boolean mBoolPhoneVerified = false;
+    //private boolean mIsLogging = false;
 
     private View mProgressView;
     private View mLoginFormView;
@@ -243,7 +245,9 @@ public class RegisterPhoneFragment extends Fragment implements
                     Toast.makeText(getContext(),"手机注册成功,正在自动登录",Toast.LENGTH_LONG).show();
                     app.setCurrentUser(user);
                     // 使用新创建的手机账号登录系统
-                    attemptGetToken(mPhoneEditText.getText().toString(),mPasswordEditText.getText().toString());
+                    //attemptGetToken(mPhoneEditText.getText().toString(),mPasswordEditText.getText().toString());
+                    Login login = new Login(getContext(), mLoginListener);
+                    login.start(mPhoneEditText.getText().toString(),mPasswordEditText.getText().toString());
                 }else{
                     Log.d(TAG,"Create a new user by the phone,Get right response , but no user info from the server.");
                 }
@@ -545,4 +549,38 @@ public class RegisterPhoneFragment extends Fragment implements
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
+
+    private Login.LoginListener mLoginListener = new Login.LoginListener() {
+        @Override
+        public void onError(Class c, String error) {
+            showProgress(false);
+            if (c==Token.class)  Log.d(TAG,"Token Error:"+error);
+            if (c==User.class)  Log.d(TAG,"User Error:"+error);
+            if (c==null)  Log.d(TAG,"Web Error:"+error);
+            //mIsLogging = false;
+            Toast.makeText(getContext(),error,Toast.LENGTH_LONG).show();
+        }
+
+        @Override
+        public void onSuccess(Object user, Object token, Object cookies) {
+            Log.d(TAG,"User cellphone is :"+((User)user).mCellphone);
+            Log.d(TAG,"User email is :"+((User)user).mEmail);
+            Log.d(TAG,"User name is :"+((User)user).mUsername);
+            Log.d(TAG,"Token is:" + ((Token)token).mAccessToken);
+            Log.d(TAG,"Cookies is :" + ((List<String>)cookies));
+            App app = (App) getActivity().getApplication();
+            ((Token)token).saveToLocal(getContext());
+            ((User)user).saveToLocal(getContext());
+            app.setCookies(((List<String>)cookies));
+            app.setIsGuest(false);
+            // 所有登录过程全部成功
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    showProgress(false);
+                    getActivity().finish();
+                }
+            });
+        }
+    };
 }

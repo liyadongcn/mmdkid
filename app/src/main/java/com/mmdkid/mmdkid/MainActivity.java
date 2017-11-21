@@ -30,14 +30,14 @@ import com.mmdkid.mmdkid.fragments.VideoFragment;
 import com.mmdkid.mmdkid.fragments.gw.ContentFragment;
 import com.mmdkid.mmdkid.models.Token;
 import com.mmdkid.mmdkid.models.User;
-import com.mmdkid.mmdkid.server.RESTAPIConnection;
+import com.mmdkid.mmdkid.models.login.Login;
 import com.mmdkid.mmdkid.update.CheckUpdateUtil;
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnTabReselectListener;
 import com.roughike.bottombar.OnTabSelectListener;
 import com.umeng.message.PushAgent;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import fm.jiecao.jcvideoplayer_lib.JCVideoPlayer;
 
@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
         ,DiscoveryFragment.OnFragmentInteractionListener
         ,MeFragment.OnFragmentInteractionListener
         ,ContentFragment.OnFragmentInteractionListener
-        ,RESTAPIConnection.OnConnectionListener{
+        {
 
     private static final String TAG = "MainActivity";
 
@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         /*
@@ -108,7 +108,6 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
-
         mBottomBar = (BottomBar) findViewById(R.id.bottomBar);
         mBottomBar.setOnTabSelectListener(new OnTabSelectListener() {
             @Override
@@ -117,6 +116,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
                     // The tab with id R.id.tab_favorites was selected,
                     // change your content accordingly.
                     case R.id.tab_home:
+                        toolbar.setVisibility(View.VISIBLE);
                         mViewPager.setCurrentItem(0);
                         break;
                   /*  case R.id.tab_today:
@@ -127,12 +127,15 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
                         break;*/
                     case R.id.tab_video:
                         mViewPager.setCurrentItem(1);
+                        toolbar.setVisibility(View.GONE);
                         break;
                     case R.id.tab_discovery:
                         mViewPager.setCurrentItem(2);
+                        toolbar.setVisibility(View.VISIBLE);
                         break;
                     case R.id.tab_me:
                         mViewPager.setCurrentItem(3);
+                        toolbar.setVisibility(View.VISIBLE);
                         break;
                 }
             }
@@ -275,7 +278,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
         dialog.show();
     }*/
 
-    @Override
+   /* @Override
     public void onErrorRespose(Class c, String error) {
 
         if(c == User.class){
@@ -284,9 +287,9 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
             app.setCurrentUser(null);
             mBottomBar.getTabWithId(R.id.tab_me).setTitle("未登录");
         }
-    }
+    }*/
 
-    @Override
+   /* @Override
     public void onResponse(Class c, ArrayList responseDataList) {
         App app = (App)getApplicationContext();
         if(c == User.class){
@@ -306,7 +309,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
                 app.setCurrentUser(null);
             }
         }
-    }
+    }*/
 
     /**
      * A placeholder fragment containing a simple view.
@@ -434,7 +437,11 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
             if(app.isUserAccessTokenValid()&& currentUser.getIdentity()!=null){
                 // user accesstoken is valid
                 Log.d(TAG,"Login identity is :" + currentUser.getIdentity());
-                attemptToGetUserInfo(currentUser.getIdentity(),token.mAccessToken);
+                //attemptToGetUserInfo(currentUser.getIdentity(),token.mAccessToken);
+                Login login = new Login(this, mLoginListener);
+                // 自动登录时 不自动登录web
+                login.setLoginWeb(false);
+                login.startWithToken(currentUser.getIdentity(),token);
             }else{
                 // user accesstoken is not valid
                 app.setIsGuest(true);
@@ -446,10 +453,39 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
         }
     }
 
-    private void attemptToGetUserInfo(String identity,String accessToken) {
+   /* private void attemptToGetUserInfo(String identity,String accessToken) {
         RESTAPIConnection connection = new RESTAPIConnection(this);
         connection.ACCESS_TOKEN = accessToken;
         User.find(connection).where("user_name",identity).all();
         Log.d(TAG,"Try to get the user info...");
-    }
+    }*/
+
+    private Login.LoginListener mLoginListener = new Login.LoginListener() {
+        @Override
+        public void onError(Class c, String error) {
+            //showProgress(false);
+            if (c==Token.class)  Log.d(TAG,"Token Error:"+error);
+            if (c==User.class)  Log.d(TAG,"User Error:"+error);
+            if (c==null)  Log.d(TAG,"Web Error:"+error);
+            //mIsLogging = false;
+            Toast.makeText(MainActivity.this,error,Toast.LENGTH_LONG).show();
+            mBottomBar.getTabWithId(R.id.tab_me).setTitle("未登录");
+        }
+
+        @Override
+        public void onSuccess(Object user, Object token, Object cookies) {
+            Log.d(TAG,"User cellphone is :"+((User)user).mCellphone);
+            Log.d(TAG,"User email is :"+((User)user).mEmail);
+            Log.d(TAG,"User name is :"+((User)user).mUsername);
+            Log.d(TAG,"Token is:" + ((Token)token).mAccessToken);
+            if (cookies!=null) Log.d(TAG,"Cookies is :" + ((List<String>)cookies));
+            App app = (App) getApplication();
+            ((Token)token).saveToLocal(MainActivity.this);
+            ((User)user).saveToLocal(MainActivity.this);
+            if (cookies!=null) app.setCookies(((List<String>)cookies));
+            app.setIsGuest(false);
+            // 所有登录过程全部成功
+            mBottomBar.getTabWithId(R.id.tab_me).setTitle("已登录");
+        }
+    };
 }

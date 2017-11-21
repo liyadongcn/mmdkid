@@ -14,6 +14,7 @@ import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkError;
 import com.android.volley.NetworkResponse;
 import com.android.volley.NoConnectionError;
+import com.android.volley.ParseError;
 import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
@@ -32,12 +33,22 @@ public class VolleyErrorHelper {
     public static String getMessage(Object error, Context context) {
         if (error instanceof TimeoutError) {
             return context.getResources().getString(  
-                    R.string.volley_error_generic_server_down);
-        } else if (isServerProblem(error)) {  
-            return handleServerError(error, context);  
-        } else if (isNetworkProblem(error)) {  
-            return context.getResources().getString(R.string.volley_error_no_internet);
-        }  
+                    R.string.volley_error_generic_timeout);
+        }else if (error instanceof AuthFailureError){
+            return context.getResources().getString(
+                    R.string.volley_error_generic_auth_failure);
+        }else if (error instanceof NetworkError){
+            return context.getResources().getString(
+                    R.string.volley_error_generic_network);
+        }else if (error instanceof NoConnectionError){
+            return context.getResources().getString(
+                    R.string.volley_error_generic_no_connection);
+        }else if (error instanceof ParseError){
+            return context.getResources().getString(
+                    R.string.volley_error_generic_parse);
+        }else if (error instanceof ServerError){
+            return handleServerError(error,context);
+        }
         return context.getResources().getString(R.string.volley_error_generic_error);
     }  
   
@@ -75,14 +86,21 @@ public class VolleyErrorHelper {
         VolleyError error = (VolleyError) err;
   
         NetworkResponse response = error.networkResponse;
+        //HttpHeaderParser.parseCharset(response.headers);
+        //判断服务器返回的错误数据类是否为json格式
+        String contentType = response.headers.get("Content-Type");
+        boolean isJsonType =false;
+        if (contentType!=null && contentType.indexOf("application/json")!=-1){
+            isJsonType = true;
+        }
 
         if (response != null) {  
             switch (response.statusCode) {  
             case 500:
-                return new String(response.data);
+                if (isJsonType) return new String(response.data);
             default:  
                 return context.getResources().getString(  
-                        R.string.volley_error_generic_server_down);
+                        R.string.volley_error_generic_server);
             }  
         }  
         return context.getResources().getString(R.string.volley_error_generic_error);

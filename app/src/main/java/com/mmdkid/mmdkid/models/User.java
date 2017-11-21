@@ -98,6 +98,17 @@ public class User extends Model {
         return query;
     }
 
+    public static Query find(Context context, String token,RESTAPIConnection.OnConnectionListener listener)
+    {
+        RESTAPIConnection connection = new RESTAPIConnection(context);
+        connection.setListener(listener);
+        connection.ACCESS_TOKEN = token;
+        Query query = new Query(connection);
+        query.mModelClass = User.class;
+        return query;
+    }
+
+
     public static String getAutoCreateUserSecretKey(){
         return AUTO_CREATE_SECRET_KEY;
     }
