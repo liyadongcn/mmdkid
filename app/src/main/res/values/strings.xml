@@ -36,7 +36,7 @@
     <string name="send_comment_hint">写评论</string>
     <string name="send_comment">评论</string>
     <string name="error_invalid_comment">The comment is too short or is invalid.</string>
-    <string name="send_comment_success">Comment submit success.</string>
+    <string name="send_comment_success">发送评论成功</string>
 
     <!-- Strings related to login -->
     <string name="prompt_email">邮箱</string>

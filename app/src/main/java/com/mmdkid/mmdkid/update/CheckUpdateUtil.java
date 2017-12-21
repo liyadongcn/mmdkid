@@ -5,6 +5,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -28,6 +29,7 @@ import android.widget.Toast;
 
 import com.mmdkid.mmdkid.BuildConfig;
 import com.mmdkid.mmdkid.R;
+import com.mmdkid.mmdkid.helper.NetWorkUtil;
 import com.mmdkid.mmdkid.models.Version;
 import com.mmdkid.mmdkid.server.RESTAPIConnection;
 
@@ -181,7 +183,7 @@ public class CheckUpdateUtil {
 
         TextView log_head = (TextView) view.findViewById(R.id.log_head);
         TextView msg_tv = (TextView) view.findViewById(R.id.msg_tv);
-        log_head.setText("v" + new_version + "更新日志：");
+        log_head.setText("V" + new_version + "更新日志：");
         msg_tv.setText(update_log);
         Button update = (Button) view.findViewById(R.id.yes_btn);
         Button notNow = (Button) view.findViewById(R.id.no_btn);
@@ -190,8 +192,14 @@ public class CheckUpdateUtil {
             @Override
             public void onClick(View v) {
                 // 下载更新并安装
-                download(context, download_path);
                 mAlertDialog.dismiss();
+                if (NetWorkUtil.isWifiAvailable(context)){ //使用wifi直接下载
+                    download(context, download_path);
+                }else {// 用户决定是否使用移动数据下载
+                    showNetworkDialog(context);
+                }
+
+
             }
         });
         notNow.setOnClickListener(new View.OnClickListener() {
@@ -205,6 +213,27 @@ public class CheckUpdateUtil {
             notNow.setVisibility(View.GONE);
         }
     }
+
+    private static void showNetworkDialog(final Context context){
+        // 获取下载地址
+        final String download_path = mNewVersion.locations.get(0);
+        new AlertDialog.Builder(context)
+                .setTitle("提示")
+                .setMessage("您正在使用移动网络，继续下载将消耗流量")
+                .setNegativeButton("停止下载", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                })
+                .setPositiveButton("继续下载", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        download(context, download_path);
+                    }
+                })
+                .create().show();
+    }
+
 
     /**
      * 下载apk
@@ -270,11 +299,12 @@ public class CheckUpdateUtil {
                         //下载成功后自动安装apk并打开
                         Intent intent = new Intent(Intent.ACTION_VIEW);
                         /*intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        intent.setDataAndType(Uri.fromFile(file), "application/vnd.android.package-archive");
+                         intent.setDataAndType(Uri.fromFile(file), "application/vnd.android.package-archive");
                         context.startActivity(intent);*/
                         //判断是否是AndroidN以及更高的版本
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                             intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             Uri contentUri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".fileProvider", file);
                             intent.setDataAndType(contentUri, "application/vnd.android.package-archive");
                         } else {

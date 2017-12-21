@@ -531,11 +531,11 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
             mDataset.addAll(0,responseDataList);
             setViewType(responseDataList);
             insertRefresh(responseDataList.size());
-            mAdapter.notifyDataSetChanged();
-            mRecyclerView.smoothScrollToPosition(0);
+            if (mAdapter!=null) mAdapter.notifyDataSetChanged(); // 微博登录调试时增加 否则空指针
+            if (mRecyclerView!=null) mRecyclerView.smoothScrollToPosition(0); // 微博登录调试时增加 否则空指针
         }
         mProgressDialog.dismiss();
-        mRefreshLayout.setRefreshing(false);
+        if (mRefreshLayout!=null) mRefreshLayout.setRefreshing(false); // 微博登录调试时增加 否则空指针
     }
 
     //  插入刷新点，用户点击后自动刷新获得新数据

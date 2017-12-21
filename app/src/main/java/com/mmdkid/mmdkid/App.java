@@ -33,6 +33,11 @@ public class App extends Application {
     private static final String TAG = "mmdApp";
 
     public static final String PREFS_NAME = "momoda";
+    private static final String PREF_HOT_KEYWORDS = "hotKeyWords";
+    private static final String PREF_HISTORY_KEYWORDS = "historyKeyWords";
+    private static final String PREF_CHANNELS = "channels";
+    private static final String PREF_OTHER_CHANNELS = "otherchannels";
+    private static final String PREF_COOKIES = "cookies";
 
     private boolean mIsGuest = true;
 
@@ -61,7 +66,8 @@ public class App extends Application {
         // 友盟设置
         PlatformConfig.setWeixin("wxd351513db5e7e7cd", "0a0317230e8462e0b355bce31a6bd80d");
         PlatformConfig.setQQZone("1106209187", "b4GtyTWBLyBw84XP");
-        PlatformConfig.setSinaWeibo("1829150753", "0a0d5416fa055a9da67a58f51526d9e7","http://sns.whalecloud.com/sina2/callback");
+        PlatformConfig.setSinaWeibo("1829150753", "0a0d5416fa055a9da67a58f51526d9e7"
+                ,"http://sns.whalecloud.com");
         //需要查看友盟调试信息时打开
         Config.DEBUG = true;
         UMShareAPI.get(this);
@@ -197,13 +203,13 @@ public class App extends Application {
     public void setCookies(List<String> cookies){
         SharedPreferences settings = getSharedPreferences(App.PREFS_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putStringSet("cookies",new HashSet<String>(cookies));
+        editor.putStringSet(PREF_COOKIES,new HashSet<String>(cookies));
         editor.commit();
     }
 
     public List<String> getCookies(){
         SharedPreferences settings = getSharedPreferences(App.PREFS_NAME,Context.MODE_PRIVATE);
-        Set<String> cookieSet = settings.getStringSet("cookies",null);
+        Set<String> cookieSet = settings.getStringSet(PREF_COOKIES,null);
         if(cookieSet == null || cookieSet.isEmpty()) {
             return null;
         }else{
@@ -216,7 +222,7 @@ public class App extends Application {
 
     public ArrayList<String> getHistoryKeyWords(){
         SharedPreferences settings = getSharedPreferences(App.PREFS_NAME,Context.MODE_PRIVATE);
-        Set<String> wordsSet = settings.getStringSet("historyKeyWords",null);
+        Set<String> wordsSet = settings.getStringSet(PREF_HISTORY_KEYWORDS,null);
         if(wordsSet == null || wordsSet.isEmpty()) {
             return null;
         }else{
@@ -229,14 +235,53 @@ public class App extends Application {
     public void setHistoryKeyWords(ArrayList<String> words){
         SharedPreferences settings = getSharedPreferences(App.PREFS_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putStringSet("historyKeyWords",new LinkedHashSet<String>(words));
+        editor.putStringSet(PREF_HISTORY_KEYWORDS,new LinkedHashSet<String>(words));
         editor.commit();
     }
 
     public void clearHistoryKeyWords(){
         SharedPreferences settings = getSharedPreferences(App.PREFS_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putStringSet("historyKeyWords",null);
+        editor.putStringSet(PREF_HISTORY_KEYWORDS,null);
+        editor.commit();
+    }
+
+    /**
+     * 从本地SharedPreferences得到热搜词汇列表
+     */
+    public ArrayList<String> getHotKeyWords(){
+        SharedPreferences settings = getSharedPreferences(App.PREFS_NAME,Context.MODE_PRIVATE);
+        Set<String> wordsSet = settings.getStringSet(PREF_HOT_KEYWORDS,null);
+        if(wordsSet == null || wordsSet.isEmpty()) {
+            ArrayList<String> list = new ArrayList<String>();
+            list.add("幼升小");
+            list.add("小升初");
+            list.add("中考");
+            list.add("高考");
+            list.add("英语");
+            return list;
+        }else{
+            ArrayList<String> list = new ArrayList<String>();
+            list.addAll(wordsSet);
+            return  list;
+        }
+    }
+    /**
+     * 将词汇列表保存到本地热搜词列表SharedPreferneces中
+     */
+    public void setHotKeyWords(ArrayList<String> words){
+        SharedPreferences settings = getSharedPreferences(App.PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putStringSet(PREF_HOT_KEYWORDS,new LinkedHashSet<String>(words));
+        editor.commit();
+    }
+    /**
+     * 清空本地热搜词列表
+     */
+    public void clearHotKeyWords(){
+        SharedPreferences settings = getSharedPreferences(App.PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putStringSet(PREF_HOT_KEYWORDS,null);
         editor.commit();
     }
 

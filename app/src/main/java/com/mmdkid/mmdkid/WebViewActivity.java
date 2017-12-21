@@ -3,6 +3,7 @@ package com.mmdkid.mmdkid;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
@@ -68,6 +69,8 @@ public class WebViewActivity extends AppCompatActivity {
     private List<String> mCookies;
     private boolean mUsingCookies = true;
 
+    private ProgressDialog mProgressDialog;
+
     // 使webview可以打开上载按钮
     private ValueCallback<Uri> mUploadMessage;
     private ValueCallback<Uri[]> mUploadMessage5;
@@ -98,7 +101,7 @@ public class WebViewActivity extends AppCompatActivity {
         mProgressBar = (ContentLoadingProgressBar) findViewById(R.id.progressBar);
 
         mCommentForm = (LinearLayout) findViewById(R.id.llCommentForm);
-        if (mModel == null){
+        if (mModel == null || mModel instanceof com.mmdkid.mmdkid.models.gw.Content ){
             mCommentForm.setVisibility(View.GONE);
         }else {
             mCommentForm.setVisibility(View.VISIBLE);
@@ -136,6 +139,20 @@ public class WebViewActivity extends AppCompatActivity {
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         //client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+    }
+
+    private void showProgressDialog(boolean show){
+        if (mProgressDialog==null){
+            mProgressDialog = new ProgressDialog(this);
+            mProgressDialog.setIndeterminate(true);
+            mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        }
+        if (show){
+            mProgressDialog.setMessage("请稍后...");
+            mProgressDialog.show();
+        }else {
+            mProgressDialog.dismiss();
+        }
     }
 
     /**
@@ -259,10 +276,10 @@ public class WebViewActivity extends AppCompatActivity {
                     Content content = (Content) mModel;
                     if (content.mImage!=null && !content.mImage.isEmpty() && !content.mImage.equalsIgnoreCase("null")){
                         // 使用image字段
-                        image = new UMImage(WebViewActivity.this, content.mImage);//网络图片
+                        image = new UMImage(WebViewActivity.this, HtmlUtil.getUrl(content.mImage));//网络图片
                     }else if(content.mImageList!=null && !content.mImageList.isEmpty()){
                         // 使用第一张图片
-                        image = new UMImage(WebViewActivity.this, content.mImageList.get(0));//网络图片
+                        image = new UMImage(WebViewActivity.this,  HtmlUtil.getUrl(content.mImageList.get(0)));//网络图片
                     }else{
                         // 使用默认图标
                         image = new UMImage(WebViewActivity.this,R.mipmap.ic_launcher);
@@ -336,7 +353,7 @@ public class WebViewActivity extends AppCompatActivity {
          */
         @Override
         public void onStart(SHARE_MEDIA platform) {
-
+            showProgressDialog(true);
         }
 
         /**
@@ -345,6 +362,7 @@ public class WebViewActivity extends AppCompatActivity {
          */
         @Override
         public void onResult(SHARE_MEDIA platform) {
+            showProgressDialog(false);
             Toast.makeText(WebViewActivity.this,"成功了",Toast.LENGTH_LONG).show();
         }
 
@@ -355,6 +373,7 @@ public class WebViewActivity extends AppCompatActivity {
          */
         @Override
         public void onError(SHARE_MEDIA platform, Throwable t) {
+            showProgressDialog(false);
             Toast.makeText(WebViewActivity.this,"失败"+t.getMessage(),Toast.LENGTH_LONG).show();
         }
 
@@ -364,13 +383,11 @@ public class WebViewActivity extends AppCompatActivity {
          */
         @Override
         public void onCancel(SHARE_MEDIA platform) {
+            showProgressDialog(false);
             Toast.makeText(WebViewActivity.this,"取消了",Toast.LENGTH_LONG).show();
 
         }
     };
-
-
-
 
     private void startWebView(List<String> cookies) {
 
@@ -507,6 +524,7 @@ public class WebViewActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
         UMShareAPI.get(this).onActivityResult(requestCode,resultCode,intent);
+        // 用于浏览器上载文件 若没有webview不能上传文件
         if (requestCode == FILECHOOSER_RESULTCODE) {
             if (null == mUploadMessage) {
                 return;

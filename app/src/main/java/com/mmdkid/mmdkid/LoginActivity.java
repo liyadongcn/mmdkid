@@ -134,7 +134,10 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
 
         UMShareConfig config = new UMShareConfig();
         config.isNeedAuthOnGetUserInfo(true);
-        UMShareAPI.get(LoginActivity.this).setShareConfig(config);
+        config.setSinaAuthType(UMShareConfig.AUTH_TYPE_WEBVIEW);
+        mShareAPI = UMShareAPI.get(LoginActivity.this);
+        mShareAPI.setShareConfig(config);
+        mShareAPI.fetchAuthResultWithBundle(this, savedInstanceState,umAuthListener);
 
         mQQLogin = (ImageView)findViewById(R.id.qqLogin);
         mQQLogin.setOnClickListener(this);
@@ -163,20 +166,21 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
             case R.id.qqLogin:
                 // do the qq login
                 Log.d(TAG,"QQ login view is clicked.");
-                mShareAPI = UMShareAPI.get(LoginActivity.this);
+                //mShareAPI = UMShareAPI.get(LoginActivity.this);
                 mShareAPI.getPlatformInfo(LoginActivity.this, SHARE_MEDIA.QQ, umAuthListener);
                 break;
             case R.id.sinaLogin:
                 // do the sina weibo login
                 Log.d(TAG,"Sina weibo login view is clicked.");
-                mShareAPI = UMShareAPI.get(LoginActivity.this);
-                mShareAPI.getPlatformInfo(LoginActivity.this, SHARE_MEDIA.SINA, umAuthListener);
+                //mShareAPI = UMShareAPI.get(getApplicationContext());
+                mShareAPI.getPlatformInfo(this, SHARE_MEDIA.SINA, umAuthListener);
+                //mShareAPI.doOauthVerify(LoginActivity.this, SHARE_MEDIA.SINA, umAuthListener);
                 //UmengTool.getSignature(this);
                 break;
             case R.id.wxLogin:
                 // 微信登录
                 Log.d(TAG,"Weixin login view is clicked.");
-                mShareAPI = UMShareAPI.get(LoginActivity.this);
+                //mShareAPI = UMShareAPI.get(LoginActivity.this);
                 mShareAPI.getPlatformInfo(LoginActivity.this, SHARE_MEDIA.WEIXIN, umAuthListener);
                 break;
             case R.id.tvForgetPassword:
@@ -531,21 +535,22 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
         public void onStart(SHARE_MEDIA platform) {
             //授权开始的回调
             Log.d(TAG,"Authorize start");
+            showProgress(true);
 
         }
         @Override
         public void onComplete(SHARE_MEDIA platform, int action, Map<String, String> data) {
             showProgress(true);
             // 第三方授权成功 返回用户信息
-            Toast.makeText(getApplicationContext(), "Authorize succeed", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "授权成功", Toast.LENGTH_SHORT).show();
             Log.d(TAG,"Authorize succeed");
             Log.d(TAG,"The platform is " + platform.toSnsPlatform().mKeyword);
             Log.d(TAG,data.get("uid"));
             Log.d(TAG,data.get("name"));
-            Log.d(TAG,data.get("gender"));
-            Log.d(TAG,data.get("iconurl"));
-            Log.d(TAG,data.get("city"));
-            Log.d(TAG,data.get("province"));
+            if (data.get("gender")!=null )Log.d(TAG,data.get("gender"));
+            if (data.get("iconurl")!=null )Log.d(TAG,data.get("iconurl"));
+            if (data.get("city")!=null )Log.d(TAG,data.get("city"));
+            if (data.get("province")!=null )Log.d(TAG,data.get("province"));
             Toast.makeText(getApplicationContext(),data.get("name") , Toast.LENGTH_SHORT).show();
             mShareUserInfo = new ShareUserInfo();
             mShareUserInfo.city = data.get("city");
@@ -561,16 +566,16 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
 
         @Override
         public void onError(SHARE_MEDIA platform, int action, Throwable t) {
-            Toast.makeText( getApplicationContext(), "Authorize fail", Toast.LENGTH_SHORT).show();
+            Toast.makeText( getApplicationContext(), "授权失败", Toast.LENGTH_SHORT).show();
             Log.d(TAG,"Authorize fail");
             showProgress(false);
         }
 
         @Override
         public void onCancel(SHARE_MEDIA platform, int action) {
-            Toast.makeText( getApplicationContext(), "Authorize cancel", Toast.LENGTH_SHORT).show();
             Log.d(TAG,"Authorize cancel");
             showProgress(false);
+            Toast.makeText( getApplicationContext(), "取消了", Toast.LENGTH_SHORT).show();
         }
     };
 
@@ -578,8 +583,22 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         UMShareAPI.get(this).onActivityResult(requestCode, resultCode, data);
+        //mShareAPI.onActivityResult(requestCode, resultCode, data);
         Log.d(TAG,"Get the activity result");
-        showProgress(true);
+        //showProgress(true);
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        UMShareAPI.get(this).release();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        UMShareAPI.get(this).onSaveInstanceState(outState);
     }
 
     /**

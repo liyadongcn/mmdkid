@@ -7,21 +7,38 @@ android {
         applicationId "com.mmdkid.mmdkid"
         minSdkVersion 16
         targetSdkVersion 25
-        versionCode 18
-        versionName '0.8.18'
+        versionCode 24
+        versionName '0.8.24'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
         ndk {
-            abiFilters "armeabi-v7a"  // 指定要ndk需要兼容的架构(这样其他依赖包里mips,x86,armeabi,arm-v8之类的so会被过滤掉)
+            // 指定要ndk需要兼容的架构(这样其他依赖包里mips,x86,armeabi,arm-v8之类的so会被过滤掉) 集成优酷需要这样
+            abiFilters "armeabi-v7a"
         }
+    }
+    signingConfigs {
+        config {
+            storeFile file('../signature/signature.jks')
+            storePassword "123456"
+            keyAlias "mmdkid"
+            keyPassword "123456"
+        }
+
     }
     buildTypes {
         release {
             minifyEnabled true
+            signingConfig signingConfigs.config
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            minifyEnabled false
+            signingConfig signingConfigs.config
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
     // 选项是为elasticsearch包准备的 否则会出现duplicate错误
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES'
@@ -46,6 +63,21 @@ android {
     }
     productFlavors {
     }
+
+    // If you use each() to iterate through the variant objects,
+    // you need to start using all(). That's because each() iterates
+    // through only the objects that already exist during configuration time—
+    // but those object don't exist at configuration time with the new model.
+    // However, all() adapts to the new model by picking up object as they are
+    // added during execution.
+    android.applicationVariants.all { variant ->
+        //获取当前时间的"YYYY-MM-dd"格式。
+        def createTime = new Date().format("YYYYMMdd", TimeZone.getTimeZone("GMT+08:00"))
+        variant.outputs.all {
+            outputFileName = "mmdkid_v${variant.versionName}_${createTime}_${variant.name}.apk"
+        }
+    }
+
 }
 
 dependencies {
@@ -53,34 +85,17 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    //compile 'org.elasticsearch:elasticsearch:2.4.5'
-
-    //compile 'org.elasticsearch:elasticsearch:5.4.3'
-
-    // your app's other dependencies
-
-    // If your app supports Android versions before Ice Cream Sandwich (API level 14)
-
-    // For animated GIF support
-
-    //QQ lite 库
-
-    //compile files('libs/open_sdk_r5793_lite.jar')
-
-    //compile 'com.android.support.constraint:constraint-layout:1.0.2'
-
-    //compile 'joda-time:joda-time:2.3'
-    compile files('libs/umeng/main/libs/umeng_social_api.jar')
-    compile files('libs/umeng/main/libs/umeng_social_net.jar')
-    compile files('libs/umeng/main/libs/umeng_social_tool.jar')
-    compile files('libs/umeng/platforms/QQ完整版/libs/open_sdk_r5788_lite.jar')
-    compile files('libs/umeng/platforms/QQ完整版/libs/SocialSDK_QQ_Full.jar')
-    compile files('libs/umeng/platforms/微信完整版/libs/SocialSDK_WeiXin_Full.jar')
-    compile files('libs/umeng/platforms/微信完整版/libs/wechat-sdk-android-with-mta-1.1.6.jar')
-    compile files('libs/umeng/platforms/新浪完整版/libs/SocialSDK_Sina_Full.jar')
-    compile files('libs/umeng/platforms/新浪完整版/libs/weiboSDKCore.jar')
-    compile files('libs/umeng/shareboard/libs/umeng_social_shareboard.jar')
-    compile files('libs/umeng/shareboard/libs/umeng_shareboard_widget.jar')
+    compile files('libs/umeng/umeng_social_api.jar')
+    compile files('libs/umeng/umeng_social_net.jar')
+    compile files('libs/umeng/umeng_social_tool.jar')
+    compile files('libs/umeng/open_sdk_r5788_lite.jar')
+    compile files('libs/umeng/SocialSDK_QQ_Full.jar')
+    compile files('libs/umeng/SocialSDK_WeiXin_Full.jar')
+    compile files('libs/umeng/wechat-sdk-android-with-mta-1.1.6.jar')
+    compile files('libs/umeng/SocialSDK_Sina_Full.jar')
+    compile files('libs/umeng/weiboSDKCore.jar')
+    compile files('libs/umeng/umeng_social_shareboard.jar')
+    compile files('libs/umeng/umeng_shareboard_widget.jar')
     compile 'com.android.support:appcompat-v7:26.1.0'
     compile 'com.android.support:design:26.1.0'
     compile 'com.android.support:cardview-v7:26.1.0'
@@ -105,9 +120,7 @@ dependencies {
     //sdk
     compile(name: 'YoukuPlayerOpenSDK-release', ext: 'aar')
     // mob
-    compile name:'SMSSDK-3.0.0',ext:'aar'
-    compile name:'SMSSDKGUI-3.0.0',ext:'aar'
-
+    compile name: 'SMSSDK-3.0.0', ext: 'aar'
+    compile name: 'SMSSDKGUI-3.0.0', ext: 'aar'
     compile project(':PushSDK')
-
 }

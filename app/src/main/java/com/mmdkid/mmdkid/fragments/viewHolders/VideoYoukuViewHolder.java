@@ -12,11 +12,14 @@ import android.widget.TextView;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.mmdkid.mmdkid.R;
 import com.mmdkid.mmdkid.WebViewActivity;
+import com.mmdkid.mmdkid.helper.RelativeDateFormat;
 import com.mmdkid.mmdkid.helper.Utility;
 import com.mmdkid.mmdkid.models.Content;
 import com.mmdkid.mmdkid.models.Model;
 import com.mmdkid.mmdkid.models.VideoSource;
 import com.youku.cloud.player.YoukuPlayerView;
+
+import java.text.ParseException;
 
 /**
  * Created by LIYADONG on 2017/9/26.
@@ -57,7 +60,12 @@ public class VideoYoukuViewHolder extends ModelViewHolder {
         if ( model instanceof Content){
             final Content content = (Content) model;
             //ImageLoader imageLoader =  InternetSingleton.getInstance(mContext).getImageLoader();
-            mTextViewDate.setText(content.mCreatedAt);
+            try {
+                mTextViewDate.setText(RelativeDateFormat.format(content.mCreatedAt));
+            } catch (ParseException e) {
+                e.printStackTrace();
+                mTextViewDate.setText(content.mCreatedAt);
+            }
             mTextViewTitle.setText(content.mTitle);
 //            mVideo.setPreferVideoDefinition(VideoDefinition.VIDEO_HD);
             mImage.setImageURI(content.mImage);

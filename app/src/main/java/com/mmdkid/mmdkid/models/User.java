@@ -241,6 +241,7 @@ public class User extends Model {
         user.mAvatar=settings.getString("avatar","");
         user.mCellphone=settings.getString("cellphone","");
         user.mEmail=settings.getString("email","");
+        if (user.mUsername.isEmpty() && user.mCellphone.isEmpty() && user.mEmail.isEmpty()) return null;
         return user;
     }
 

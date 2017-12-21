@@ -22,6 +22,15 @@
 
     <style name="PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <style name="ThemeSplash" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:background">@mipmap/splash</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="windowActionBar">false</item>
+        //一定要，否则有状态栏显示，不能全屏
+        <item name="windowNoTitle">true</item>
+    </style>
+
     <style name="SimpleButtonStyle" parent="AppTheme">
         <item name="android:background">@null</item>
         <item name="android:textAllCaps">true</item>
@@ -35,5 +44,6 @@
         <item name="android:maxLines">5</item>
         <item name="android:ellipsize">end</item>
     </style>
+
 
 </resources>

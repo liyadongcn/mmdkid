@@ -1,7 +1,5 @@
 package com.mmdkid.mmdkid;
 
-//import com.umeng.socialize.media.WBShareCallBackActivity;
-
 import com.umeng.socialize.media.WBShareCallBackActivity;
 
 /**

@@ -72,18 +72,14 @@
                     android:textSize="@dimen/date_font"
                     android:textColor="@color/tip" />
 
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_weight="1"
-                    android:src="@drawable/ic_comment_outline" />
+
                 <TextView
                     android:id="@+id/tvCommentNum"
                     android:layout_weight="1"
-                    android:layout_gravity="center"
+                    android:gravity="right"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="0dp"
                     android:textSize="@dimen/date_font"
                     android:textColor="@color/tip"/>
             </LinearLayout>

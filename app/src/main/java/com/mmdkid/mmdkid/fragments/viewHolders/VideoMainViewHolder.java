@@ -11,9 +11,12 @@ import android.widget.TextView;
 import com.android.volley.toolbox.ImageLoader;
 import com.mmdkid.mmdkid.R;
 import com.mmdkid.mmdkid.WebViewActivity;
+import com.mmdkid.mmdkid.helper.RelativeDateFormat;
 import com.mmdkid.mmdkid.models.Content;
 import com.mmdkid.mmdkid.models.Model;
 import com.mmdkid.mmdkid.singleton.InternetSingleton;
+
+import java.text.ParseException;
 
 import fm.jiecao.jcvideoplayer_lib.JCVideoPlayerStandard;
 
@@ -46,7 +49,12 @@ public class VideoMainViewHolder extends ModelViewHolder {
         if ( model instanceof Content){
             final Content content = (Content) model;
             ImageLoader imageLoader =  InternetSingleton.getInstance(mContext).getImageLoader();
-            mTextViewDate.setText(content.mCreatedAt);
+            try {
+                mTextViewDate.setText(RelativeDateFormat.format(content.mCreatedAt));
+            } catch (ParseException e) {
+                e.printStackTrace();
+                mTextViewDate.setText(content.mCreatedAt);
+            }
             mVideo.setUp(content.mVideo
                     , JCVideoPlayerStandard.SCREEN_LAYOUT_LIST, content.mTitle);
             //mVideo.thumbImageView.setImageURI(Uri.parse(content.mImage));

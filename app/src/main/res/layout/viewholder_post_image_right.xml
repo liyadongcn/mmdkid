@@ -55,9 +55,8 @@
                 android:layout_width="100dp"
                 android:layout_height="80dp"
                 android:layout_weight="0"
-
                 fresco:placeholderImageScaleType="fitCenter"
-                fresco:placeholderImage="@drawable/blank_image_100_80"/>
+                fresco:placeholderImage="@color/gray_cc"/>
 
         </LinearLayout>
 

@@ -96,9 +96,11 @@ public class SearchResultsActivity extends AppCompatActivity implements View.OnC
         mHistoryList.add("父亲");*/
 
 
-        mHotList = new ArrayList<String>();
+        /*mHotList = new ArrayList<String>();
         mHotList.add("母亲hot");
-        mHotList.add("父亲hot");
+        mHotList.add("父亲hot");*/
+
+        mHotList = mApp.getHotKeyWords();
 
         mHistoryText = (TextView) findViewById(R.id.tvHistoryCaption);
         mHistoryView = (GridView) findViewById(R.id.gridviewHistory);

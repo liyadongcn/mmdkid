@@ -37,26 +37,26 @@
                             android:id="@+id/sdvImage1"
                             android:layout_width="100dp"
                             android:layout_height="80dp"
-                            android:padding="2dp"
+
                             android:layout_weight="1"
                             fresco:placeholderImageScaleType="fitCenter"
-                            fresco:placeholderImage="@drawable/blank_image_100_80" />
+                            fresco:placeholderImage="@color/gray_cc" />
                         <com.facebook.drawee.view.SimpleDraweeView
                             android:id="@+id/sdvImage2"
                             android:layout_width="100dp"
                             android:layout_height="80dp"
-                            android:padding="2dp"
-                            fresco:placeholderImageScaleType="fitCenter"
+                            android:paddingLeft="2dp"
                             android:layout_weight="1"
-                            fresco:placeholderImage="@drawable/blank_image_100_80" />
+                            fresco:placeholderImageScaleType="fitCenter"
+                            fresco:placeholderImage="@color/gray_cc" />
                         <com.facebook.drawee.view.SimpleDraweeView
                             android:id="@+id/sdvImage3"
                             android:layout_width="100dp"
                             android:layout_height="80dp"
-                            android:padding="2dp"
+                            android:paddingLeft="2dp"
                             android:layout_weight="1"
                             fresco:placeholderImageScaleType="fitCenter"
-                            fresco:placeholderImage="@drawable/blank_image_100_80" />
+                            fresco:placeholderImage="@color/gray_cc" />
 
                 </LinearLayout>
         <TextView
