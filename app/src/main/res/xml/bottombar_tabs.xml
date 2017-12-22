@@ -9,7 +9,10 @@
         id="@+id/tab_video"
         icon="@drawable/ic_play_circle_outline"
         title="视频" />
-
+    <tab
+        id="@+id/tab_publish"
+        icon="@drawable/ic_plus"
+        title="发布" />
     <tab
         id="@+id/tab_discovery"
         icon="@drawable/ic_circle_outline"

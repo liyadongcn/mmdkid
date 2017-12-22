@@ -14,6 +14,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -66,6 +67,10 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
     private ViewPager mViewPager;
 
     private BottomBar mBottomBar;
+    /**
+     * 发布弹出窗口
+     */
+    private PublishPopupWindow mPopwindow;
 
     // 定义一个变量，来标识是否退出
     private static boolean isExit = false;
@@ -125,6 +130,11 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
                     case R.id.tab_favorites:
                         mViewPager.setCurrentItem(2);
                         break;*/
+                    case R.id.tab_publish:
+                        mPopwindow = new PublishPopupWindow(MainActivity.this, itemsOnClick);
+                        mPopwindow.showAtLocation(mBottomBar,
+                                Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
+                        break;
                     case R.id.tab_video:
                         mViewPager.setCurrentItem(1);
                         toolbar.setVisibility(View.GONE);
@@ -155,6 +165,11 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
                     case R.id.tab_favorites:
                         mViewPager.setCurrentItem(2);
                         break;*/
+                    case R.id.tab_publish:
+                        mPopwindow = new PublishPopupWindow(MainActivity.this, itemsOnClick);
+                        mPopwindow.showAtLocation(mBottomBar,
+                                Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
+                        break;
                     case R.id.tab_video:
                         mViewPager.setCurrentItem(1);
                         break;
@@ -182,6 +197,29 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
         autoLogin();
 
     }
+
+    // 发布弹出窗口实现监听类
+    private View.OnClickListener itemsOnClick = new View.OnClickListener() {
+
+        public void onClick(View v) {
+            mPopwindow.dismiss();
+            mPopwindow.backgroundAlpha(MainActivity.this, 1f);
+            switch (v.getId()) {
+                case R.id.article:
+                    Toast.makeText(MainActivity.this, "文章", Toast.LENGTH_SHORT).show();
+                    break;
+                case R.id.image:
+                    Toast.makeText(MainActivity.this, "图片", Toast.LENGTH_SHORT).show();
+                    break;
+                case R.id.video:
+                    Toast.makeText(MainActivity.this, "视频", Toast.LENGTH_SHORT).show();
+                    break;
+                default:
+                    break;
+            }
+        }
+
+    };
 
 
     @Override
