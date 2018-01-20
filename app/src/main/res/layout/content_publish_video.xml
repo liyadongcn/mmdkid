@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    app:statusBarBackground="@color/bb_inActiveBottomBarItemColor"
+    tools:context="com.mmdkid.mmdkid.PublishVideoActivity"
+    tools:showIn="@layout/activity_publish_video">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <ProgressBar
+            android:id="@+id/progress_bar_upload_video"
+            style="@android:style/Widget.ProgressBar.Horizontal"
+            android:max="100"
+            android:layout_height="3dp"
+            android:layout_width="match_parent"
+            android:visibility="gone"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:background="@color/tip">
+
+            <cn.jzvd.JZVideoPlayerStandard
+                android:id="@+id/videoplayer"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tvVideoSelect"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="10dp"
+                android:text="选视频"
+                android:padding="10dp"
+                android:background="#3f000000"
+                android:textColor="@android:color/white"
+                android:drawableTop="@drawable/ic_video_white"/>
+
+        </RelativeLayout>
+
+        <TextView
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:padding="5dp"
+            android:textColor="@color/gray"
+            android:textSize="18dp"
+            android:text="选封面（可自选）" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+           <android.support.v7.widget.RecyclerView
+               android:id="@+id/recyclerview"
+               android:layout_width="wrap_content"
+               android:layout_height="80dp"
+               android:layout_weight="1"
+               android:orientation="horizontal">
+
+           </android.support.v7.widget.RecyclerView>
+            <TextView
+                android:id="@+id/tvCoverSelect"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:layout_gravity="center"
+                android:text="选封面"
+                android:background="#3f000000"
+                android:layout_marginRight="10dp"
+                android:textColor="@android:color/white"
+                android:drawableTop="@drawable/ic_image_white"
+                />
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/evTitle"
+            style="@style/Widget.AppCompat.AutoCompleteTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="标题（必填）"
+            android:singleLine="true"
+            android:maxLength="50"/>
+
+
+        <EditText
+            android:id="@+id/evDescription"
+            style="@style/Widget.AppCompat.AutoCompleteTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="分享新鲜事（选填）"
+            android:maxLines="6"
+            android:minLines="3"
+            android:singleLine="false" />
+    </LinearLayout>
+</android.support.constraint.ConstraintLayout>

@@ -38,9 +38,9 @@
                     android:id="@+id/cvContentTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:textColor="@color/black"
-                    android:textSize="@dimen/title_font"
-                    android:layout_weight="1"/>
+                    android:textSize="@dimen/title_font" />
 
                 <TextView
                     android:id="@+id/cvContentDate"

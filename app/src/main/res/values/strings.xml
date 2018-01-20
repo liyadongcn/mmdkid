@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">么么哒KID</string>
     <string name="action_settings">设置</string>
+    <string name="action_manage_publish">发布</string>
     <string name="action_add_kid">添加宝贝</string>
     <string name="section_format">Hello World from section: %1$d</string>
     <string name="title_activity_main">么么哒KID</string>
@@ -10,6 +11,9 @@
     <string name="title_activity_settings">设置</string>
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="action_publish_image">发布</string>
+    <string name="action_publish_video">发布</string>
 
     <string name="search_title">search......</string>
     <string name="search_hint">搜你想搜的</string>
@@ -161,6 +165,9 @@
     <string name="title_activity_follow">关注</string>
     <string name="title_activity_history">历史</string>
     <string name="title_activity_channel">频道</string>
+    <string name="title_activity_publish_image">图片</string>
+    <string name="title_activity_publish_post">文章</string>
+    <string name="title_activity_publish_video">视频</string>
     <string name="title_activity_bottom">BottomActivity</string>
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
@@ -175,4 +182,7 @@
     <string name="edit">编辑</string>
     <string name="finish">完成</string>
     <string name="title_activity_register">RegisterActivity</string>
+    <string name="title_activity_publish_manager">我的发布</string>
+
+
 </resources>

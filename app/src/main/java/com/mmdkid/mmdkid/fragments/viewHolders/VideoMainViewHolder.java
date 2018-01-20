@@ -2,6 +2,7 @@ package com.mmdkid.mmdkid.fragments.viewHolders;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.View;
@@ -18,7 +19,8 @@ import com.mmdkid.mmdkid.singleton.InternetSingleton;
 
 import java.text.ParseException;
 
-import fm.jiecao.jcvideoplayer_lib.JCVideoPlayerStandard;
+import cn.jzvd.JZVideoPlayerStandard;
+
 
 /**
  * Created by LIYADONG on 2017/9/16.
@@ -30,7 +32,7 @@ public class VideoMainViewHolder extends ModelViewHolder {
 
     private CardView mCardView;
     private TextView mTextViewDate;
-    private JCVideoPlayerStandard mVideo;
+    private JZVideoPlayerStandard mVideo;
     private Context mContext;
     private LinearLayout mLinearLayoutBottom;
 
@@ -39,7 +41,7 @@ public class VideoMainViewHolder extends ModelViewHolder {
         mCardView = (CardView) itemView.findViewById(R.id.cvContent);
         mCardView.setElevation(10);
         mTextViewDate = (TextView)itemView.findViewById(R.id.cvContentDate);
-        mVideo = (JCVideoPlayerStandard) itemView.findViewById(R.id.videoplayer);
+        mVideo = (JZVideoPlayerStandard ) itemView.findViewById(R.id.videoplayer_jiaozi);
         mContext = itemView.getContext();
         mLinearLayoutBottom = (LinearLayout) itemView.findViewById(R.id.llVideoBottom);
     }
@@ -56,9 +58,9 @@ public class VideoMainViewHolder extends ModelViewHolder {
                 mTextViewDate.setText(content.mCreatedAt);
             }
             mVideo.setUp(content.mVideo
-                    , JCVideoPlayerStandard.SCREEN_LAYOUT_LIST, content.mTitle);
+                    , JZVideoPlayerStandard .SCREEN_WINDOW_LIST, content.mTitle);
             //mVideo.thumbImageView.setImageURI(Uri.parse(content.mImage));
-            imageLoader.get(content.mImage,imageLoader.getImageListener(mVideo.thumbImageView,R.drawable.test_icon_default,R.drawable.test_icon_erro));
+            imageLoader.get(content.mImage,imageLoader.getImageListener(mVideo.thumbImageView,R.color.gray_cc,R.drawable.test_icon_erro));
             mLinearLayoutBottom.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

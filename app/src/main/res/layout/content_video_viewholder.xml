@@ -10,33 +10,35 @@
             android:id="@+id/cvContent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="2dp"
+            android:padding="0dp"
             card_view:cardCornerRadius="0dp"
            >
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="10dp">
+            >
 
-
-        <fm.jiecao.jcvideoplayer_lib.JCVideoPlayerStandard
-            android:id="@+id/videoplayer"
+        <cn.jzvd.JZVideoPlayerStandard
+            android:id="@+id/videoplayer_jiaozi"
             android:layout_width="match_parent"
             android:layout_height="200dp"
            />
         <LinearLayout
-            android:layout_marginTop="10dp"
+
             android:id="@+id/llVideoBottom"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:padding="10dp"
             android:orientation="horizontal">
+
                 <TextView
                     android:id="@+id/cvContentDate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/date_font"
-                    android:textColor="@color/tip"/>
+                    android:textColor="@color/tip"
+                     />
         </LinearLayout>
 
         </LinearLayout>

@@ -3,6 +3,10 @@ package com.mmdkid.mmdkid.helper;
 import android.net.Uri;
 import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -58,5 +62,45 @@ public class HtmlUtil {
         }
         Log.d(TAG,"Orginal String is :"+urlString);
        return urlString;
+    }
+
+    /**
+     * 从HTML源码中提取图片路径，最后以一个 String 类型的 List 返回，如果不包含任何图片，则返回一个 size=0　的List
+     * 重复的将去除
+     * @param htmlStr HTML源码
+     * @return <img>标签 src 属性指向的图片地址的List集合
+     * @author Carl He
+     */
+    public static List<String> getImageSrc(String htmlStr) {
+        Set<String> pics = new HashSet<>();
+        String img = "";
+        Pattern p_image;
+        Matcher m_image;
+        //     String regEx_img = "<img.*src=(.*?)[^>]*?>"; //图片链接地址
+        String regEx_img = "<img.*src\\s*=\\s*(.*?)[^>]*?>";
+        p_image = Pattern.compile
+                (regEx_img, Pattern.CASE_INSENSITIVE);
+        m_image = p_image.matcher(htmlStr);
+        while (m_image.find()) {
+            // 得到<img />数据
+            img = m_image.group();
+            // 匹配<img>中的src数据
+            // src\s*=\s*"?(.*?)("|>|\s+) 原配是这个 但是不能匹配文件名含空格的
+            // 例如： <img src = "file:///storage/emulated/0/Download/timg (7).jpeg" alt="dachshund">
+            Matcher m = Pattern.compile("src\\s*=\\s*\\\"([^\\\"]*?)\\\"").matcher(img);
+            while (m.find()) {
+                pics.add(m.group(1));
+            }
+        }
+        return new ArrayList<>(pics);
+    }
+    //s是需要删除某个子串的字符串s1是需要删除的子串
+    public static  String getString(String s, String s1)
+    {
+        int postion = s.indexOf(s1);
+        int length = s1.length();
+        int Length = s.length();
+        String newString = s.substring(0,postion) + s.substring(postion + length, Length);
+        return newString;//返回已经删除好的字符串
     }
 }

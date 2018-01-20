@@ -10,7 +10,8 @@ import com.mmdkid.mmdkid.R;
 import com.mmdkid.mmdkid.models.Content;
 import com.mmdkid.mmdkid.singleton.InternetSingleton;
 
-import fm.jiecao.jcvideoplayer_lib.JCVideoPlayerStandard;
+import cn.jzvd.JZVideoPlayerStandard;
+
 
 /**
  * Created by LIYADONG on 2017/6/23.
@@ -20,7 +21,7 @@ public class VideoViewHolder extends ContentViewHolder {
 
     public CardView mCardView;
     public TextView mTextViewDate;
-    public JCVideoPlayerStandard mVideo;
+    public JZVideoPlayerStandard mVideo;
 
     private Context mContext;
 
@@ -29,7 +30,7 @@ public class VideoViewHolder extends ContentViewHolder {
         mCardView = (CardView) itemView.findViewById(R.id.cvContent);
         mCardView.setElevation(10);
         mTextViewDate = (TextView)itemView.findViewById(R.id.cvContentDate);
-        mVideo = (JCVideoPlayerStandard) itemView.findViewById(R.id.videoplayer);
+        mVideo = (JZVideoPlayerStandard ) itemView.findViewById(R.id.videoplayer);
         mContext = itemView.getContext();
     }
 
@@ -38,7 +39,7 @@ public class VideoViewHolder extends ContentViewHolder {
         ImageLoader imageLoader =  InternetSingleton.getInstance(mContext).getImageLoader();
         mTextViewDate.setText(content.mCreatedAt);
         mVideo.setUp(content.mVideo
-                , JCVideoPlayerStandard.SCREEN_LAYOUT_LIST, content.mTitle);
+                , JZVideoPlayerStandard.SCREEN_WINDOW_LIST, content.mTitle);
         //mVideo.thumbImageView.setImageURI(Uri.parse(content.mImage));
         imageLoader.get(content.mImage,imageLoader.getImageListener(mVideo.thumbImageView,R.drawable.test_icon_default,R.drawable.test_icon_erro));
     }

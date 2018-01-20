@@ -20,6 +20,7 @@ import com.mmdkid.mmdkid.App;
 import com.mmdkid.mmdkid.FollowActivity;
 import com.mmdkid.mmdkid.HistoryActivity;
 import com.mmdkid.mmdkid.LoginActivity;
+import com.mmdkid.mmdkid.PublishManageActivity;
 import com.mmdkid.mmdkid.R;
 import com.mmdkid.mmdkid.SettingsActivity;
 import com.mmdkid.mmdkid.StarActivity;
@@ -59,6 +60,8 @@ public class MeFragment extends Fragment implements View.OnClickListener{
     private LinearLayout mStar;
     private LinearLayout mFollow;
     private LinearLayout mHistory;
+
+    private LinearLayout mPublishManage;
 
     private boolean isUpdatingUserInfo = false;
 
@@ -136,6 +139,8 @@ public class MeFragment extends Fragment implements View.OnClickListener{
         mHistory = (LinearLayout) view.findViewById(R.id.llHistory);
         mHistory.setOnClickListener(this);
 
+        mPublishManage = (LinearLayout) view.findViewById(R.id.llPublishManage);
+        mPublishManage.setOnClickListener(this);
     }
 
     @Override
@@ -235,6 +240,10 @@ public class MeFragment extends Fragment implements View.OnClickListener{
                 isUpdatingUserInfo = true;
                 intent = new Intent(mContext, WebViewActivity.class);
                 intent.putExtra("url","http://www.mmdkid.cn/index.php?r=user/update&theme=app&id="+mCurrentUser.mId);
+                startActivity(intent);
+                break;
+            case R.id.llPublishManage:
+                intent = new Intent(mContext, PublishManageActivity.class);
                 startActivity(intent);
                 break;
         }

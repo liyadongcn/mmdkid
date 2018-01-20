@@ -12,12 +12,17 @@ import com.mmdkid.mmdkid.fragments.viewHolders.DiaryViewHolder;
 import com.mmdkid.mmdkid.fragments.viewHolders.GWGoodsImageOnLeftViewHolder;
 import com.mmdkid.mmdkid.fragments.viewHolders.GWPostImageOnMiddleViewHolder;
 import com.mmdkid.mmdkid.fragments.viewHolders.GoodsImageOnLeftViewHolder;
+import com.mmdkid.mmdkid.fragments.viewHolders.ImagePostGridViewHolder;
+import com.mmdkid.mmdkid.fragments.viewHolders.ImagePostOneViewHolder;
 import com.mmdkid.mmdkid.fragments.viewHolders.ImagePostViewHolder;
 import com.mmdkid.mmdkid.fragments.viewHolders.ModelViewHolder;
-import com.mmdkid.mmdkid.fragments.viewHolders.PostImageMiddleViewHolder;
 import com.mmdkid.mmdkid.fragments.viewHolders.PostImageLeftViewHolder;
+import com.mmdkid.mmdkid.fragments.viewHolders.PostImageMiddleViewHolder;
 import com.mmdkid.mmdkid.fragments.viewHolders.PostImageRightViewHolder;
 import com.mmdkid.mmdkid.fragments.viewHolders.PostImageThreeViewHolder;
+import com.mmdkid.mmdkid.fragments.viewHolders.PublishManageImageViewHolder;
+import com.mmdkid.mmdkid.fragments.viewHolders.PublishManagePostViewHolder;
+import com.mmdkid.mmdkid.fragments.viewHolders.PublishManageVideoViewHolder;
 import com.mmdkid.mmdkid.fragments.viewHolders.RefreshViewHolder;
 import com.mmdkid.mmdkid.fragments.viewHolders.StudentViewHolder;
 import com.mmdkid.mmdkid.fragments.viewHolders.UserGroupViewHolder;
@@ -100,10 +105,26 @@ public class ModelRecyclerAdapter extends RecyclerView.Adapter {
                 v =  mInflater
                         .inflate(R.layout.viewholder_post_image_three, parent, false);
                 return  new PostImageThreeViewHolder(v);
-            case Model.VIEW_TYPE_CONTENT_IMAGE_POST_MAIN:
+            case Model.VIEW_TYPE_CONTENT_IMAGE_ONE:
                 v =  mInflater
-                        .inflate(R.layout.content_image_viewholder, parent, false);
+                        .inflate(R.layout.viewholder_image_one, parent, false);
+                return  new ImagePostOneViewHolder(v);
+            case Model.VIEW_TYPE_CONTENT_IMAGE_THREE:
+                v =  mInflater
+                        .inflate(R.layout.viewholder_image_three, parent, false);
                 return  new ImagePostViewHolder(v);
+            case Model.VIEW_TYPE_CONTENT_IMAGE_FOUR:
+                v =  mInflater
+                        .inflate(R.layout.viewholder_image_grid, parent, false);
+                return  new ImagePostGridViewHolder(mContext,v,4);
+            case Model.VIEW_TYPE_CONTENT_IMAGE_SIX:
+                v =  mInflater
+                        .inflate(R.layout.viewholder_image_grid, parent, false);
+                return  new ImagePostGridViewHolder(mContext,v,6);
+            case Model.VIEW_TYPE_CONTENT_IMAGE_NINE:
+                v =  mInflater
+                        .inflate(R.layout.viewholder_image_grid, parent, false);
+                return  new ImagePostGridViewHolder(mContext,v,9);
             case Model.VIEW_TYPE_CONTENT_VIDEO_MAIN:
                 v =  mInflater
                         .inflate(R.layout.content_video_viewholder, parent, false);
@@ -124,6 +145,18 @@ public class ModelRecyclerAdapter extends RecyclerView.Adapter {
                 v =  mInflater
                         .inflate(R.layout.viewholder_gwcontent_post_image_on_middle, parent, false);
                 return  new GWPostImageOnMiddleViewHolder(v);
+            case Model.VIEW_TYPE_PUBLISH_MANAGE_POST:
+                v =  mInflater
+                        .inflate(R.layout.viewholder_publish_manage_post, parent, false);
+                return  new PublishManagePostViewHolder(v);
+            case Model.VIEW_TYPE_PUBLISH_MANAGE_IMAGE:
+                v =  mInflater
+                        .inflate(R.layout.viewholder_publish_manage_image, parent, false);
+                return  new PublishManageImageViewHolder(v);
+            case Model.VIEW_TYPE_PUBLISH_MANAGE_VIDEO:
+                v =  mInflater
+                        .inflate(R.layout.viewholder_publish_manage_video, parent, false);
+                return  new PublishManageVideoViewHolder(v);
         }
         return null;
     }

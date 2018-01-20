@@ -31,7 +31,12 @@ public class Model extends Object implements Serializable{
     public static final int VIEW_TYPE_CONTENT_VIDEO= 35;
 
     //public static final int VIEW_TYPE_CONTENT_POST_MAIN= 30;
-    public static final int VIEW_TYPE_CONTENT_IMAGE_POST_MAIN= 31;
+    public static final int VIEW_TYPE_CONTENT_IMAGE_ONE= 21;
+    public static final int VIEW_TYPE_CONTENT_IMAGE_THREE= 22;
+    public static final int VIEW_TYPE_CONTENT_IMAGE_FOUR= 23;
+    public static final int VIEW_TYPE_CONTENT_IMAGE_SIX= 24;
+    public static final int VIEW_TYPE_CONTENT_IMAGE_NINE= 26;
+
     public static final int VIEW_TYPE_CONTENT_VIDEO_MAIN= 32;
     public static final int VIEW_TYPE_CONTENT_VIDEO_YOUKU= 36;
 
@@ -48,6 +53,10 @@ public class Model extends Object implements Serializable{
 
     public static final int VIEW_TYPE_GWCONTENT_GOODS_IMAGE_ON_LEFT= 90;
     public static final int VIEW_TYPE_GWCONTENT_POST_IMAGE_ON_MIDDLE= 91;
+
+    public static final int VIEW_TYPE_PUBLISH_MANAGE_POST= 100;
+    public static final int VIEW_TYPE_PUBLISH_MANAGE_IMAGE= 101;
+    public static final int VIEW_TYPE_PUBLISH_MANAGE_VIDEO= 102;
 
     protected int mViewType=0;
 
@@ -78,6 +87,7 @@ public class Model extends Object implements Serializable{
     public void delete(Context context,RESTAPIConnection.OnConnectionListener listener){
         RESTAPIConnection connection = new RESTAPIConnection(context);
         connection.setListener(listener);
+        connection.excute(this.getJsonRequest(ACTION_DELETE,connection),this.getClass());
     }
 
     public JSONObject getJsonRequest(String action,Connection connection){

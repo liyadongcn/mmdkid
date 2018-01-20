@@ -44,7 +44,7 @@
             android:authorities="com.mmdkid.mmdkid.providers.HistorySuggestionsProvider" />
         <provider
             android:name="android.support.v4.content.FileProvider"
-            android:authorities="com.mmdkid.mmdkid.fileProvider"
+            android:authorities="com.mmdkid.mmdkid.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
@@ -66,11 +66,13 @@
             android:name=".MainActivity"
             android:label="@string/title_activity_main"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-            <!--<intent-filter>-->
-                <!--<action android:name="android.intent.action.MAIN" />-->
 
-                <!--<category android:name="android.intent.category.LAUNCHER" />-->
-            <!--</intent-filter>-->
+            <!-- <intent-filter> -->
+            <!-- <action android:name="android.intent.action.MAIN" /> -->
+
+
+            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+            <!-- </intent-filter> -->
         </activity>
         <activity
             android:name=".SearchResultsActivity"
@@ -88,18 +90,18 @@
         <activity
             android:name=".LoginActivity"
             android:label="@string/title_activity_login"
-            android:theme="@style/AppTheme.NoActionBar"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:windowSoftInputMode="stateHidden" />
         <activity android:name=".SettingsActivity" />
         <activity
             android:name=".SignupActivity"
             android:label="@string/title_activity_signup"
-            android:theme="@style/AppTheme.NoActionBar"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:windowSoftInputMode="stateHidden" />
         <activity
             android:name=".RegisterActivity"
             android:label="@string/title_activity_signup"
-            android:theme="@style/AppTheme.NoActionBar"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:windowSoftInputMode="stateHidden" />
 
         <!-- QQ登录及分享 -->
@@ -128,12 +130,12 @@
             android:configChanges="keyboardHidden|orientation"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"></activity>
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
         <activity
             android:name="com.sina.weibo.sdk.web.WeiboSdkWebActivity"
             android:configChanges="keyboardHidden|orientation"
             android:exported="false"
-            android:windowSoftInputMode="adjustResize"></activity>
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name="com.sina.weibo.sdk.share.WbShareTransActivity"
             android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen">
@@ -154,19 +156,19 @@
         <activity
             android:name=".StarActivity"
             android:label="@string/title_activity_star"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity
             android:name=".WebViewActivity"
             android:label="@string/title_activity_web_view"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity
             android:name=".FollowActivity"
             android:label="@string/title_activity_follow"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity
             android:name=".HistoryActivity"
             android:label="@string/title_activity_history"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity
             android:name=".BottomActivity"
             android:label="@string/title_activity_bottom" />
@@ -174,11 +176,11 @@
         <activity
             android:name=".DiaryListActivity"
             android:label="@string/title_activity_diary_list"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity
             android:name=".UserGroupPostListActivity"
             android:label="@string/title_activity_user_group_post_list"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity android:name=".UserGroupActivity" />
         <activity android:name=".KidFormActivity" />
         <activity
@@ -188,13 +190,33 @@
         <activity
             android:name=".SplashActivity"
             android:theme="@style/ThemeSplash">
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".PublishImageActivity"
+            android:label="@string/title_activity_publish_image"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
+            android:name=".PublishPostActivity"
+            android:label="@string/title_activity_publish_post"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
+            android:name=".PublishVideoActivity"
+            android:label="@string/title_activity_publish_video"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            android:windowSoftInputMode="adjustPan" />
+        <activity
+            android:name=".ImageActivity"
+            android:label="@string/title_activity_publish_image"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
+            android:name=".PublishManageActivity"
+            android:label="@string/title_activity_publish_manager"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"></activity>
     </application>
 
 </manifest>

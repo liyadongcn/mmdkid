@@ -2,6 +2,7 @@ package com.mmdkid.mmdkid.imagepost;
 
 import android.app.Activity;
 import android.app.Instrumentation;
+import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -36,14 +37,19 @@ public class ImageOverlayView extends RelativeLayout {
 
     private Content content;
 
+    private Context mContext;
+    private ProgressDialog mProgressDialog;
+
     public ImageOverlayView(Context context) {
         super(context);
+        mContext= context;
         init();
     }
 
     public ImageOverlayView(Context context,Content content) {
         super(context);
         this.content = content;
+        this.mContext= context;
         init();
     }
 
@@ -162,7 +168,7 @@ public class ImageOverlayView extends RelativeLayout {
          */
         @Override
         public void onStart(SHARE_MEDIA platform) {
-
+            showProgressDialog(true);
         }
 
         /**
@@ -171,6 +177,7 @@ public class ImageOverlayView extends RelativeLayout {
          */
         @Override
         public void onResult(SHARE_MEDIA platform) {
+            showProgressDialog(false);
             Toast.makeText(getContext(),"成功了",Toast.LENGTH_LONG).show();
         }
 
@@ -181,6 +188,7 @@ public class ImageOverlayView extends RelativeLayout {
          */
         @Override
         public void onError(SHARE_MEDIA platform, Throwable t) {
+            showProgressDialog(false);
             Toast.makeText(getContext(),"失败"+t.getMessage(),Toast.LENGTH_LONG).show();
         }
 
@@ -190,8 +198,23 @@ public class ImageOverlayView extends RelativeLayout {
          */
         @Override
         public void onCancel(SHARE_MEDIA platform) {
+            showProgressDialog(false);
             Toast.makeText(getContext(),"取消了",Toast.LENGTH_LONG).show();
 
         }
     };
+
+    private void showProgressDialog(boolean show){
+        if (mProgressDialog==null){
+            mProgressDialog = new ProgressDialog(mContext);
+            mProgressDialog.setIndeterminate(true);
+            mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        }
+        if (show){
+            mProgressDialog.setMessage("请稍后...");
+            mProgressDialog.show();
+        }else {
+            mProgressDialog.dismiss();
+        }
+    }
 }

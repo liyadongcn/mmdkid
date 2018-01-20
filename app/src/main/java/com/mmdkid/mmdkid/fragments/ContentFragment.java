@@ -3,6 +3,8 @@ package com.mmdkid.mmdkid.fragments;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -17,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.drawee.generic.GenericDraweeHierarchyBuilder;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.mmdkid.mmdkid.R;
 import com.mmdkid.mmdkid.WebViewActivity;
@@ -41,7 +44,10 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import fm.jiecao.jcvideoplayer_lib.JCVideoPlayer;
+import cn.jzvd.JZMediaManager;
+import cn.jzvd.JZUtils;
+import cn.jzvd.JZVideoPlayer;
+
 
 
 /**
@@ -70,6 +76,8 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
     private ElasticConnection mConnection;
     private Refresh mRefresh = null;
 
+    private JZVideoPlayer mCurrentJZVideoPlayer;
+
     private YoukuPlayerView mCurrentYoukuPlayerView;
 //    private int mCurrentYoukuPlayerPosition;
     private SimpleDraweeView mCurrentYoukuPlayerCoverImage;
@@ -80,6 +88,7 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
     private int mVideoPlayingPosition;
 
     private List<String> mImagePostList; // 当前显示的图片列表
+    private String mImageDescription;   // 当前图片的描述
     private ImageOverlayView mOverlayView; // 叠加在图片上的视图
 
 
@@ -90,7 +99,7 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
 
     // TODO: Rename and change types of parameters
     private String mParam1;
-    private String mParam2;
+    private String mParam2="";
 
     private boolean mIsCreated = false;
 
@@ -233,7 +242,7 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View fragmentView = inflater.inflate(R.layout.fragment_content, container, false);
@@ -303,6 +312,9 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
                                     if (content.getViewType()== Model.VIEW_TYPE_CONTENT_VIDEO_YOUKU){
                                         // 启动优酷播放
                                         startYoukuPlayer(view,YoukuVideo.getVid(content));
+                                    }else {
+                                        // 启动JiaoZiVideoPlayer
+                                        mCurrentJZVideoPlayer = view.findViewById(R.id.videoplayer_jiaozi);
                                     }
                                     mIsPlayingVideo = true;
                                     mVideoPlayingPosition = position;
@@ -312,6 +324,9 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
                                 if (content.getViewType()== Model.VIEW_TYPE_CONTENT_VIDEO_YOUKU){
                                     // 启动优酷播放
                                     startYoukuPlayer(view,YoukuVideo.getVid(content));
+                                }else {
+                                    // 正在使用JiaoZiVideoPlayer
+                                    mCurrentJZVideoPlayer = view.findViewById(R.id.videoplayer_jiaozi);
                                 }
                                 mIsPlayingVideo = true;
                                 mVideoPlayingPosition = position;
@@ -320,14 +335,30 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
                         case Content.TYPE_IMAGE:
                             stopVideoPlayer();
                             Log.d(TAG,content.mImageList.toString());
-                        /*intent = new Intent(mContext,ImageActivity.class);
-                        intent.putStringArrayListExtra(ImageActivity.IMAGE_LIST,content.mImageList);
-                        startActivity(intent);*/
+                           /* intent = new Intent(mContext,ImageActivity.class);
+                            intent.putExtra(ImageActivity.CONTENT,content);
+                            startActivity(intent);*/
+                            AnimationDrawable animationDrawable = new AnimationDrawable();
+                            Drawable drawable = getResources().getDrawable(R.drawable.loading);
+                            if(drawable != null){
+                                animationDrawable.addFrame(drawable,100);
+                                animationDrawable.setOneShot(false);
+                            }
+                            GenericDraweeHierarchyBuilder draweeHierarchyBuilder = GenericDraweeHierarchyBuilder.newInstance(getResources())
+                                    //.setFailureImage(R.drawable.failureDrawable)
+                                   // .setProgressBarImage(R.drawable.spinner_gif);
+                                    .setProgressBarImage(animationDrawable);
+                                    //.setProgressBarImage(new ProgressBarDrawable());
+
+                            //.setPlaceholderImage(R.drawable.placeholderDrawable);
                             mOverlayView = new ImageOverlayView(mContext,content);
                             mImagePostList = content.mImageList;
+                            mImageDescription = content.mContent;
                             new ImageViewer.Builder<>(mContext, content.mImageList)
                                     .setStartPosition(0)
+                                    .setImageMargin(getContext(),R.dimen.image_margin)
                                     .setImageChangeListener(getImageChangeListener())
+                                    .setCustomDraweeHierarchyBuilder(draweeHierarchyBuilder)
                                     .setOverlayView(mOverlayView)
                                     .show();
                             break;
@@ -382,6 +413,12 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
                         youkuPlayerTitle.setVisibility(View.VISIBLE);
                         mIsPlayingVideo = false;
                     }
+                    // 停止当前的jiaozivideo播放 已经移出可视区域
+                    JZVideoPlayer jzvd = view.findViewById(R.id.videoplayer_jiaozi);
+                    if (jzvd != null && JZUtils.dataSourceObjectsContainsUri(jzvd.dataSourceObjects, JZMediaManager.getCurrentDataSource())) {
+                        JZVideoPlayer.releaseAllVideos();
+                        mIsPlayingVideo = false;
+                    }
                 }
 
             }
@@ -414,7 +451,7 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
 
     private void stopVideoPlayer() {
         // 停止非优酷播放
-        JCVideoPlayer.releaseAllVideos();
+        if (mCurrentJZVideoPlayer!=null) mCurrentJZVideoPlayer.release();
         if (mCurrentYoukuPlayerView!=null){
             // 停止优酷播放
             mCurrentYoukuPlayerView.release();
@@ -447,18 +484,19 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
 
     @Override
     public void onPause() {
-        Log.d(TAG,mParam1 +" Fragment onPause");
         super.onPause();
+        Log.d(TAG,mParam1 +" Fragment onPause");
         if (mCurrentYoukuPlayerView!=null)  mCurrentYoukuPlayerView.onPause();
         //stopVideoPlayer();
     }
 
     @Override
     public void onResume() {
+        super.onResume();
         Log.d(TAG,mParam1 +" Fragment onResume");
         stopVideoPlayer();
-        super.onResume();
-        /*JCVideoPlayer.releaseAllVideos();
+
+        /*JZVideoPlayer.releaseAllVideos();
         if (mCurrentYoukuPlayerView!=null) {
             mCurrentYoukuPlayerView.release();
             //mCurrentYoukuPlayerView.onResume();
@@ -467,20 +505,20 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
 
     @Override
     public void onStop() {
+        super.onStop();
         Log.d(TAG,mParam1 +" Fragment onStop");
         stopVideoPlayer();
-        super.onStop();
         //if (mCurrentYoukuPlayerView!=null)  mCurrentYoukuPlayerView.release();
-        if (JCVideoPlayer.backPress()) {
+        if (JZVideoPlayer.backPress()) {
             return;
         }
     }
 
     @Override
     public void onDestroy() {
-        Log.d(TAG,mParam1 +" Fragment onDestroy");
         super.onDestroy();
-        if (JCVideoPlayer.backPress()) {
+        Log.d(TAG,mParam1 +" Fragment onDestroy");
+        if (JZVideoPlayer.backPress()) {
             return;
         }
         //if (mCurrentYoukuPlayerView!=null)  mCurrentYoukuPlayerView.onDestroy();
@@ -489,9 +527,9 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
 
     @Override
     public void onDetach() {
-        Log.d(TAG,mParam1 +" Fragment onDetach");
         super.onDetach();
-        if (JCVideoPlayer.backPress()) {
+        Log.d(TAG,mParam1 +" Fragment onDetach");
+        if (JZVideoPlayer.backPress()) {
             return;
         }
         if (mCurrentYoukuPlayerView!=null) {
@@ -593,7 +631,18 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
 
                         break;
                     case Content.TYPE_IMAGE:
-                        content.setViewType(Model.VIEW_TYPE_CONTENT_IMAGE_POST_MAIN);
+                        if (content.mImageList.size() ==1){
+                            content.setViewType(Model.VIEW_TYPE_CONTENT_IMAGE_ONE);
+                        }else if (content.mImageList.size() >=3 && content.mImageList.size() <4 ) {
+                            content.setViewType(Model.VIEW_TYPE_CONTENT_IMAGE_THREE);
+                        }else if (content.mImageList.size() >=4 && content.mImageList.size() <6 ) {
+                            content.setViewType(Model.VIEW_TYPE_CONTENT_IMAGE_FOUR);
+                        }else if (content.mImageList.size() >=6 && content.mImageList.size() <9 ) {
+                            content.setViewType(Model.VIEW_TYPE_CONTENT_IMAGE_SIX);
+                        }else if (content.mImageList.size() >=9 ){
+                            content.setViewType(Model.VIEW_TYPE_CONTENT_IMAGE_NINE);
+                        }
+
                         break;
                     case Content.TYPE_VIDEO:
                         if (content.mSource_name!=null && content.mSource_name.equals(VideoSource.VIDEO_SOURCE_YOUKU)){
@@ -644,7 +693,8 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
             public void onImageChange(int position) {
                 //CustomImage image = images.get(position);
                 mOverlayView.setShareText(mImagePostList.get(position));
-                mOverlayView.setDescription(String.valueOf(position+1)+"/"+ Integer.toString(mImagePostList.size()));
+                mOverlayView.setDescription(String.valueOf(position+1)+"/"+ Integer.toString(mImagePostList.size())
+                + " " + mImageDescription);
             }
         };
     }

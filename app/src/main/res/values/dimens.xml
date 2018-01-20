@@ -9,4 +9,10 @@
     <!--Title and date font size-->
     <dimen name="title_font">16sp</dimen>
     <dimen name="date_font">12sp</dimen>
+    <!--zhihu/Matisse image selection size-->
+    <dimen name="grid_expected_size">120dp</dimen>
+    <dimen name="item_margin_horizontal">24dp</dimen>
+    <dimen name="item_margin_vertical">8dp</dimen>
+
+    <dimen name="image_margin">48dp</dimen>
 </resources>

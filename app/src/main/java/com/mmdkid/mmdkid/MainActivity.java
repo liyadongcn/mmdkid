@@ -40,7 +40,8 @@ import com.umeng.message.PushAgent;
 
 import java.util.List;
 
-import fm.jiecao.jcvideoplayer_lib.JCVideoPlayer;
+import cn.jzvd.JZVideoPlayer;
+
 
 public class MainActivity extends AppCompatActivity implements HomeFragment.OnFragmentInteractionListener
         ,VideoFragment.OnFragmentInteractionListener
@@ -131,9 +132,18 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
                         mViewPager.setCurrentItem(2);
                         break;*/
                     case R.id.tab_publish:
-                        mPopwindow = new PublishPopupWindow(MainActivity.this, itemsOnClick);
-                        mPopwindow.showAtLocation(mBottomBar,
-                                Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
+                        App app = (App) getApplicationContext();
+                        if (app.isGuest()){
+                            // 未登录，弹出登录界面
+                            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                            startActivity(intent);
+                            return;
+                        }else {
+                            // 已登录，可以发布内容
+                            mPopwindow = new PublishPopupWindow(MainActivity.this, itemsOnClick);
+                            mPopwindow.showAtLocation(mBottomBar,
+                                    Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
+                        }
                         break;
                     case R.id.tab_video:
                         mViewPager.setCurrentItem(1);
@@ -166,9 +176,18 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
                         mViewPager.setCurrentItem(2);
                         break;*/
                     case R.id.tab_publish:
-                        mPopwindow = new PublishPopupWindow(MainActivity.this, itemsOnClick);
-                        mPopwindow.showAtLocation(mBottomBar,
-                                Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
+                        App app = (App) getApplicationContext();
+                        if (app.isGuest()){
+                            // 未登录，弹出登录界面
+                            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                            startActivity(intent);
+                            return;
+                        }else {
+                            // 已登录，可以发布内容
+                            mPopwindow = new PublishPopupWindow(MainActivity.this, itemsOnClick);
+                            mPopwindow.showAtLocation(mBottomBar,
+                                    Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
+                        }
                         break;
                     case R.id.tab_video:
                         mViewPager.setCurrentItem(1);
@@ -204,15 +223,22 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
         public void onClick(View v) {
             mPopwindow.dismiss();
             mPopwindow.backgroundAlpha(MainActivity.this, 1f);
+            Intent intent;
             switch (v.getId()) {
                 case R.id.article:
                     Toast.makeText(MainActivity.this, "文章", Toast.LENGTH_SHORT).show();
+                    intent = new Intent(MainActivity.this,PublishPostActivity.class);
+                    startActivity(intent);
                     break;
                 case R.id.image:
                     Toast.makeText(MainActivity.this, "图片", Toast.LENGTH_SHORT).show();
+                    intent = new Intent(MainActivity.this, PublishImageActivity.class);
+                    startActivity(intent);
                     break;
                 case R.id.video:
                     Toast.makeText(MainActivity.this, "视频", Toast.LENGTH_SHORT).show();
+                    intent = new Intent(MainActivity.this, PublishVideoActivity.class);
+                    startActivity(intent);
                     break;
                 default:
                     break;
@@ -439,7 +465,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
 
     @Override
     public void onBackPressed() {
-        if (JCVideoPlayer.backPress()) {
+        if (JZVideoPlayer.backPress()) {
             return;
         }
         super.onBackPressed();
@@ -460,7 +486,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
     @Override
     protected void onPause() {
         super.onPause();
-        JCVideoPlayer.releaseAllVideos();
+        JZVideoPlayer.releaseAllVideos();
     }
 
     private void autoLogin(){
@@ -480,6 +506,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
                 // 自动登录时 不自动登录web
                 login.setLoginWeb(false);
                 login.startWithToken(currentUser.getIdentity(),token);
+                app.setIsGuest(false);
             }else{
                 // user accesstoken is not valid
                 app.setIsGuest(true);
