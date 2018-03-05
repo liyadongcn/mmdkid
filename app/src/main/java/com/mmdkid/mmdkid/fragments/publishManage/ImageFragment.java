@@ -114,7 +114,7 @@ public class ImageFragment extends Fragment {
         mProgressDialog = new ProgressDialog(mContext);
         mProgressDialog.setIndeterminate(true);
         mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        mProgressDialog.setMessage("Loading...");
+        mProgressDialog.setMessage(getString(R.string.loading));
         mProgressDialog.show();
     }
 

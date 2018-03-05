@@ -27,12 +27,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
-                <LinearLayout
+                <RelativeLayout
                     android:layout_marginTop="10dp"
                     android:layout_marginBottom="10dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                   >
                         <com.facebook.drawee.view.SimpleDraweeView
                             android:id="@+id/sdvImage"
                             android:layout_width="match_parent"
@@ -40,9 +40,20 @@
                             android:layout_weight="1"
                             fresco:placeholderImageScaleType="fitCenter"
                             fresco:placeholderImage="@color/gray_cc" />
+                        <TextView
+                            android:id="@+id/tvImageCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentRight="true"
+                            android:layout_alignParentBottom="true"
+                            android:layout_marginRight="10dp"
+                            android:background="@drawable/shape_radius"
+                            android:padding="3dp"
+                            android:textSize="10sp"
+                            android:textColor="@android:color/white"
+                            />
 
-
-                </LinearLayout>
+                </RelativeLayout>
         <TextView
             android:id="@+id/cvContentDate"
             android:layout_width="wrap_content"

@@ -22,6 +22,8 @@
     <string name="action_share">分享</string>
     <string name="action_favorite">favorite</string>
 
+    <string name="loading">加载中...</string>
+
     <string name="actionn_load_more">刚刚看到这里,点击刷新</string>
 
     <!--String related to volley error-->

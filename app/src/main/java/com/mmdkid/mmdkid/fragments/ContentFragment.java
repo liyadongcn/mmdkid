@@ -156,7 +156,7 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
         mProgressDialog = new ProgressDialog(mContext);
         mProgressDialog.setIndeterminate(true);
         mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        mProgressDialog.setMessage("Loading...");
+        mProgressDialog.setMessage(getString(R.string.loading));
         mProgressDialog.show();
 
     }
@@ -631,9 +631,9 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
 
                         break;
                     case Content.TYPE_IMAGE:
-                        if (content.mImageList.size() ==1){
+                        if (content.mImageList.size() <3){
                             content.setViewType(Model.VIEW_TYPE_CONTENT_IMAGE_ONE);
-                        }else if (content.mImageList.size() >=3 && content.mImageList.size() <4 ) {
+                        }/*else if (content.mImageList.size() >=3 && content.mImageList.size() <4 ) {
                             content.setViewType(Model.VIEW_TYPE_CONTENT_IMAGE_THREE);
                         }else if (content.mImageList.size() >=4 && content.mImageList.size() <6 ) {
                             content.setViewType(Model.VIEW_TYPE_CONTENT_IMAGE_FOUR);
@@ -641,6 +641,8 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
                             content.setViewType(Model.VIEW_TYPE_CONTENT_IMAGE_SIX);
                         }else if (content.mImageList.size() >=9 ){
                             content.setViewType(Model.VIEW_TYPE_CONTENT_IMAGE_NINE);
+                        }*/else{
+                            content.setViewType(Model.VIEW_TYPE_CONTENT_IMAGE_THREE);
                         }
 
                         break;

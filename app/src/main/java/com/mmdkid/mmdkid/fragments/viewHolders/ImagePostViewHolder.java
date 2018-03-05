@@ -8,8 +8,11 @@ import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.mmdkid.mmdkid.R;
+import com.mmdkid.mmdkid.helper.RelativeDateFormat;
 import com.mmdkid.mmdkid.models.Content;
 import com.mmdkid.mmdkid.models.Model;
+
+import java.text.ParseException;
 
 /**
  * Created by LIYADONG on 2017/7/25.
@@ -22,7 +25,7 @@ public class ImagePostViewHolder extends ModelViewHolder {
     private SimpleDraweeView mImage1;
     private SimpleDraweeView mImage2;
     private SimpleDraweeView mImage3;
-    //public GridView mImageGridView;
+    private TextView mTextViewImageCount;
     private Context mContext;
 
     public ImagePostViewHolder(View itemView) {
@@ -31,6 +34,7 @@ public class ImagePostViewHolder extends ModelViewHolder {
         mCardView.setElevation(10);
         mTextViewTitle = (TextView)itemView.findViewById(R.id.cvContentTitle);
         mTextViewDate = (TextView)itemView.findViewById(R.id.cvContentDate);
+        mTextViewImageCount = (TextView)itemView.findViewById(R.id.tvImageCount);
         mImage1 = (SimpleDraweeView) itemView.findViewById(R.id.sdvImage1) ;
         mImage2 = (SimpleDraweeView) itemView.findViewById(R.id.sdvImage2) ;
         mImage3 = (SimpleDraweeView) itemView.findViewById(R.id.sdvImage3) ;
@@ -43,13 +47,21 @@ public class ImagePostViewHolder extends ModelViewHolder {
         if(model instanceof Content){
             Content content = (Content)model;
             mTextViewTitle.setText(content.mTitle);
-            mTextViewDate.setText(content.mCreatedAt);
+            try {
+                mTextViewDate.setText(RelativeDateFormat.format(content.mCreatedAt));
+            } catch (ParseException e) {
+                e.printStackTrace();
+                mTextViewDate.setText(content.mCreatedAt);
+            }
+            mTextViewImageCount.setVisibility(View.GONE);
             if(content.mImageList.size()>3){
                 // 最多只显示前三张图片作为封面
                 //mImageGridView.setAdapter(new ImageAdapter(mContext, new ArrayList<String>(content.mImageList.subList(0,3)) ));
                 mImage1.setImageURI(content.mImageList.get(0));
                 mImage2.setImageURI(content.mImageList.get(1));
                 mImage3.setImageURI(content.mImageList.get(2));
+                mTextViewImageCount.setVisibility(View.VISIBLE);
+                mTextViewImageCount.setText(content.mImageList.size()+"图");
             }else{
                 //mImageGridView.setAdapter(new ImageAdapter(mContext,content.mImageList));
                 for (int i =0; i<content.mImageList.size();i++){
