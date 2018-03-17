@@ -52,6 +52,8 @@ public class OkHttpManager extends Object {
     private static final String TOKEN_NAME = "accessToken";//访问token的名称
     private String mAccessToken; // 访问token
 
+    private static final int WRITE_TIME_OUT = 120; // 写入超时120秒
+
     /**
      * 初始化OkHttpManager
      */
@@ -151,7 +153,8 @@ public class OkHttpManager extends Object {
         RequestBody body = RequestBody.create(MEDIA_OBJECT_STREAM, file);
         //创建Request
         final Request request = new Request.Builder().url(requestUrl).post(body).build();
-        final Call call = mOkHttpClient.newBuilder().writeTimeout(50, TimeUnit.SECONDS).build().newCall(request);
+        //设定访问超时为120秒
+        final Call call = mOkHttpClient.newBuilder().writeTimeout(120, TimeUnit.SECONDS).build().newCall(request);
         call.enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -262,7 +265,7 @@ public class OkHttpManager extends Object {
             RequestBody body = builder.build();
             //创建Request
             final Request request = new Request.Builder().url(requestUrl).post(progressRequestBody(body,callBack)).build();
-            final Call call = mOkHttpClient.newBuilder().writeTimeout(50, TimeUnit.SECONDS).build().newCall(request);
+            final Call call = mOkHttpClient.newBuilder().writeTimeout(0, TimeUnit.SECONDS).build().newCall(request);
             call.enqueue(new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {

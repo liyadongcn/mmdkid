@@ -47,10 +47,10 @@ public class PostImageMiddleViewHolder extends ModelViewHolder {
             Content content = (Content) model;
             mTextViewTitle.setText(content.mTitle);
             try {
-                mTextViewDate.setText(RelativeDateFormat.format(content.mCreatedAt));
+                mTextViewDate.setText(content.mAuthor + " "+ RelativeDateFormat.format(content.mCreatedAt));
             } catch (ParseException e) {
                 e.printStackTrace();
-                mTextViewDate.setText(content.mCreatedAt);
+                mTextViewDate.setText(content.mAuthor + " "+ content.mCreatedAt);
             }
             mImageViewContent.setVisibility(View.GONE);
             if (!TextUtils.isEmpty(content.mImage)&& !content.mImage.equalsIgnoreCase("null")){

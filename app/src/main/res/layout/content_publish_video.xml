@@ -55,7 +55,7 @@
             android:padding="5dp"
             android:textColor="@color/gray"
             android:textSize="18dp"
-            android:text="选封面（可自选）" />
+            android:text="视频封面可自选,大小不能超过50M" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -89,7 +89,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="标题（必填）"
+            android:hint="标题（必填且不能超过30个字）"
             android:singleLine="true"
             android:maxLength="50"/>
 

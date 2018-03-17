@@ -47,6 +47,7 @@ public class Content extends Model {
     public String mVideo;
     public String mSource_name;
     public String mSource_url;
+    public String mAuthor;
     public int mCommentCount;
     public int mViewCount;
     public int mStarCount;
@@ -104,6 +105,12 @@ public class Content extends Model {
             content.mContent = jsonObject.getString("content");
             if (jsonObject.has("source_name")) content.mSource_name = jsonObject.getString("source_name");
             if (jsonObject.has("source_url")) content.mSource_url = jsonObject.getString("source_url");
+            if (jsonObject.has("author")) {
+                content.mAuthor = jsonObject.getString("author");
+                if (content.mAuthor=="null") content.mAuthor="";
+            }else{
+                content.mAuthor = "";
+            }
             content.mVideo = jsonObject.has("video") ? jsonObject.getString("video") : "";
             if (jsonObject.has("thumbsup")) content.mThumbsup = jsonObject.getInt("thumbsup");
             if (jsonObject.has("thumbsdown")) content.mThumbsdown = jsonObject.getInt("thumbsdown");

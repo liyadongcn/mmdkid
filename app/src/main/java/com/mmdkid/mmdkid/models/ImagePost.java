@@ -46,6 +46,7 @@ public class ImagePost extends Model {
     public int view_count;
     public int star_count;
     public ArrayList<String> imageList;
+    public ArrayList<String> thumbnailList;
 
     @Override
     public void setAttributesNames() {
@@ -103,6 +104,14 @@ public class ImagePost extends Model {
                 Log.d(TAG,imageJsonArray.toString());
                 for (int j=0; j<imageJsonArray.length(); j++){
                     model.imageList.add(imageJsonArray.getString(j));
+                }
+            }
+            if(response.has("thumbnails") && !response.isNull("thumbnails")){
+                JSONArray imageJsonArray = response.getJSONArray("thumbnails");
+                model.thumbnailList = new ArrayList<String>();
+                Log.d(TAG,imageJsonArray.toString());
+                for (int j=0; j<imageJsonArray.length(); j++){
+                    model.thumbnailList.add(imageJsonArray.getString(j));
                 }
             }
             return model;

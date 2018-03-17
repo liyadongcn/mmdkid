@@ -48,10 +48,10 @@ public class ImagePostViewHolder extends ModelViewHolder {
             Content content = (Content)model;
             mTextViewTitle.setText(content.mTitle);
             try {
-                mTextViewDate.setText(RelativeDateFormat.format(content.mCreatedAt));
+                mTextViewDate.setText(content.mAuthor + " "+ RelativeDateFormat.format(content.mCreatedAt));
             } catch (ParseException e) {
                 e.printStackTrace();
-                mTextViewDate.setText(content.mCreatedAt);
+                mTextViewDate.setText(content.mAuthor + " "+ content.mCreatedAt);
             }
             mTextViewImageCount.setVisibility(View.GONE);
             if(content.mImageList.size()>3){

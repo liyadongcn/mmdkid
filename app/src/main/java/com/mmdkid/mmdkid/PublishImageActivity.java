@@ -1,11 +1,13 @@
 package com.mmdkid.mmdkid;
 
 import android.content.ContentResolver;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -168,7 +170,28 @@ public class PublishImageActivity extends AppCompatActivity {
                     Log.d(TAG,"Upload failed. " + errorMsg);
                     mProgressBar.setVisibility(View.GONE);
                     Toast.makeText(PublishImageActivity.this,"发布失败",Toast.LENGTH_LONG).show();
-
+                    AlertDialog.Builder builder = new AlertDialog.Builder(PublishImageActivity.this);
+                    builder.setTitle("提示")
+                            .setMessage("发布失败:" + errorMsg)
+                            .setPositiveButton(getString(R.string.action_retry), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog,
+                                                    int which) {
+                                    try {
+                                        publish();
+                                    } catch (URISyntaxException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            })
+                            .setNegativeButton(getString(R.string.action_cancel), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog,
+                                                    int which) {
+                                    finish();
+                                }
+                            })
+                            .show();
                 }
             });
         }

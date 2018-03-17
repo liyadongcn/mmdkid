@@ -47,11 +47,18 @@ public class PublishManageImageViewHolder extends ModelViewHolder {
             mTextViewTitle.setText(content.title);
             mTextViewDate.setText(content.created_at);
             mTextViewDescription.setText("阅读 "+content.view_count+"  评论 "+content.comment_count+"  点赞 "+content.thumbsup);
-            if(content.imageList==null || content.imageList.isEmpty()){
-                mImageViewContent.setVisibility(View.GONE);
-            }else{
+            if (content.thumbnailList==null || content.thumbnailList.isEmpty()){
+                // 没有缩略图 使用原图
+                if(content.imageList==null || content.imageList.isEmpty()){
+                    mImageViewContent.setVisibility(View.GONE);
+                }else{
+                    mImageViewContent.setVisibility(View.VISIBLE);
+                    mImageViewContent.setImageURI(content.imageList.get(0));
+                }
+            }else {
+                // 有缩略图 使用缩略图
                 mImageViewContent.setVisibility(View.VISIBLE);
-                mImageViewContent.setImageURI(content.imageList.get(0));
+                mImageViewContent.setImageURI(content.thumbnailList.get(0));
             }
 
         }

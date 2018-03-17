@@ -26,6 +26,10 @@
 
     <string name="actionn_load_more">刚刚看到这里,点击刷新</string>
 
+    <string name="action_retry">重试</string>
+    <string name="action_cancel">取消</string>
+    <string name="action_ok">确定</string>
+
     <!--String related to volley error-->
     <string name="volley_error_generic_timeout">网络连接超时~！</string>
     <string name="volley_error_generic_parse">Json数据错误~！</string>

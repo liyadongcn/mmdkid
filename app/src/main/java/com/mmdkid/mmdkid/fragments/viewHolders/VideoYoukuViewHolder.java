@@ -61,10 +61,10 @@ public class VideoYoukuViewHolder extends ModelViewHolder {
             final Content content = (Content) model;
             //ImageLoader imageLoader =  InternetSingleton.getInstance(mContext).getImageLoader();
             try {
-                mTextViewDate.setText(RelativeDateFormat.format(content.mCreatedAt));
+                mTextViewDate.setText(content.mAuthor + " "+ RelativeDateFormat.format(content.mCreatedAt));
             } catch (ParseException e) {
                 e.printStackTrace();
-                mTextViewDate.setText(content.mCreatedAt);
+                mTextViewDate.setText(content.mAuthor + " "+ content.mCreatedAt);
             }
             mTextViewTitle.setText(content.mTitle);
 //            mVideo.setPreferVideoDefinition(VideoDefinition.VIDEO_HD);

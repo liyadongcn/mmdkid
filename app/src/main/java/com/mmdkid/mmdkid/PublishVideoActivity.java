@@ -1,5 +1,6 @@
 package com.mmdkid.mmdkid;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
@@ -8,6 +9,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -184,7 +186,30 @@ public class PublishVideoActivity extends AppCompatActivity implements View.OnCl
                     Log.d(TAG,"Upload failed. " + errorMsg);
                     mProgressBar.setVisibility(View.GONE);
                     Toast.makeText(PublishVideoActivity.this,"发布失败",Toast.LENGTH_LONG).show();
+                    AlertDialog.Builder builder = new AlertDialog.Builder(PublishVideoActivity.this);
+                    builder.setTitle("提示")
+                            .setMessage("发布失败:" + errorMsg)
+                            .setPositiveButton(getString(R.string.action_retry), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog,
+                                                    int which) {
 
+                                    try {
+                                        publish();
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+
+                                }
+                            })
+                            .setNegativeButton(getString(R.string.action_cancel), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog,
+                                                    int which) {
+                                    finish();
+                                }
+                            })
+                            .show();
                 }
             });
         }

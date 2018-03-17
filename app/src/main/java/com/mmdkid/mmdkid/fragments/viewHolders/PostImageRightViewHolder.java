@@ -44,10 +44,10 @@ public class PostImageRightViewHolder extends ModelViewHolder {
             Content content = (Content)model;
             mTextViewTitle.setText(content.mTitle);
             try {
-                mTextViewDate.setText(RelativeDateFormat.format(content.mCreatedAt));
+                mTextViewDate.setText(content.mAuthor + " "+ RelativeDateFormat.format(content.mCreatedAt));
             } catch (ParseException e) {
                 e.printStackTrace();
-                mTextViewDate.setText(content.mCreatedAt);
+                mTextViewDate.setText(content.mAuthor + " "+content.mCreatedAt);
             }
             if(TextUtils.isEmpty(content.mImage) && content.mImageList!=null && content.mImageList.isEmpty()){
                 mImageViewContent.setVisibility(View.GONE);
