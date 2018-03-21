@@ -1,7 +1,11 @@
 package com.mmdkid.mmdkid;
 
+import android.Manifest;
 import android.app.SearchManager;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -10,7 +14,9 @@ import android.support.annotation.IdRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -37,6 +43,11 @@ import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnTabReselectListener;
 import com.roughike.bottombar.OnTabSelectListener;
 import com.umeng.message.PushAgent;
+import com.yanzhenjie.permission.Action;
+import com.yanzhenjie.permission.AndPermission;
+import com.yanzhenjie.permission.Permission;
+import com.yanzhenjie.permission.Rationale;
+import com.yanzhenjie.permission.RequestExecutor;
 
 import java.util.List;
 
@@ -84,16 +95,99 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
             isExit = false;
         }
     };
+    /**
+     *  权限申请询问
+     */
+    private Rationale mRationale = new Rationale() {
+        @Override
+        public void showRationale(Context context, List<String> permissions,
+                                  final RequestExecutor executor) {
+            // 这里使用一个Dialog询问用户是否继续授权。
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+            builder.setTitle("提示")
+                    .setMessage("你已拒绝过存储权限，没有该权限系统将无法正常运行！" )
+                    .setPositiveButton("同意授权", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog,
+                                            int which) {
+                            // 如果用户继续：
+                            executor.execute();
+                        }
+                    })
+                    .setNegativeButton("拒绝授权", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog,
+                                            int which) {
+                            // 如果用户中断：
+                            executor.cancel();
+                        }
+                    })
+                    .show();
+        }
+    };
 
-    @Override
+
+            @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // 检查应用是否有存储权限
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            // 没有权限，申请存储权限。
+            Log.d(TAG,"No storage permission. Now to apply it.");
+            AndPermission.with(this)
+                    .permission(Permission.WRITE_EXTERNAL_STORAGE)
+                    .onGranted(new Action() {
+                        @Override
+                        public void onAction(List<String> permissions) {
+                            // 取得授权
+                            Log.d(TAG,"Storage permission is granted by user.");
+                        }
+                    }).onDenied(new Action() {
+                @Override
+                public void onAction(List<String> permissions) {
+                    // 用于拒绝授权
+                    // 弹出对话框告知用户情况
+                    Log.d(TAG,"Storage permission is denied by user.");
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    builder.setTitle("提示")
+                            .setMessage("你已拒绝存储权限，没有该权限系统将继续运行，但有可能出现系统闪退现象！" )
+                            .setPositiveButton("继续运行", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog,
+                                                    int which) {
+                                    // 如果用户继续：
+
+                                }
+                            })
+                            .setNegativeButton("退出应用", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog,
+                                                    int which) {
+                                    // 如果用户中断：
+                                    finish();
+                                    System.exit(0);
+                                }
+                            })
+                            .show();
+                }
+            })
+                    .rationale(mRationale)
+                    .start();
+        }else{
+            // 有权限了，去放肆吧。
+            Log.d(TAG,"Already has the storage right.");
+        }
+        // 初始化界面
+        initView();
+    }
+
+    private void initView(){
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        /*
+ /*
         * 参考：http://dev.umeng.com/push/android/integration#2_2_7
         * 注意：
             此方法与统计分析sdk中统计日活的方法无关！请务必调用此方法！
@@ -202,6 +296,8 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
             }
         });
 
+
+
       /*  FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -214,7 +310,6 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
         });*/
 
         autoLogin();
-
     }
 
     // 发布弹出窗口实现监听类

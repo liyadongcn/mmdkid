@@ -7,8 +7,8 @@ android {
         applicationId "com.mmdkid.mmdkid"
         minSdkVersion 16
         targetSdkVersion 25
-        versionCode 27
-        versionName '0.8.27'
+        versionCode 28
+        versionName '0.8.28'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
@@ -127,4 +127,6 @@ dependencies {
     compile 'com.zhihu.android:matisse:0.5.0-beta3'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'jp.wasabeef:richeditor-android:1.2.2'
+    // 权限控制
+    compile 'com.yanzhenjie:permission:2.0.0-rc3'
 }

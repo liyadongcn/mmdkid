@@ -40,11 +40,12 @@
         android:layout_alignParentBottom="true"
         android:layout_gravity="bottom"
         android:background="#fff9f9f9"
+        app:bb_showShadow="true"
         app:bb_activeTabColor="@android:color/holo_red_light"
         app:bb_behavior="shy"
         app:bb_inActiveTabColor="@android:color/darker_gray"
         app:bb_tabXmlResource="@xml/bottombar_tabs" />
 
-
+    <!--android:background="#fff9f9f9"-->
 
 </android.support.design.widget.CoordinatorLayout>
