@@ -7,8 +7,8 @@ android {
         applicationId "com.mmdkid.mmdkid"
         minSdkVersion 16
         targetSdkVersion 25
-        versionCode 28
-        versionName '0.8.28'
+        versionCode 29
+        versionName '0.8.29'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true

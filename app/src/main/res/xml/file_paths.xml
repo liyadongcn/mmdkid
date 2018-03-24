@@ -2,4 +2,5 @@
 <paths>
     <external-path path="Android/data/com.mmdkid.mmdkid/" name="files_root" />
     <external-path path="." name="external_storage_root" />
+    <file-path path="" name="download"/>
 </paths>

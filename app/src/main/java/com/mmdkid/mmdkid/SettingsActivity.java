@@ -29,6 +29,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
     private static final String TAG = "SettingsActivity";
 
+    private Preference mVersionPreference;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,8 +50,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             }
         });
         setListFooter(button);
-
-
+        mVersionPreference = findPreference("checkVersion");
+        mVersionPreference.setSummary("当前版本"+CheckUpdateUtil.getVersionName(this));
     }
 
     /**

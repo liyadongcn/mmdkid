@@ -34,7 +34,6 @@ import com.mmdkid.mmdkid.models.Version;
 import com.mmdkid.mmdkid.server.RESTAPIConnection;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -236,131 +235,157 @@ public class CheckUpdateUtil {
 
 
     /**
-     * 下载apk
+     * 下载apk并进行安装
      */
     private static void download(final Context context, final String download_path) {
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-            //step 1: 不变的第一步创建 OkHttpClick
-            OkHttpClient okHttpClient = new OkHttpClient();
+            // 安装包的文件名
+            String apkName = download_path.substring(download_path.lastIndexOf("/") + 1);
+            Log.d(TAG,"Apk Name is :" + apkName);
+            // 安装路径及文件名
+            // String target = Environment.getExternalStorageDirectory() +"/"+ apkName;
+            String target = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) +"/"+ apkName;
+            Log.d(TAG,"Local File Name is :" + target);
 
-            //step 2: 创建Requset
-            Request request = new Request.Builder()
-                    .url(download_path)
-                    .build();
+            final File file = new File(target);
 
-            //step 3:建立联系，创建Call
-            okHttpClient.newCall(request).enqueue(new Callback() {
-                @Override
-                public void onFailure(Call call, IOException e) {
-                }
-
-                @Override
-                public void onResponse(Call call, Response response) {
-                    // 安装包的文件名
-                    String apkName = download_path.substring(download_path.lastIndexOf("/") + 1);
-                    Log.d(TAG,"Apk Name is :" + apkName);
-                    // 本地安装路径及文件名
-                    String target = Environment.getExternalStorageDirectory() +"/"+ apkName;
-                    Log.d(TAG,"Local File Name is :" + target);
-                    // 下载输入流
-                    InputStream inputStream = response.body().byteStream();
-                    // 输出文件流
-                    FileOutputStream fileOutputStream = null;
-                    File file = new File(target);
-                    try {
-                        //创建通知栏下载提示
-                        builder = new NotificationCompat.Builder(context);
-                        builder.setSmallIcon(R.mipmap.ic_launcher)
-                                .setLargeIcon(BitmapFactory.decodeResource(context.getResources(),R.mipmap.ic_launcher))
-                                .setOngoing(true)
-                                .setContentTitle("下载更新");
-                        manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-
-                        // 下载文件
-                        fileOutputStream = new FileOutputStream(file);
-                        byte[] buffer = new byte[2048];
-                        long total = response.body().contentLength();
-                        Log.d(TAG,"Total is :" + Long.toString(total));
-                        long sum = 0;
-                        int len = 0;
-                        while ((len = inputStream.read(buffer)) != -1) {
-                            fileOutputStream.write(buffer, 0, len);
-                            sum += len;
-                            //更新进度
-                            int progress = (int) (sum * 1.0f / total * 100);
-                            builder.setProgress(100, progress, false)
-                                    .setContentText(progress + "%");
-                            manager.notify(UPDATE_ID, builder.build());
-                        }
-                        fileOutputStream.flush();
-                        Log.d(TAG, "文件下载成功 Total is " + Long.toString(sum));
-                        //取消通知栏下载提示
-                        manager.cancel(UPDATE_ID);
-                        //下载成功后自动安装apk并打开
-                        Intent intent = new Intent(Intent.ACTION_VIEW);
-                        /*intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                         intent.setDataAndType(Uri.fromFile(file), "application/vnd.android.package-archive");
-                        context.startActivity(intent);*/
-                        //判断是否是AndroidN以及更高的版本
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            Uri contentUri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".fileProvider", file);
-                            intent.setDataAndType(contentUri, "application/vnd.android.package-archive");
-                        } else {
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            intent.setDataAndType(Uri.fromFile(file), "application/vnd.android.package-archive");
-                        }
-                        context.startActivity(intent);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        if ( e instanceof FileNotFoundException) {
-                            // 没有本地存储权限 无法下载安装文件
-                            Log.d(TAG,"Error :" + ((FileNotFoundException) e).getMessage());
-                            ((Activity)context).runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Toast.makeText(context,"No right to access the storage",Toast.LENGTH_LONG).show();
-                                }
-                            });
-
-                        }
-                    }finally {
-                        try {
-                            if (inputStream != null)
-                                inputStream.close();
-                        } catch (IOException e) {
-                        }
-                        try {
-                            if (fileOutputStream != null)
-                                fileOutputStream.close();
-                        } catch (IOException e) {
-                        }
-                    }
-
-                }
-            });
+            if(file.exists()){
+                // 安装包文件已经存在
+                Log.d(TAG,"Install package exists.");
+                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
+                dialogBuilder.setTitle("提示")
+                        .setMessage("安装包已经存在！")
+                        .setNegativeButton("直接安装", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                installAPK(context,file);
+                            }
+                        })
+                        .setPositiveButton("重新下载", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                downloadInstall(context,download_path,file);
+                            }
+                        })
+                        .create();
+                Log.d(TAG,"Dialog created.");
+                dialogBuilder.show();
+            }else{
+                downloadInstall(context,download_path,file);
+            }
         } else {
             //SD卡没有插好
 
         }
     }
-
-    public static void installApk(Context context,File file){
+    /**
+     * Install the apk package.
+     * @param file 安装包文件
+     *
+     */
+    private static void installAPK(Context context,File file) {
         Intent intent = new Intent(Intent.ACTION_VIEW);
         //判断是否是AndroidN以及更高的版本
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            Uri contentUri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".fileprovider", file);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);// addFlags 必须写在 setFlags后面 否则不生效
+            Uri contentUri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".fileProvider", file);
             intent.setDataAndType(contentUri, "application/vnd.android.package-archive");
         } else {
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.setDataAndType(Uri.fromFile(file), "application/vnd.android.package-archive");
         }
         context.startActivity(intent);
-        //android.os.Process.killProcess(android.os.Process.myPid());
     }
+
+    /**
+     * 使用OkHttp下载安装包文件并自动进行安装
+     *
+     */
+    private static void downloadInstall(final Context context, String download_path, final File file) {
+        //step 1: 不变的第一步创建 OkHttpClick
+        OkHttpClient okHttpClient = new OkHttpClient();
+
+        //step 2: 创建Requset
+        Request request = new Request.Builder()
+                .url(download_path)
+                .build();
+
+        //step 3:建立联系，创建Call
+        okHttpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+            }
+
+            @Override
+            public void onResponse(Call call, final Response response) {
+
+                // 下载输入流
+                final InputStream inputStream = response.body().byteStream();
+
+                // 输出文件流
+                FileOutputStream fileOutputStream = null;
+                try {
+                    //创建通知栏下载提示
+                    builder = new NotificationCompat.Builder(context);
+                    builder.setSmallIcon(R.mipmap.ic_launcher)
+                            .setLargeIcon(BitmapFactory.decodeResource(context.getResources(),R.mipmap.ic_launcher))
+                            .setOngoing(true)
+                            .setContentTitle("下载更新");
+                    manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+                    // 下载安装包文件
+                    fileOutputStream = new FileOutputStream(file);
+                    byte[] buffer = new byte[2048];
+                    long total = response.body().contentLength();
+                    Log.d(TAG,"Total is :" + Long.toString(total));
+                    long sum = 0;
+                    int len = 0;
+                    while ((len = inputStream.read(buffer)) != -1) {
+                        fileOutputStream.write(buffer, 0, len);
+                        sum += len;
+                        //更新进度
+                        int progress = (int) (sum * 1.0f / total * 100);
+                        builder.setProgress(100, progress, false)
+                                .setContentText(progress + "%");
+                        manager.notify(UPDATE_ID, builder.build());
+                    }
+                    fileOutputStream.flush();
+                    Log.d(TAG, "文件下载成功 Total is " + Long.toString(sum));
+                    //取消通知栏下载提示
+                    manager.cancel(UPDATE_ID);
+                    //下载成功后自动安装apk
+                    installAPK(context,file);
+                } catch (final IOException e) {
+                    e.printStackTrace();
+                    // 下载安装有错误
+                    Log.d(TAG,"Error :" + e.getMessage());
+                    ((Activity)context).runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(context,e.getMessage(),Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }finally {
+                    try {
+                        if (inputStream != null)
+                            inputStream.close();
+                    } catch (IOException e) {
+                    }
+                    try {
+                        if (fileOutputStream != null)
+                            fileOutputStream.close();
+                    } catch (IOException e) {
+                    }
+                }
+
+
+            }
+        });
+
+    }
+
+
 
     /**
      * Checks if the app has permission to write to device storage
