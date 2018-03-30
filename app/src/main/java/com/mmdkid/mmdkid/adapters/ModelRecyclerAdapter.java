@@ -13,6 +13,7 @@ import com.mmdkid.mmdkid.fragments.viewHolders.GWGoodsImageOnLeftViewHolder;
 import com.mmdkid.mmdkid.fragments.viewHolders.GWPostImageOnMiddleViewHolder;
 import com.mmdkid.mmdkid.fragments.viewHolders.GoodsImageOnLeftViewHolder;
 import com.mmdkid.mmdkid.fragments.viewHolders.ImagePostGridViewHolder;
+import com.mmdkid.mmdkid.fragments.viewHolders.ImagePostLeftViewHolder;
 import com.mmdkid.mmdkid.fragments.viewHolders.ImagePostOneViewHolder;
 import com.mmdkid.mmdkid.fragments.viewHolders.ImagePostViewHolder;
 import com.mmdkid.mmdkid.fragments.viewHolders.ModelViewHolder;
@@ -113,6 +114,10 @@ public class ModelRecyclerAdapter extends RecyclerView.Adapter {
                 v =  mInflater
                         .inflate(R.layout.viewholder_image_three, parent, false);
                 return  new ImagePostViewHolder(v);
+            case Model.VIEW_TYPE_CONTENT_IMAGE_LEFT:
+                v =  mInflater
+                        .inflate(R.layout.viewholder_image_left, parent, false);
+                return  new ImagePostLeftViewHolder(v);
             case Model.VIEW_TYPE_CONTENT_IMAGE_FOUR:
                 v =  mInflater
                         .inflate(R.layout.viewholder_image_grid, parent, false);

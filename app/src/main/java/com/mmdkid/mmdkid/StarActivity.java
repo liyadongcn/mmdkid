@@ -2,6 +2,8 @@ package com.mmdkid.mmdkid;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -16,8 +18,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.facebook.drawee.generic.GenericDraweeHierarchyBuilder;
 import com.mmdkid.mmdkid.adapters.ModelRecyclerAdapter;
 import com.mmdkid.mmdkid.fragments.RecyclerViewClickListener;
+import com.mmdkid.mmdkid.imagepost.ImageOverlayView;
 import com.mmdkid.mmdkid.models.Behavior;
 import com.mmdkid.mmdkid.models.Content;
 import com.mmdkid.mmdkid.models.Model;
@@ -28,6 +32,7 @@ import com.mmdkid.mmdkid.server.RESTAPIConnection;
 import com.stfalcon.frescoimageviewer.ImageViewer;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class StarActivity extends AppCompatActivity {
     private static final String TAG ="StarActivity";
@@ -46,6 +51,11 @@ public class StarActivity extends AppCompatActivity {
 
     private User mCurrentUser;
     private Token mCurrentToken;
+
+    private List<String> mImagePostList; // 当前显示的图片列表
+    private String mImageDescription;   // 当前图片的描述
+    private ImageOverlayView mOverlayView; // 叠加在图片上的视图
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,7 +118,7 @@ public class StarActivity extends AppCompatActivity {
                                     behavior.mModel.setViewType(Model.VIEW_TYPE_CONTENT_POST_IMAGE_LEFT);
                                     break;
                                 case Content.TYPE_IMAGE:
-                                    behavior.mModel.setViewType(Model.VIEW_TYPE_CONTENT_IMAGE_POST);
+                                    behavior.mModel.setViewType(Model.VIEW_TYPE_CONTENT_IMAGE_LEFT);
                                     break;
                                 case Content.TYPE_VIDEO:
                                     behavior.mModel.setViewType(Model.VIEW_TYPE_CONTENT_VIDEO);
@@ -230,8 +240,31 @@ public class StarActivity extends AppCompatActivity {
                         /*intent = new Intent(mContext,ImageActivity.class);
                         intent.putStringArrayListExtra(ImageActivity.IMAGE_LIST,content.mImageList);
                         startActivity(intent);*/
+                        /*new ImageViewer.Builder<>(StarActivity.this, content.mImageList)
+                                .setStartPosition(0)
+                                .show();*/
+                        AnimationDrawable animationDrawable = new AnimationDrawable();
+                        Drawable drawable = getResources().getDrawable(R.drawable.loading);
+                        if(drawable != null){
+                            animationDrawable.addFrame(drawable,100);
+                            animationDrawable.setOneShot(false);
+                        }
+                        GenericDraweeHierarchyBuilder draweeHierarchyBuilder = GenericDraweeHierarchyBuilder.newInstance(getResources())
+                                //.setFailureImage(R.drawable.failureDrawable)
+                                // .setProgressBarImage(R.drawable.spinner_gif);
+                                .setProgressBarImage(animationDrawable);
+                        //.setProgressBarImage(new ProgressBarDrawable());
+
+                        //.setPlaceholderImage(R.drawable.placeholderDrawable);
+                        mOverlayView = new ImageOverlayView(StarActivity.this,content);
+                        mImagePostList = content.mImageList;
+                        mImageDescription = content.mContent;
                         new ImageViewer.Builder<>(StarActivity.this, content.mImageList)
                                 .setStartPosition(0)
+                                .setImageMargin(StarActivity.this,R.dimen.image_margin)
+                                .setImageChangeListener(getImageChangeListener())
+                                .setCustomDraweeHierarchyBuilder(draweeHierarchyBuilder)
+                                .setOverlayView(mOverlayView)
                                 .show();
                         break;
                     default:
@@ -249,6 +282,20 @@ public class StarActivity extends AppCompatActivity {
         //添加分割线
         mRecyclerView.addItemDecoration(new DividerItemDecoration(mRecyclerView.getContext(),
                 DividerItemDecoration.VERTICAL));
+    }
+    /*
+     *   图片浏览监听，可以设置图片描述，以及分享链接
+     * */
+    private ImageViewer.OnImageChangeListener getImageChangeListener() {
+        return new ImageViewer.OnImageChangeListener() {
+            @Override
+            public void onImageChange(int position) {
+                //CustomImage image = images.get(position);
+                mOverlayView.setShareText(mImagePostList.get(position));
+                mOverlayView.setDescription(String.valueOf(position+1)+"/"+ Integer.toString(mImagePostList.size())
+                        + " " + mImageDescription);
+            }
+        };
     }
 
 }

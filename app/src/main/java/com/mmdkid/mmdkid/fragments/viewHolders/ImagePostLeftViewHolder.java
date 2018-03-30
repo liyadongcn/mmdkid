@@ -15,26 +15,24 @@ import com.mmdkid.mmdkid.models.Model;
 import java.text.ParseException;
 
 /**
- * Created by LIYADONG on 2017/7/25.
+ * Created by LIYADONG on 2018/3/28.
  */
 
-public class ImagePostOneViewHolder extends ModelViewHolder {
+public class ImagePostLeftViewHolder extends ModelViewHolder {
     public CardView mCardView;
     public TextView mTextViewTitle;
     public TextView mTextViewDate;
     private SimpleDraweeView mImage;
-    private TextView mTextViewImageCount;
+
     private Context mContext;
 
-    public ImagePostOneViewHolder(View itemView) {
+    public ImagePostLeftViewHolder(View itemView) {
         super(itemView);
         mCardView = (CardView) itemView.findViewById(R.id.cvContent);
         mCardView.setElevation(10);
         mTextViewTitle = (TextView)itemView.findViewById(R.id.cvContentTitle);
         mTextViewDate = (TextView)itemView.findViewById(R.id.cvContentDate);
-        mTextViewImageCount = (TextView)itemView.findViewById(R.id.tvImageCount);
-        mImage = (SimpleDraweeView) itemView.findViewById(R.id.sdvImage) ;
-
+        mImage = (SimpleDraweeView) itemView.findViewById(R.id.cvContentImage) ;
         mContext = itemView.getContext();
     }
 
@@ -53,18 +51,7 @@ public class ImagePostOneViewHolder extends ModelViewHolder {
                 e.printStackTrace();
                 mTextViewDate.setText(displayString + " "+ content.mCreatedAt);
             }
-            mTextViewImageCount.setVisibility(View.GONE);
-            if(!content.mImageList.isEmpty()){
-                // 显示第一张
-                mImage.setImageURI(content.mImageList.get(0));
-                if(content.mImageList.size()==1){
-                    // 只有一张图片不显示图片数量
-                }else{
-                    // 多于一张图片则显示图片总数
-                    mTextViewImageCount.setVisibility(View.VISIBLE);
-                    mTextViewImageCount.setText(content.mImageList.size()+"图");
-                }
-            }
+            mImage.setImageURI(content.mImageList.get(0));
 
         }
 

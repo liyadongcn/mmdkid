@@ -102,7 +102,7 @@ public class HistoryActivity extends AppCompatActivity {
                                     behavior.mModel.setViewType(Model.VIEW_TYPE_CONTENT_POST_IMAGE_LEFT);
                                     break;
                                 case Content.TYPE_IMAGE:
-                                    behavior.mModel.setViewType(Model.VIEW_TYPE_CONTENT_IMAGE_POST);
+                                    behavior.mModel.setViewType(Model.VIEW_TYPE_CONTENT_IMAGE_LEFT);
                                     break;
                                 case Content.TYPE_VIDEO:
                                     behavior.mModel.setViewType(Model.VIEW_TYPE_CONTENT_VIDEO);

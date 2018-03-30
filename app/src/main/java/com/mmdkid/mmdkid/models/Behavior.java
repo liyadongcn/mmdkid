@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.android.volley.Request;
+import com.mmdkid.mmdkid.server.Connection;
 import com.mmdkid.mmdkid.server.Query;
 import com.mmdkid.mmdkid.server.RESTAPIConnection;
 
@@ -19,8 +20,8 @@ import java.util.Map;
  */
 
 public class Behavior extends Model {
-    private static final String TAG = "Behavior";
-    private final static String URI = "v1/behaviors";
+    protected static final String TAG = "Behavior";
+    protected static final String URI = "v1/behaviors";
 
     public static final String BEHAVIOR_FOLLOW="follow";
 	public static final String BEHAVIOR_FOLLOWER="follower";
@@ -38,6 +39,18 @@ public class Behavior extends Model {
     public String mCreatedAt;
     public String mUpdatedAt;
     public Model mModel;
+
+    @Override
+    public void setAttributesNames() {
+        this.mFieldNameMap.put("mId","id");
+        this.mFieldNameMap.put("mUserId","user_id");
+        this.mFieldNameMap.put("mName","name");
+        this.mFieldNameMap.put("mParams","params");
+        this.mFieldNameMap.put("mModelType","model_type");
+        this.mFieldNameMap.put("mModelId","model_id");
+        this.mFieldNameMap.put("mCreated_at","created_at");
+        this.mFieldNameMap.put("mUpdated_at","updated_at");
+    }
 
     public static ArrayList<Behavior> populateModels(JSONObject response){
         Log.d(TAG,"Get response to populate the behavior model."+response.toString());
@@ -60,7 +73,8 @@ public class Behavior extends Model {
                 for(int i = 0; i < currentPageTotal; i++){
                     item = items.getJSONObject(i);
                     Behavior behavior = populateModel(item);
-                    if(behavior!=null && behavior.mModel!=null) arrayList.add(behavior);
+                    //if(behavior!=null && behavior.mModel!=null) arrayList.add(behavior);
+                    if(behavior!=null) arrayList.add(behavior);
                 }
 
             } catch (JSONException e) {
@@ -69,39 +83,80 @@ public class Behavior extends Model {
         }else{
             // return one result.
             Behavior behavior = populateModel(response);
-            if(behavior!=null  && behavior.mModel!=null) arrayList.add(behavior);
+            if(behavior!=null) arrayList.add(behavior);
         }
         return arrayList;
     }
 
-    public static Behavior populateModel(JSONObject jsonObject){
-        JSONObject item = jsonObject;
+    public static Behavior populateModel(JSONObject response){
+        Log.d(TAG,"Single behavior object.");
         try {
             Behavior behavior = new Behavior();
-            behavior.mId = item.getInt("id");
-            behavior.mUserId = item.getInt("user_id");
-            behavior.mName = item.getString("name");
-            behavior.mParams = item.getString("params");
-            behavior.mModelId = item.getInt("model_id");
-            behavior.mModelType = item.getString("model_type");
-            behavior.mCreatedAt = item.getString("created_at");
-            behavior.mUpdatedAt = item.getString("updated_at");
-            if(item.has("model_content")){
+            if(response.has("id")) behavior.mId = response.getInt("id");
+            if(response.has("user_id")) behavior.mUserId = response.getInt("user_id");
+            if(response.has("name")) behavior.mName = response.getString("name");
+            if(response.has("params")) behavior.mParams = response.getString("params");
+            if(response.has("model_id")) behavior.mModelId = response.getInt("model_id");
+            if(response.has("model_type")) behavior.mModelType = response.getString("model_type");
+            if(response.has("created_at")) behavior.mCreatedAt = response.getString("created_at");
+            if(response.has("updated_at")) behavior.mUpdatedAt = response.getString("updated_at");
+            if(response.has("model_content")){
                 if (behavior.mModelType.equals(Content.TYPE_IMAGE)
                         || behavior.mModelType.equals(Content.TYPE_POST)
                         || behavior.mModelType.equals(Content.TYPE_VIDEO) ){
-                    behavior.mModel = Content.populateModel(item.getJSONObject("model_content"));
+                    behavior.mModel = Content.populateModel(response.getJSONObject("model_content"));
                 }
             }
-            if(item.has("model") && behavior.mModelType.equals(Content.TYPE_USER)){
-                behavior.mModel = User.populateModel(item.getJSONObject("model"));
+            if(response.has("model") && behavior.mModelType.equals(Content.TYPE_USER)){
+                behavior.mModel = User.populateModel(response.getJSONObject("model"));
             }
-            if(item.has("model_user") && behavior.mModelType.equals(Content.TYPE_USER)){
-                behavior.mModel = User.populateModel(item.getJSONObject("model_user"));
+            if(response.has("model_user") && behavior.mModelType.equals(Content.TYPE_USER)){
+                behavior.mModel = User.populateModel(response.getJSONObject("model_user"));
             }
             return behavior;
         } catch (JSONException e) {
             e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public JSONObject getJsonRequest(String action, Connection connection) {
+        JSONObject request = new JSONObject();
+        switch (action) {
+            case Model.ACTION_CREATE:
+                ((RESTAPIConnection) connection).setRequestMethod(Request.Method.POST);
+                connection.URL = connection.URL + URI;
+                request = this.toJsonObject();
+                request.remove("id");
+                Log.d(TAG,"Behavior json object is :" + request.toString());
+                return  request;
+            case Model.ACTION_UPDATE:
+                ((RESTAPIConnection) connection).setRequestMethod(Request.Method.PATCH);
+                if(mId!=0){
+                    connection.URL = connection.URL + URI + "/"+ mId;
+                    Log.d(TAG,"Behavior update url is " + connection.URL);
+                }else {
+                    Log.d(TAG,"Behavior for updating, but there is no post id.");
+                    return null;
+                }
+                request = this.toJsonObject();
+                request.remove("id");
+                Log.d(TAG,"Behavior json object is :" + request.toString());
+                return  request;
+            case Model.ACTION_DELETE:
+                ((RESTAPIConnection) connection).setRequestMethod(Request.Method.DELETE);
+                if(mId!=0){
+                    connection.URL = connection.URL + URI + "/"+ mId;
+                    Log.d(TAG,"Behavior delete url is " + connection.URL);
+                }else {
+                    Log.d(TAG,"Behavior for delete, but there is no Behavior id.");
+                    return null;
+                }
+               /* request = this.toJsonObject();
+                request.remove("id");
+                Log.d(TAG,"Behavior delete json object is :" + request.toString());*/
+                return  request;
         }
         return null;
     }

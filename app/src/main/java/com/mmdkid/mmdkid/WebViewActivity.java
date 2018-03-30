@@ -287,6 +287,7 @@ public class WebViewActivity extends AppCompatActivity {
 
                     image.compressStyle = UMImage.CompressStyle.SCALE;//大小压缩，默认为大小压缩，适合普通很大的图
                     url = url+"&showIn=wx"; // 通过该标识显示出app下载提示
+                    Log.d(TAG,"Sharing Url is " + url);
                     web = new UMWeb(url);
                     web.setTitle(content.mTitle);//标题
                     web.setThumb(image);  //缩略图

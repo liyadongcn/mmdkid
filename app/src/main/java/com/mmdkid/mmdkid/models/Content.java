@@ -155,6 +155,11 @@ public class Content extends Model {
                 return "";
         }
     }
+
+    public String getContentCommentUrl() {
+        return SERVER_URL + this.mModelType + "/comment&id=" + mModelId+"&theme=app";
+    }
+
     @Override
     public int getViewType(){
         if(mViewType == 0){

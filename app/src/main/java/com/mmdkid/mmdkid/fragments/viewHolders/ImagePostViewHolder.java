@@ -47,11 +47,15 @@ public class ImagePostViewHolder extends ModelViewHolder {
         if(model instanceof Content){
             Content content = (Content)model;
             mTextViewTitle.setText(content.mTitle);
+            String displayString="";
             try {
-                mTextViewDate.setText(content.mAuthor + " "+ RelativeDateFormat.format(content.mCreatedAt));
+                displayString = displayString + content.mAuthor;
+                if (content.mCommentCount!=0) displayString = displayString + " " + content.mCommentCount + "评论";
+                displayString =  displayString + " "+ RelativeDateFormat.format(content.mCreatedAt);
+                mTextViewDate.setText(displayString);
             } catch (ParseException e) {
                 e.printStackTrace();
-                mTextViewDate.setText(content.mAuthor + " "+ content.mCreatedAt);
+                mTextViewDate.setText(displayString + " "+ content.mCreatedAt);
             }
             mTextViewImageCount.setVisibility(View.GONE);
             if(content.mImageList.size()>3){

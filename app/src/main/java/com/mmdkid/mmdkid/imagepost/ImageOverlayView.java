@@ -6,16 +6,29 @@ import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.mmdkid.mmdkid.App;
+import com.mmdkid.mmdkid.LoginActivity;
 import com.mmdkid.mmdkid.R;
+import com.mmdkid.mmdkid.WebViewActivity;
 import com.mmdkid.mmdkid.helper.HtmlUtil;
+import com.mmdkid.mmdkid.models.Behavior;
 import com.mmdkid.mmdkid.models.Content;
+import com.mmdkid.mmdkid.models.Model;
+import com.mmdkid.mmdkid.models.User;
+import com.mmdkid.mmdkid.server.RESTAPIConnection;
 import com.umeng.socialize.ShareAction;
 import com.umeng.socialize.UMShareListener;
 import com.umeng.socialize.bean.SHARE_MEDIA;
@@ -24,13 +37,16 @@ import com.umeng.socialize.media.UMWeb;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+
+import q.rorbin.badgeview.QBadgeView;
 
 
 /*
  * Created by Alexander Krol (troy379) on 29.08.16.
  */
 public class ImageOverlayView extends RelativeLayout {
-
+    private static final String TAG = "ImageOverlayView";
     private TextView tvDescription;
 
     private String sharingText;
@@ -39,6 +55,13 @@ public class ImageOverlayView extends RelativeLayout {
 
     private Context mContext;
     private ProgressDialog mProgressDialog;
+    private ImageView mCommentView;
+    private User mCurrentUser;
+    private ImageView mStarView;
+    private LinearLayout mCommentLayout;
+
+    private boolean mIsStared=false;
+    private Behavior mBehaviorStar; // 当前收藏记录
 
     public ImageOverlayView(Context context) {
         super(context);
@@ -107,6 +130,7 @@ public class ImageOverlayView extends RelativeLayout {
             UMImage image = new UMImage(getContext(), content.mImageList.get(0));//取第一个图片为分享显示图片
             image.compressStyle = UMImage.CompressStyle.SCALE;//大小压缩，默认为大小压缩，适合普通很大的图
             String url = content.getContentUrl();
+            url = url+"&showIn=wx"; // 通过该标识显示出app下载提示
             UMWeb web = new UMWeb(url);
             web.setTitle(content.mTitle);//标题
             web.setThumb(image);  //缩略图
@@ -143,6 +167,158 @@ public class ImageOverlayView extends RelativeLayout {
                 actionKey(KeyEvent.KEYCODE_BACK);
             }
         });
+        mStarView = (ImageView)  view.findViewById(R.id.ivStar);
+        initStarView();
+        mStarView.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mIsStared){
+                    // 取消收藏
+                    unstar();
+                }else{
+                    // 收藏
+                    star();
+                }
+
+            }
+        });
+        // 评论图标
+        mCommentView = (ImageView)view.findViewById(R.id.ivComment);
+        mCommentView.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // 点击评论
+                Intent intent = new Intent(mContext, WebViewActivity.class);
+                intent.putExtra("url",content.getContentCommentUrl());
+                intent.putExtra("model",content);
+                mContext.startActivity(intent);
+            }
+        });
+        // 显示评论数量
+        if (content.mCommentCount!=0){
+            new QBadgeView(mContext)
+                    .bindTarget(mCommentView)
+                    .setGravityOffset(15,0,true)
+                    .setBadgeGravity(Gravity.END | Gravity.TOP )
+                    .setBadgeNumber(content.mCommentCount);
+        }
+        // 评论区域
+        mCommentLayout = (LinearLayout) findViewById(R.id.llComment);
+        mCommentLayout.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // 点击评论
+                Intent intent = new Intent(mContext, WebViewActivity.class);
+                intent.putExtra("url",content.getContentCommentUrl());
+                intent.putExtra("model",content);
+                mContext.startActivity(intent);
+            }
+        });
+    }
+
+    private void unstar() {
+        App app = (App) mContext.getApplicationContext();
+        if (app.isGuest()){
+            // 未登录，弹出登录界面
+            Intent intent = new Intent(mContext, LoginActivity.class);
+            mContext.startActivity(intent);
+            return;
+        }else {
+            // 已登录，可以取消收藏
+            mCurrentUser = app.getCurrentUser();
+            if (mBehaviorStar == null) return;
+            mBehaviorStar.delete(mContext, new RESTAPIConnection.OnConnectionListener() {
+                @Override
+                public void onErrorRespose(Class c, String error) {
+                    // 取消收藏过程中失败
+                    Log.d(TAG,"Delete a star behavior record failed. ");
+                }
+
+                @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+                @Override
+                public void onResponse(Class c, ArrayList responseDataList) {
+                    // 删除收藏记录成功
+                    Log.d(TAG,"Delete a star behavior record success. ");
+                    mBehaviorStar = null;
+                    mIsStared =false;
+                    mStarView.setImageDrawable(mContext.getDrawable(R.drawable.ic_star_outline_24dp_white));
+                }
+            });
+        }
+    }
+
+    private void initStarView()
+    {
+        App app = (App) mContext.getApplicationContext();
+        if (app.isGuest()) return ;
+        mCurrentUser = app.getCurrentUser();
+        Behavior.find(mContext, new RESTAPIConnection.OnConnectionListener() {
+            @Override
+            public void onErrorRespose(Class c, String error) {
+                // 查找收藏记录出错
+            }
+
+            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+            @Override
+            public void onResponse(Class c, ArrayList responseDataList) {
+                if (c == Behavior.class && !responseDataList.isEmpty()){
+                    // 找到收藏记录
+                    Log.d(TAG,"Find a star behavior record. ");
+                    mBehaviorStar = (Behavior) responseDataList.get(0);
+                    mStarView.setImageDrawable(mContext.getDrawable(R.drawable.star_yellow));
+                    mIsStared =true;
+                }
+                else{
+                    // 没有该收藏记录
+                    Log.d(TAG,"Not find a star behavior record. ");
+                    mStarView.setImageDrawable(mContext.getDrawable(R.drawable.ic_star_outline_24dp_white));
+                }
+            }
+        }).where("user_id",Integer.toString(mCurrentUser.mId))
+                .where("name",Behavior.BEHAVIOR_STAR)
+                .where("model_type","imagepost")
+                .where("model_id", String.valueOf(content.mModelId))
+                .all();
+    }
+    // 收藏当前的imagepost
+    private void star() {
+        Log.d(TAG,"Start star....");
+        App app = (App) mContext.getApplicationContext();
+        if (app.isGuest()){
+            // 未登录，弹出登录界面
+            Intent intent = new Intent(mContext, LoginActivity.class);
+            mContext.startActivity(intent);
+            return;
+        }else {
+            // 已登录，可以收藏
+            mCurrentUser = app.getCurrentUser();
+            final Behavior behavior = new Behavior();
+            behavior.mModelType = "imagepost";
+            behavior.mModelId = content.mModelId;
+            behavior.mName = Behavior.BEHAVIOR_STAR;
+            behavior.mUserId = mCurrentUser.mId;
+            behavior.save(Model.ACTION_CREATE, mContext, new RESTAPIConnection.OnConnectionListener() {
+                @Override
+                public void onErrorRespose(Class c, String error) {
+                    // 存储失败
+                    Log.d(TAG,"Save a behavior failed. " + error);
+                    Toast.makeText(mContext,"收藏失败~",Toast.LENGTH_LONG).show();
+                }
+
+                @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+                @Override
+                public void onResponse(Class c, ArrayList responseDataList) {
+                    // 存储成功
+                    if(c == Behavior.class && !responseDataList.isEmpty()){
+                        mBehaviorStar = (Behavior) responseDataList.get(0);
+                        Log.d(TAG,"Save a behavior success. id is " + mBehaviorStar.mId);
+                        Toast.makeText(mContext,"已收藏",Toast.LENGTH_LONG).show();
+                        mStarView.setImageDrawable(mContext.getDrawable(R.drawable.star_yellow));
+                        mIsStared = true;
+                    }
+                }
+            });
+        }
     }
 
     /**

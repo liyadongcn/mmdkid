@@ -12,7 +12,8 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:src="@drawable/ic_close"
-        android:layout_margin="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="10dp"
         />
 
     <Button
@@ -24,14 +25,89 @@
         android:layout_alignParentEnd="true"
         android:text="@string/action_share"/>
 
-    <TextView
-        android:id="@+id/tvDescription"
-        style="@style/DescriptionText"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:layout_alignParentBottom="true"
-        android:scrollbars="vertical"
-        android:singleLine="false"
-        android:padding="16dp"/>
+        android:padding="16dp"
+        android:focusable="true"
+        android:focusableInTouchMode="true">
+        <TextView
+            android:id="@+id/tvDescription"
+            style="@style/DescriptionText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="vertical"
+            android:singleLine="false"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|bottom"
+            android:orientation="horizontal">
+            <!--<android.support.design.widget.TextInputLayout-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_weight="3"-->
+                <!--android:textColorHint="@color/white"-->
+
+               <!--&gt;-->
+                <!--<EditText-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:hint="@string/send_comment_hint"-->
+                    <!--android:layout_gravity="center_vertical"-->
+                    <!--android:textColor="@color/white"-->
+                    <!--android:maxLines="4"-->
+                    <!--/>-->
+            <!--</android.support.design.widget.TextInputLayout>-->
+            <LinearLayout
+                android:id="@+id/llComment"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_weight="2">
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/ic_pencil_white"/>
+                <TextView
+                    android:layout_marginLeft="10dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColorHint="@color/white"
+                    android:layout_gravity="center_vertical"
+                    android:textSize="14sp"
+                    android:hint="写评论..."
+                    />
+            </LinearLayout>
+
+            <!--<ImageView-->
+                <!--android:layout_width="24dp"-->
+                <!--android:layout_height="24dp"-->
+                <!--android:layout_weight="1"-->
+                <!--android:layout_gravity="center_vertical"-->
+                <!--android:src="@drawable/ic_send_white_24dp"/>-->
+
+            <ImageView
+                android:id="@+id/ivStar"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_weight="1"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/ic_star_outline_24dp_white"/>
+
+            <ImageView
+                android:id="@+id/ivComment"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_weight="1"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/ic_comment_outline_white"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
 
 </merge>

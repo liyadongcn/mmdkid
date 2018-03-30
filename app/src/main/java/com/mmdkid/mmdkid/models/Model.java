@@ -36,6 +36,7 @@ public class Model extends Object implements Serializable{
     public static final int VIEW_TYPE_CONTENT_IMAGE_FOUR= 23;
     public static final int VIEW_TYPE_CONTENT_IMAGE_SIX= 24;
     public static final int VIEW_TYPE_CONTENT_IMAGE_NINE= 26;
+    public static final int VIEW_TYPE_CONTENT_IMAGE_LEFT= 27;
 
     public static final int VIEW_TYPE_CONTENT_VIDEO_MAIN= 32;
     public static final int VIEW_TYPE_CONTENT_VIDEO_YOUKU= 36;
