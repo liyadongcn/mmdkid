@@ -7,4 +7,6 @@
     android:includeInGlobalSearch="true"
     android:searchSuggestSelection=" ?"
     android:searchSuggestThreshold="1"
+    android:searchButtonText="搜索"
+
     />

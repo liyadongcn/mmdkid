@@ -19,6 +19,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.drawee.view.SimpleDraweeView;
 import com.mmdkid.mmdkid.App;
 import com.mmdkid.mmdkid.LoginActivity;
 import com.mmdkid.mmdkid.R;
@@ -59,6 +60,8 @@ public class ImageOverlayView extends RelativeLayout {
     private User mCurrentUser;
     private ImageView mStarView;
     private LinearLayout mCommentLayout;
+    private SimpleDraweeView mUserAvatarView;
+    private TextView mUserNameView;
 
     private boolean mIsStared=false;
     private Behavior mBehaviorStar; // 当前收藏记录
@@ -214,8 +217,52 @@ public class ImageOverlayView extends RelativeLayout {
                 mContext.startActivity(intent);
             }
         });
+        // 用户头像
+        mUserAvatarView = (SimpleDraweeView) findViewById(R.id.sdvAvatar);
+        // 用户昵称
+        mUserNameView = (TextView) findViewById(R.id.tvUsername);
+        // 初始化用户信息
+        initUser();
+        // 设置用户头像点击操作
+        mUserAvatarView.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (content.mUser!= null){
+                    Intent intent = new Intent(mContext,WebViewActivity.class);
+                    intent.putExtra("url",content.mUser.getUrl());
+                    mContext.startActivity(intent);
+                }
+            }
+        });
     }
 
+    private void initUser() {
+        if (content.mUser != null){
+            mUserNameView.setText(content.mUser.getDisplayName());
+            mUserAvatarView.setImageURI(content.mUser.mAvatar);
+            return;
+        }
+        if (content.mCreatedBy == 0) return;
+        User.find(mContext, new RESTAPIConnection.OnConnectionListener() {
+            @Override
+            public void onErrorRespose(Class c, String error) {
+                // 查找用户信息出错
+                Log.d(TAG,"Get the create user info failed. " );
+            }
+
+            @Override
+            public void onResponse(Class c, ArrayList responseDataList) {
+                // 查找用户信息成功
+                if (c == User.class && !responseDataList.isEmpty()){
+                    content.mUser = (User) responseDataList.get(0);
+                    Log.d(TAG,"Get the create user info : " + content.mUser.mId);
+                    mUserNameView.setText(content.mUser.getDisplayName());
+                    mUserAvatarView.setImageURI(content.mUser.mAvatar);
+                }
+            }
+        }).where("id",String.valueOf(content.mCreatedBy)).all();
+    }
+    // 当前用户取消收藏
     private void unstar() {
         App app = (App) mContext.getApplicationContext();
         if (app.isGuest()){

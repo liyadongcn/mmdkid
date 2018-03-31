@@ -167,6 +167,8 @@ public class SearchResultsActivity extends AppCompatActivity implements View.OnC
                 searchManager.getSearchableInfo(getComponentName()));
         mSearchView.setIconifiedByDefault(false);
         mSearchView.setSubmitButtonEnabled(true);
+        //mSearchView.setBackgroundColor(getResources().getColor(R.color.white));
+//        mSearchView.setBackground(getResources().getDrawable(R.drawable.search_border));
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {

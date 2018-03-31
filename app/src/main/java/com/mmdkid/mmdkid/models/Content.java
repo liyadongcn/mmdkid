@@ -53,8 +53,10 @@ public class Content extends Model {
     public int mStarCount;
     public int mThumbsup;
     public int mThumbsdown;
+    public int mCreatedBy;
     public ArrayList<String> mImageList;
     public ArrayList<String> mImageDescriptionList;
+    public User mUser;
 
     public static Query find(Connection connection)
     {
@@ -117,6 +119,7 @@ public class Content extends Model {
             if (jsonObject.has("comment_count")) content.mCommentCount = jsonObject.getInt("comment_count");
             if (jsonObject.has("view_count")) content.mViewCount = jsonObject.getInt("view_count");
             if (jsonObject.has("star_count")) content.mStarCount = jsonObject.getInt("star_count");
+            if (jsonObject.has("created_by")) content.mCreatedBy = jsonObject.getInt("created_by");
             return content;
         } catch (JSONException e) {
             e.printStackTrace();

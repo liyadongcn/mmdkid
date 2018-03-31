@@ -416,4 +416,8 @@ public class User extends Model {
         connection.setListener(listener);
         connection.excute(this.getJsonRequest(action,connection),User.class);
     }*/
+
+    public String getUrl(){
+        return "http://www.mmdkid.cn/index.php?r=user/show-me&theme=app&id="+this.mId;
+    }
 }
