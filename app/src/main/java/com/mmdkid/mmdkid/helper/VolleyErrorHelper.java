@@ -93,11 +93,14 @@ public class VolleyErrorHelper {
         if (contentType!=null && contentType.indexOf("application/json")!=-1){
             isJsonType = true;
         }
+        if (isJsonType) return new String(response.data);
 
         if (response != null) {  
-            switch (response.statusCode) {  
+            switch (response.statusCode) {
+            case 400:
+                return "（错误请求） 服务器不理解请求的语法";
             case 500:
-                if (isJsonType) return new String(response.data);
+                return "（服务器内部错误） 服务器遇到错误，无法完成请求";
             default:  
                 return context.getResources().getString(  
                         R.string.volley_error_generic_server);

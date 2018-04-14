@@ -20,6 +20,7 @@
     <string name="action_search">搜索</string>
     <string name="action_refresh">refresh</string>
     <string name="action_share">分享</string>
+    <string name="action_share_to">分享到</string>
     <string name="action_favorite">favorite</string>
 
     <string name="loading">加载中...</string>
@@ -29,6 +30,14 @@
     <string name="action_retry">重试</string>
     <string name="action_cancel">取消</string>
     <string name="action_ok">确定</string>
+
+    <!--String related to profile-->
+    <string name="profile_avatar">头像</string>
+    <string name="profile_nick_name">昵称</string>
+    <string name="profile_signature">签名</string>
+    <string name="profile_email">邮箱</string>
+    <string name="profile_cell">手机</string>
+    <string name="profile_password">修改密码</string>
 
     <!--String related to volley error-->
     <string name="volley_error_generic_timeout">网络连接超时~！</string>
@@ -71,6 +80,11 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+
+    <!--String related to password change-->
+    <string name="original_password">请输入原始密码</string>
+    <string name="new_password">请输入新密码</string>
+    <string name="confirm_new_password">确认新密码</string>
 
     <!--String related to register a new user-->
     <string name="register_phone">手机注册</string>
@@ -172,6 +186,7 @@
     <string name="title_activity_history">历史</string>
     <string name="title_activity_channel">频道</string>
     <string name="title_activity_publish_image">图片</string>
+
     <string name="title_activity_publish_post">文章</string>
     <string name="title_activity_publish_video">视频</string>
     <string name="title_activity_bottom">BottomActivity</string>
@@ -189,6 +204,6 @@
     <string name="finish">完成</string>
     <string name="title_activity_register">RegisterActivity</string>
     <string name="title_activity_publish_manager">我的发布</string>
-
+    <string name="title_activity_profile">个人资料</string>
 
 </resources>

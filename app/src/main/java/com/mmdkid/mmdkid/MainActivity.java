@@ -588,6 +588,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
         App app = (App)getApplicationContext();
         User currentUser = app.getCurrentUser();
         Token token = app.getCurrentToken();
+        //Log.d(TAG,"Token is " + token.toString());
         if(currentUser== null){
             app.setIsGuest(true);
             Log.d(TAG,"There is no user in the local.");
@@ -608,6 +609,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
                 // remove cached user info , token and cookies
                 app.setCurrentUser(null);
                 Log.d(TAG,"User token is not valid.");
+                Log.d(TAG,"User identity is " + currentUser.getIdentity());
                 mBottomBar.getTabWithId(R.id.tab_me).setTitle("未登录");
             }
         }

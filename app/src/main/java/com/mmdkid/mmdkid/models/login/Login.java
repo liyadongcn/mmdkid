@@ -22,7 +22,7 @@ import okhttp3.OkHttpClient;
  */
 
 public class Login {
-    private static final String TAG = "login";
+    private static final String TAG = "Login";
 
     private User mUser;
     private Token mToken;
@@ -117,6 +117,7 @@ public class Login {
                     User user = (User) responseDataList.get(0);
                     Log.d(TAG,"The user cellphone is :" + user.mCellphone);
                     Log.d(TAG,"The user email is :" + user.mEmail);
+                    Log.d(TAG,"The user signature is :" + user.mSignature);
                     mUser = user;
                     // 模拟登录web
                     if (mIsLoginWeb){

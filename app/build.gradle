@@ -1,14 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion 27
     buildToolsVersion '27.0.3'
     defaultConfig {
         applicationId "com.mmdkid.mmdkid"
         minSdkVersion 16
         targetSdkVersion 25
-        versionCode 31
-        versionName '0.8.31'
+        versionCode 33
+        versionName '0.8.33'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
@@ -96,11 +96,11 @@ dependencies {
     implementation files('libs/umeng/weiboSDKCore.jar')
     implementation files('libs/umeng/umeng_social_shareboard.jar')
     implementation files('libs/umeng/umeng_shareboard_widget.jar')
-    implementation 'com.android.support:appcompat-v7:26.1.0'
-    implementation 'com.android.support:design:26.1.0'
-    implementation 'com.android.support:cardview-v7:26.1.0'
-    implementation 'com.android.support:support-vector-drawable:26.1.0'
-    implementation 'com.android.support:support-v4:26.1.0'
+    implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation 'com.android.support:design:27.1.1'
+    implementation 'com.android.support:cardview-v7:27.1.1'
+    implementation 'com.android.support:support-vector-drawable:27.1.1'
+    implementation 'com.android.support:support-v4:27.1.1'
     implementation 'com.roughike:bottom-bar:2.3.1'
     //implementation 'fm.jiecao:jiecaovideoplayer:5.5.4'
     implementation 'cn.jzvd:jiaozivideoplayer:6.2.3'
@@ -131,4 +131,6 @@ dependencies {
     implementation 'com.yanzhenjie:permission:2.0.0-rc3'
     // Badge view
     implementation 'q.rorbin:badgeview:1.1.3'
+    // 图像裁剪
+    implementation 'com.theartofdev.edmodo:android-image-cropper:2.7.+'
 }

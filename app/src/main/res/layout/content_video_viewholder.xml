@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:fresco="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -25,22 +26,72 @@
             android:layout_height="200dp"
            />
         <LinearLayout
-
-            android:id="@+id/llVideoBottom"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="10dp"
-            android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/cvContentDate"
+            android:orientation="horizontal"
+            android:layout_gravity="center_vertical">
+                <LinearLayout
+                    android:id="@+id/llShareTo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="@dimen/date_font"
-                    android:textColor="@color/tip"
-                     />
-        </LinearLayout>
+                    android:layout_weight="3"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="10dp"
+                    android:orientation="horizontal">
+                        <TextView
+                            android:id="@+id/tvShareTo"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:text="@string/action_share_to"
+                            android:textSize="@dimen/date_font"
+                            android:textColor="@color/tip"/>
+                        <com.facebook.drawee.view.SimpleDraweeView
+                            android:id="@+id/sdvWeChat"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_marginLeft="10dp"
+                            fresco:placeholderImage ="@drawable/umeng_socialize_wechat"
+                            fresco:roundAsCircle="true"/>
+                        <com.facebook.drawee.view.SimpleDraweeView
+                            android:id="@+id/sdvWxCircle"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_marginLeft="10dp"
+                            fresco:placeholderImage ="@drawable/umeng_socialize_wxcircle"
+                            fresco:roundAsCircle="true"/>
 
+                </LinearLayout>
+
+                <LinearLayout
+
+                    android:id="@+id/llVideoBottom"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:layout_weight="3"
+                    android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/cvContentDate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="@dimen/date_font"
+                            android:textColor="@color/tip"
+                             />
+                        <TextView
+                            android:id="@+id/tvCommentNum"
+                            android:layout_weight="1"
+                            android:gravity="right"
+                            android:layout_gravity="center"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="0dp"
+                            android:textSize="@dimen/date_font"
+                            android:textColor="@color/tip"
+                            />
+                </LinearLayout>
         </LinearLayout>
+</LinearLayout>
         </android.support.v7.widget.CardView>
 </FrameLayout>

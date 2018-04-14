@@ -106,7 +106,8 @@ public class Model extends Object implements Serializable{
     public JSONObject toJsonObject(){
         JSONObject jsonObject = new JSONObject();
         setAttributesNames();
-        Field[] fields = this.getClass().getDeclaredFields();
+//        Field[] fields = this.getClass().getDeclaredFields();
+        Field[] fields = this.getClass().getFields();
         for(Field field : fields){
             try {
                 if(getAttributeName(field.getName())!=null)
@@ -115,6 +116,7 @@ public class Model extends Object implements Serializable{
                 e.printStackTrace();
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
+                continue;
             }
         }
         return jsonObject;

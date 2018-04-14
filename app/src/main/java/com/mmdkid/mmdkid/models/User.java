@@ -27,6 +27,7 @@ public class User extends Model {
     private final static String URI_SIGNUP_PHONE = "v1/signupphone";
     private final static String URI_SIGNUP_EMAIL = "v1/signupemail";
     private final static String URI_AUTO_SINGUP = "v1/auto";
+    private final static String URI_RESET_PASSWORD = "resetPassword";
     private final static String URI = "v1/users";
     private final static String AUTO_CREATE_SECRET_KEY = "123456";
 
@@ -43,7 +44,7 @@ public class User extends Model {
     public static final String ACTION_SIGNUP= "signup";
     public static final String ACTION_SIGNUP_PHONE= "signupphone";
     public static final String ACTION_SIGNUP_EMAIL= "signupemail";
-
+    public static final String ACTION_RESET_PASSWORD= "reset_password";
 
     public int mId;
     public String mUsername;
@@ -56,10 +57,13 @@ public class User extends Model {
     public String mRealname;
     public String mPassword;
     public String mPasswordRepeat;
+    public String mSignature;
     public int mRole;
     public int mGender;
     public String mBirthday;
     public String mScenario ="default";
+
+    public String mNewPassword; // 只用于用户更改密码
 
     @Override
     public void setAttributesNames() {
@@ -78,6 +82,7 @@ public class User extends Model {
         this.mFieldNameMap.put("mScenario","scenario");
         this.mFieldNameMap.put("mBirthday","birthday");
         this.mFieldNameMap.put("mCellphone","cellphone");
+        this.mFieldNameMap.put("mSignature","signature");
     }
 
     public static Query find(Connection connection)
@@ -196,13 +201,13 @@ public class User extends Model {
             if(response.has("id")) user.mId = response.getInt("id");
             if(response.has("email")) user.mEmail = response.getString("email");
             if(response.has("avatar")) user.mAvatar = response.getString("avatar");
-            if(response.has("nick_name")) user.mNickname = response.getString("nick_name");
+            if(response.has("nick_name") && !response.isNull("nick_name")) user.mNickname = response.getString("nick_name");
             if(response.has("real_name")) user.mRealname = response.getString("real_name");
             if(response.has("follower")) user.mFollower = response.getInt("follower");
             if(response.has("following")) user.mFollowing = response.getInt("following");
-            if(response.has("cellphone")) user.mCellphone = response.getString("cellphone");
+            if(response.has("cellphone") && !response.isNull("cellphone")) user.mCellphone = response.getString("cellphone");
             if(response.has("role")) user.mRole = response.getInt("role");
-
+            if(response.has("signature") && !response.isNull("signature")) user.mSignature = response.getString("signature");
             return user;
         } catch (JSONException e) {
             e.printStackTrace();
@@ -219,6 +224,7 @@ public class User extends Model {
         editor.putString("avatar",this.mAvatar);
         editor.putString("email",this.mEmail);
         editor.putString("cellphone",this.mCellphone);
+        editor.putString("signature",this.mSignature);
         editor.putInt("user_id",this.mId);
         editor.putInt("following",this.mFollowing);
         editor.putInt("follower",this.mFollower);
@@ -241,6 +247,7 @@ public class User extends Model {
         user.mAvatar=settings.getString("avatar","");
         user.mCellphone=settings.getString("cellphone","");
         user.mEmail=settings.getString("email","");
+        user.mSignature=settings.getString("signature","");
         if (user.mUsername.isEmpty() && user.mCellphone.isEmpty() && user.mEmail.isEmpty()) return null;
         return user;
     }
@@ -371,7 +378,7 @@ public class User extends Model {
                 Log.d(TAG,"User json object is :" + request.toString());
                 return  request;
             case User.ACTION_UPDATE:
-                ((RESTAPIConnection) connection).setRequestMethod(Request.Method.POST);
+                ((RESTAPIConnection) connection).setRequestMethod(Request.Method.PATCH);
                 if(mId!=0){
                     connection.URL = connection.URL + URI + "/"+ mId;
                     Log.d(TAG,"User update url is " + connection.URL);
@@ -382,6 +389,18 @@ public class User extends Model {
                 request = this.toJsonObject();
                 request.remove("id");
                 Log.d(TAG,"User json object is :" + request.toString());
+                return  request;
+            case User.ACTION_RESET_PASSWORD:
+                ((RESTAPIConnection) connection).setRequestMethod(Request.Method.POST);
+                connection.URL = connection.URL + URI + "/" + mId + "/" + URI_RESET_PASSWORD;
+                try {
+                    request.put("password",mPassword);
+                    request.put("newPassword",mNewPassword);
+                    request.put("confirmPassword",mPasswordRepeat);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Log.d(TAG,"User reset password json object is :" + request.toString());
                 return  request;
 
         }

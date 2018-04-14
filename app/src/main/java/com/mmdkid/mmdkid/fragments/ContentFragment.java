@@ -5,7 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DividerItemDecoration;
@@ -16,6 +18,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -77,12 +81,16 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
     private Refresh mRefresh = null;
 
     private JZVideoPlayer mCurrentJZVideoPlayer;
+    private LinearLayout mCurrentJZPlayerShareToView;
+    private TextView mCurrentJZPlayerDescriptionView;
 
     private YoukuPlayerView mCurrentYoukuPlayerView;
 //    private int mCurrentYoukuPlayerPosition;
     private SimpleDraweeView mCurrentYoukuPlayerCoverImage;
     private ImageView mCurrentYoukuPlayerPlayIcon;
     private TextView mCurrentYoukuPlayerTitle;
+    private LinearLayout mCurrentYoukuPlayerShareToView;
+    private TextView mCurrentYoukuPlayerDescriptionView;
 
     private boolean mIsPlayingVideo = false;
     private int mVideoPlayingPosition;
@@ -241,6 +249,7 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
 
 
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
@@ -314,7 +323,8 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
                                         startYoukuPlayer(view,YoukuVideo.getVid(content));
                                     }else {
                                         // 启动JiaoZiVideoPlayer
-                                        mCurrentJZVideoPlayer = view.findViewById(R.id.videoplayer_jiaozi);
+                                        //mCurrentJZVideoPlayer = view.findViewById(R.id.videoplayer_jiaozi);
+                                        startJZVideoPlayer(view);
                                     }
                                     mIsPlayingVideo = true;
                                     mVideoPlayingPosition = position;
@@ -326,7 +336,8 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
                                     startYoukuPlayer(view,YoukuVideo.getVid(content));
                                 }else {
                                     // 正在使用JiaoZiVideoPlayer
-                                    mCurrentJZVideoPlayer = view.findViewById(R.id.videoplayer_jiaozi);
+                                    //mCurrentJZVideoPlayer = view.findViewById(R.id.videoplayer_jiaozi);
+                                    startJZVideoPlayer(view);
                                 }
                                 mIsPlayingVideo = true;
                                 mVideoPlayingPosition = position;
@@ -400,9 +411,9 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
             public void onChildViewDetachedFromWindow(View view) {
                 int postion = mRecyclerView.getChildLayoutPosition(view);
                 if (mIsPlayingVideo && postion == mVideoPlayingPosition){
-                    if (view.getTag()!=null && view.getTag().equals(VideoSource.VIDEO_SOURCE_YOUKU)){
+                    //if (view.getTag()!=null && view.getTag().equals(VideoSource.VIDEO_SOURCE_YOUKU)){
                         // 当优酷视频移出可视时 停止播放
-                        YoukuPlayerView youkuPlayerView = (YoukuPlayerView) view.findViewById(R.id.videoplayer);
+                        /*YoukuPlayerView youkuPlayerView = (YoukuPlayerView) view.findViewById(R.id.videoplayer);
                         SimpleDraweeView youkuPlayerCoverImage = (SimpleDraweeView) view.findViewById(R.id.cvContentImage);
                         ImageView youkuPlayerPlayIcon = (ImageView) view.findViewById(R.id.imagePlay);
                         TextView youkuPlayerTitle = (TextView) view.findViewById(R.id.tvTitle);
@@ -411,26 +422,36 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
                         youkuPlayerCoverImage.setVisibility(View.VISIBLE);
                         youkuPlayerPlayIcon.setVisibility(View.VISIBLE);
                         youkuPlayerTitle.setVisibility(View.VISIBLE);
-                        mIsPlayingVideo = false;
-                    }
+                        mIsPlayingVideo = false;*/
+//                        stopVideoPlayer();
+//                    }
                     // 停止当前的jiaozivideo播放 已经移出可视区域
-                    JZVideoPlayer jzvd = view.findViewById(R.id.videoplayer_jiaozi);
+                    /*JZVideoPlayer jzvd = view.findViewById(R.id.videoplayer_jiaozi);
                     if (jzvd != null && JZUtils.dataSourceObjectsContainsUri(jzvd.dataSourceObjects, JZMediaManager.getCurrentDataSource())) {
                         JZVideoPlayer.releaseAllVideos();
                         mIsPlayingVideo = false;
-                    }
+                    }*/
+                    stopVideoPlayer();
+                    mIsPlayingVideo = false;
                 }
 
             }
         });
         //添加分割线
-        mRecyclerView.addItemDecoration(new DividerItemDecoration(mRecyclerView.getContext(),
-                DividerItemDecoration.VERTICAL));
-       /* mConnection.setAdapter(mAdapter);
-        mConnection.setSwiftRefreshLayout(mRefreshLayout);*/
-        //mConnection.setProgressDialog(mProgressDialog);
+        DividerItemDecoration divider = new DividerItemDecoration(mRecyclerView.getContext(),
+                DividerItemDecoration.VERTICAL);
+        divider.setDrawable(getContext().getDrawable(R.drawable.recyclerview_divider));
+        mRecyclerView.addItemDecoration(divider);
 
         return fragmentView;
+    }
+
+    private void startJZVideoPlayer(View view){
+        mCurrentJZVideoPlayer = view.findViewById(R.id.videoplayer_jiaozi);
+        mCurrentJZPlayerShareToView = view.findViewById(R.id.llShareTo);
+        mCurrentJZPlayerDescriptionView =view.findViewById(R.id.cvContentDate);
+        mCurrentJZPlayerDescriptionView.setVisibility(View.GONE);
+        mCurrentJZPlayerShareToView.setVisibility(View.VISIBLE);
     }
 
     private void startYoukuPlayer(View view,String vid) {
@@ -439,6 +460,8 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
         mCurrentYoukuPlayerCoverImage = (SimpleDraweeView) view.findViewById(R.id.cvContentImage);
         mCurrentYoukuPlayerPlayIcon = (ImageView) view.findViewById(R.id.imagePlay);
         mCurrentYoukuPlayerTitle = (TextView) view.findViewById(R.id.tvTitle);
+        mCurrentYoukuPlayerShareToView = (LinearLayout) view.findViewById(R.id.llShareTo);
+        mCurrentYoukuPlayerDescriptionView = (TextView) view.findViewById(R.id.cvContentDate);
 
         mCurrentYoukuPlayerCoverImage.setVisibility(View.GONE);
         mCurrentYoukuPlayerPlayIcon.setVisibility(View.GONE);
@@ -447,17 +470,25 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
         mCurrentYoukuPlayerView.setShowBackBtn(false);
         mCurrentYoukuPlayerView.setPreferVideoDefinition(VideoDefinition.VIDEO_HD);
         mCurrentYoukuPlayerView.playYoukuVideo(vid);
+        mCurrentYoukuPlayerShareToView.setVisibility(View.VISIBLE);
+        mCurrentYoukuPlayerDescriptionView.setVisibility(View.GONE);
     }
 
     private void stopVideoPlayer() {
         // 停止非优酷播放
-        if (mCurrentJZVideoPlayer!=null) mCurrentJZVideoPlayer.release();
+        if (mCurrentJZVideoPlayer!=null) {
+            mCurrentJZPlayerDescriptionView.setVisibility(View.VISIBLE);
+            mCurrentJZPlayerShareToView.setVisibility(View.GONE);
+            mCurrentJZVideoPlayer.release();
+        }
         if (mCurrentYoukuPlayerView!=null){
             // 停止优酷播放
             mCurrentYoukuPlayerView.release();
             mCurrentYoukuPlayerCoverImage.setVisibility(View.VISIBLE);
             mCurrentYoukuPlayerPlayIcon.setVisibility(View.VISIBLE);
             mCurrentYoukuPlayerTitle.setVisibility(View.VISIBLE);
+            mCurrentYoukuPlayerShareToView.setVisibility(View.GONE);
+            mCurrentYoukuPlayerDescriptionView.setVisibility(View.VISIBLE);
         }
         mIsPlayingVideo = false;
     }

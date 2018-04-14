@@ -33,6 +33,7 @@ public class App extends Application {
     private static final String TAG = "mmdApp";
 
     public static final String PREFS_NAME = "momoda";
+    private static final String PREFS_SEARCH = "com.mmdkid.mmdkid.SEARCH";
     private static final String PREF_HOT_KEYWORDS = "hotKeyWords";
     private static final String PREF_HISTORY_KEYWORDS = "historyKeyWords";
     private static final String PREF_CHANNELS = "channels";
@@ -221,7 +222,7 @@ public class App extends Application {
     }
 
     public ArrayList<String> getHistoryKeyWords(){
-        SharedPreferences settings = getSharedPreferences(App.PREFS_NAME,Context.MODE_PRIVATE);
+        SharedPreferences settings = getSharedPreferences(PREFS_SEARCH,Context.MODE_PRIVATE);
         Set<String> wordsSet = settings.getStringSet(PREF_HISTORY_KEYWORDS,null);
         if(wordsSet == null || wordsSet.isEmpty()) {
             return null;
@@ -233,14 +234,14 @@ public class App extends Application {
     }
 
     public void setHistoryKeyWords(ArrayList<String> words){
-        SharedPreferences settings = getSharedPreferences(App.PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences settings = getSharedPreferences(PREFS_SEARCH, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
         editor.putStringSet(PREF_HISTORY_KEYWORDS,new LinkedHashSet<String>(words));
         editor.commit();
     }
 
     public void clearHistoryKeyWords(){
-        SharedPreferences settings = getSharedPreferences(App.PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences settings = getSharedPreferences(PREFS_SEARCH, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
         editor.putStringSet(PREF_HISTORY_KEYWORDS,null);
         editor.commit();
@@ -250,7 +251,7 @@ public class App extends Application {
      * 从本地SharedPreferences得到热搜词汇列表
      */
     public ArrayList<String> getHotKeyWords(){
-        SharedPreferences settings = getSharedPreferences(App.PREFS_NAME,Context.MODE_PRIVATE);
+        SharedPreferences settings = getSharedPreferences(PREFS_SEARCH,Context.MODE_PRIVATE);
         Set<String> wordsSet = settings.getStringSet(PREF_HOT_KEYWORDS,null);
         if(wordsSet == null || wordsSet.isEmpty()) {
             ArrayList<String> list = new ArrayList<String>();
@@ -270,7 +271,7 @@ public class App extends Application {
      * 将词汇列表保存到本地热搜词列表SharedPreferneces中
      */
     public void setHotKeyWords(ArrayList<String> words){
-        SharedPreferences settings = getSharedPreferences(App.PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences settings = getSharedPreferences(PREFS_SEARCH, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
         editor.putStringSet(PREF_HOT_KEYWORDS,new LinkedHashSet<String>(words));
         editor.commit();
@@ -279,79 +280,86 @@ public class App extends Application {
      * 清空本地热搜词列表
      */
     public void clearHotKeyWords(){
-        SharedPreferences settings = getSharedPreferences(App.PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences settings = getSharedPreferences(PREFS_SEARCH, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
         editor.putStringSet(PREF_HOT_KEYWORDS,null);
         editor.commit();
     }
 
     public  ArrayList<ChannelEntity> getChannels(){
-        ListDataSave channelListDataSave = new ListDataSave(this, App.PREFS_NAME);
-        List<ChannelEntity> channels = channelListDataSave.getDataList("channels",ChannelEntity.class);
+        ListDataSave channelListDataSave = new ListDataSave(this,PREFS_NAME);
+        List<ChannelEntity> channels = channelListDataSave.getDataList(PREF_CHANNELS,ChannelEntity.class);
         Log.d(TAG,"Channels is " + channels.toString());
-        /*if (channels==null || channels.isEmpty()){
-            String[] favorites = getResources().getStringArray(R.array.favorites);
-            String[] favorite_values = getResources().getStringArray(R.array.favorite_values);
-            ArrayList<ChannelEntity> channelEntities = new ArrayList<ChannelEntity>();
-            Log.d(TAG,"Favorites is " + favorites.toString());
-            long id =0;
-            for (String favorite : favorites){
-                ChannelEntity channelEntity= new ChannelEntity();
-                channelEntity.setName(favorite);
-                channelEntity.setId(id);
-                channelEntities.add(channelEntity);
-                Log.d(TAG,"Favorite name is " + favorite);
-                Log.d(TAG,"Favorite id is " + id);
-                id++;
-            }
-            setChannels(channelEntities);
-            return channelEntities;
-        }*/
+        if (channels==null || channels.isEmpty()){
+            return getDefaultChannels();
+        }
         Log.d(TAG,"Get the channels from the channels tag.");
         return (ArrayList<ChannelEntity>) channels;
+    }
+    /**
+     *  用户首次使用APP，缺省频道设置
+     */
+    private ArrayList<ChannelEntity> getDefaultChannels(){
+        // 初次使用用户没有设置频道，系统默认显示前5个频道
+        String[] favorites = getResources().getStringArray(R.array.favorites);
+        String[] favorite_values = getResources().getStringArray(R.array.favorite_values);
+        ArrayList<ChannelEntity> channelEntities = new ArrayList<ChannelEntity>();
+        Log.d(TAG,"Favorites is " + favorites.toString());
+        // 缺省设置前5个为缺省显示频道
+        for (int i =0; i < 5 ; i++ ){
+            ChannelEntity channelEntity= new ChannelEntity();
+            channelEntity.setName(favorites[i]);
+            channelEntity.setId(i);
+            channelEntities.add(channelEntity);
+        }
+        setChannels(channelEntities);
+        return channelEntities;
     }
 
     public void setChannels(ArrayList<ChannelEntity> channelEntities){
         ListDataSave channelListDataSave = new ListDataSave(this, App.PREFS_NAME);
-        channelListDataSave.setDataList("channels",channelEntities);
+        channelListDataSave.setDataList(PREF_CHANNELS,channelEntities);
     }
 
     public void clearChannels(){
         SharedPreferences settings = getSharedPreferences(App.PREFS_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putString("channels",null);
+        editor.putString(PREF_CHANNELS,null);
         editor.commit();
     }
 
     public  ArrayList<ChannelEntity> getOtherChannels(){
         ListDataSave channelListDataSave = new ListDataSave(this, App.PREFS_NAME);
-        List<ChannelEntity> channels = channelListDataSave.getDataList("otherchannels",ChannelEntity.class);
+        List<ChannelEntity> channels = channelListDataSave.getDataList(PREF_OTHER_CHANNELS,ChannelEntity.class);
         Log.d(TAG,"Other Channels is " + channels.toString());
         if (channels==null || channels.isEmpty()){
-            String[] favorites = getResources().getStringArray(R.array.favorites);
-            String[] favorite_values = getResources().getStringArray(R.array.favorite_values);
-            ArrayList<ChannelEntity> channelEntities = new ArrayList<ChannelEntity>();
-            Log.d(TAG,"Favorites is " + favorites.toString());
-            long id =0;
-            for (String favorite : favorites){
-                ChannelEntity channelEntity= new ChannelEntity();
-                channelEntity.setName(favorite);
-                channelEntity.setId(id);
-                channelEntities.add(channelEntity);
-                Log.d(TAG,"Favorite name is " + favorite);
-                Log.d(TAG,"Favorite id is " + id);
-                id++;
-            }
-            setOtherChannels(channelEntities);
-            return channelEntities;
+           return getDefaultOtherChannels();
         }
         Log.d(TAG,"Get the channels from the channels tag.");
         return (ArrayList<ChannelEntity>) channels;
     }
 
+    private ArrayList<ChannelEntity> getDefaultOtherChannels(){
+        String[] favorites = getResources().getStringArray(R.array.favorites);
+        String[] favorite_values = getResources().getStringArray(R.array.favorite_values);
+        ArrayList<ChannelEntity> channelEntities = new ArrayList<ChannelEntity>();
+        Log.d(TAG,"Favorites is " + favorites.toString());
+        // 用户未设置频道，缺省其他频道为5个以后的频道，前5个为默认选择频道
+        for (int i = 5; i< favorites.length; i++){
+            ChannelEntity channelEntity= new ChannelEntity();
+            channelEntity.setName(favorites[i]);
+            channelEntity.setId(i);
+            channelEntities.add(channelEntity);
+            Log.d(TAG,"Favorite name is " + favorites[i]);
+            Log.d(TAG,"Favorite id is " + i);
+        }
+        setOtherChannels(channelEntities);
+        return channelEntities;
+    }
+
     public void setOtherChannels(ArrayList<ChannelEntity> channelEntities){
         ListDataSave channelListDataSave = new ListDataSave(this, App.PREFS_NAME);
-        channelListDataSave.setDataList("otherchannels",channelEntities);
+        channelListDataSave.setDataList(PREF_OTHER_CHANNELS,channelEntities);
     }
 }
 

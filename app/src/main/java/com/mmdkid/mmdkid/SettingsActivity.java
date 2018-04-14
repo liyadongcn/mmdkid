@@ -2,8 +2,6 @@ package com.mmdkid.mmdkid;
 
 import android.annotation.TargetApi;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -62,10 +60,11 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         if (actionBar != null) {
             // Show the Up button in the action bar.
             actionBar.setDisplayHomeAsUpEnabled(true);
-            int color = Color.parseColor("#ffff4444"); //"#ff00ff"
+            /*int color = Color.parseColor("#ffff4444"); //"#ff00ff"
             ColorDrawable drawable = new ColorDrawable(color);
-            actionBar.setBackgroundDrawable(drawable);
+            actionBar.setBackgroundDrawable(drawable);*/
             actionBar.setTitle(getResources().getString(R.string.title_activity_settings));
+
         }
     }
 

@@ -2,6 +2,7 @@ package com.mmdkid.mmdkid.fragments;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -16,6 +17,7 @@ import android.widget.Toast;
 
 import com.mmdkid.mmdkid.App;
 import com.mmdkid.mmdkid.R;
+import com.mmdkid.mmdkid.WebViewActivity;
 import com.mmdkid.mmdkid.adapters.ModelRecyclerAdapter;
 import com.mmdkid.mmdkid.models.Behavior;
 import com.mmdkid.mmdkid.models.Model;
@@ -146,6 +148,9 @@ public class FollowingFragment extends Fragment {
         mRecyclerView.addOnItemTouchListener(new RecyclerViewClickListener(mContext, mRecyclerView, new RecyclerViewClickListener.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
+                Intent intent = new Intent(getContext(), WebViewActivity.class);
+                intent.putExtra("url",((User)mDataset.get(position)).getUrl());
+                startActivity(intent);
             }
 
             @Override

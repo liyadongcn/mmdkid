@@ -111,11 +111,15 @@ public class Token extends Model {
         token.mScope=settings.getString("scope","");
         token.mRefreshToken=settings.getString("refresh_token","");
         token.mCreatedAt = new Date(settings.getLong("created_at",0));
+        Log.d(TAG,"Token from local is " + token.toString());
         return token;
     }
 
     public boolean isValid(){
-        if((mExpiresIn*1000 + mCreatedAt.getTime()) > System.currentTimeMillis() ){
+        Log.d(TAG,"Token expire in " + mExpiresIn);
+        Log.d(TAG,"Token created at " + mCreatedAt.getTime());
+        Log.d(TAG,"Now is " +  System.currentTimeMillis());
+        if((mExpiresIn + mCreatedAt.getTime()/1000) > (System.currentTimeMillis()/1000) ){
             return true;
         }else {
             return false;
