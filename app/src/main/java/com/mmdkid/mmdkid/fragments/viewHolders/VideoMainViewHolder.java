@@ -1,10 +1,8 @@
 package com.mmdkid.mmdkid.fragments.viewHolders;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.View;
@@ -17,6 +15,7 @@ import com.facebook.drawee.view.SimpleDraweeView;
 import com.mmdkid.mmdkid.R;
 import com.mmdkid.mmdkid.WebViewActivity;
 import com.mmdkid.mmdkid.helper.HtmlUtil;
+import com.mmdkid.mmdkid.helper.ProgressDialog;
 import com.mmdkid.mmdkid.helper.RelativeDateFormat;
 import com.mmdkid.mmdkid.helper.Utility;
 import com.mmdkid.mmdkid.models.Content;

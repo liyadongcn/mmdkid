@@ -47,6 +47,9 @@ public class ImagePost extends Model {
     public int star_count;
     public ArrayList<String> imageList;
     public ArrayList<String> thumbnailList;
+    public double latitude;
+    public double longitude;
+    public String location_name;
 
     @Override
     public void setAttributesNames() {

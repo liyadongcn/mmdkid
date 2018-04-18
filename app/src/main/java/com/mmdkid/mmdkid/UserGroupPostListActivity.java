@@ -185,7 +185,7 @@ public class UserGroupPostListActivity extends AppCompatActivity {
                     mQuery.all();
                 }else {
                     // 提示没有更多数可以加载
-                    Toast.makeText(UserGroupPostListActivity.this, "no more data.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(UserGroupPostListActivity.this, getString(R.string.no_more_data), Toast.LENGTH_LONG).show();
                     mRefreshLayout.setRefreshing(false);
                 }
 

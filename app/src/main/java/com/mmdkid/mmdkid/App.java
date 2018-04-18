@@ -13,9 +13,9 @@ import com.mmdkid.mmdkid.helper.ListDataSave;
 import com.mmdkid.mmdkid.models.Token;
 import com.mmdkid.mmdkid.models.User;
 import com.mmdkid.mmdkid.server.RESTAPIConnection;
+import com.umeng.commonsdk.UMConfigure;
 import com.umeng.message.IUmengRegisterCallback;
 import com.umeng.message.PushAgent;
-import com.umeng.socialize.Config;
 import com.umeng.socialize.PlatformConfig;
 import com.umeng.socialize.UMShareAPI;
 import com.youku.cloud.player.YoukuPlayerConfig;
@@ -65,12 +65,13 @@ public class App extends Application {
         YoukuPlayerConfig.setLog(false);
 
         // 友盟设置
+        UMConfigure.init(this, UMConfigure.DEVICE_TYPE_PHONE, "d06f5c7afaafa3bd3f4ec5b9484f6d21");
         PlatformConfig.setWeixin("wxd351513db5e7e7cd", "0a0317230e8462e0b355bce31a6bd80d");
         PlatformConfig.setQQZone("1106209187", "b4GtyTWBLyBw84XP");
         PlatformConfig.setSinaWeibo("1829150753", "0a0d5416fa055a9da67a58f51526d9e7"
                 ,"http://sns.whalecloud.com");
         //需要查看友盟调试信息时打开
-        Config.DEBUG = true;
+        //Config.DEBUG = true;
         UMShareAPI.get(this);
 
        /*

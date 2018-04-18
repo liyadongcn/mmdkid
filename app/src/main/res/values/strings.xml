@@ -24,6 +24,7 @@
     <string name="action_favorite">favorite</string>
 
     <string name="loading">加载中...</string>
+    <string name="no_more_data">暂时没有更多数据了</string>
 
     <string name="actionn_load_more">刚刚看到这里,点击刷新</string>
 
@@ -86,6 +87,11 @@
     <string name="new_password">请输入新密码</string>
     <string name="confirm_new_password">确认新密码</string>
 
+    <!--String related to location-->
+    <string name="location_unkown">未知位置</string>
+    <string name="location_not_support_gps">GPS服务不可用</string>
+    <string name="location_not_support_network">网络位置服务不可用</string>
+
     <!--String related to register a new user-->
     <string name="register_phone">手机注册</string>
     <string name="register_email">邮箱注册</string>
@@ -113,7 +119,9 @@
     </string>
 
     <string name="pref_title_check_version">版本更新</string>
-
+    <string name="pref_title_policy">么么哒KID用户使用协议</string>
+    <string name="pref_title_web">@ 么么哒 mmdkid.cn</string>
+    <string name="pref_action_quit">退出登录</string>
     <string name="pref_title_display_name">Display name</string>
     <string name="pref_default_display_name">John Smith</string>
 

@@ -1,6 +1,6 @@
 package com.mmdkid.mmdkid;
 
-import android.app.ProgressDialog;
+
 import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
@@ -21,6 +21,7 @@ import android.widget.Toast;
 import com.facebook.drawee.generic.GenericDraweeHierarchyBuilder;
 import com.mmdkid.mmdkid.adapters.ModelRecyclerAdapter;
 import com.mmdkid.mmdkid.fragments.RecyclerViewClickListener;
+import com.mmdkid.mmdkid.helper.ProgressDialog;
 import com.mmdkid.mmdkid.imagepost.ImageOverlayView;
 import com.mmdkid.mmdkid.models.Behavior;
 import com.mmdkid.mmdkid.models.Content;
@@ -170,7 +171,7 @@ public class StarActivity extends AppCompatActivity {
                     mQuery.all();
                 }else {
                     // 提示没有更多数可以加载
-                    Toast.makeText(StarActivity.this, "no more data.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(StarActivity.this, getString(R.string.no_more_data), Toast.LENGTH_LONG).show();
                     mRefreshLayout.setRefreshing(false);
                 }
 
@@ -193,7 +194,7 @@ public class StarActivity extends AppCompatActivity {
                         mQuery.all();
                     }else {
                         // 提示没有更多数可以加载
-                        Toast.makeText(StarActivity.this, "no more data.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(StarActivity.this, getString(R.string.no_more_data), Toast.LENGTH_LONG).show();
                         mRefreshLayout.setRefreshing(false);
                     }
                 }

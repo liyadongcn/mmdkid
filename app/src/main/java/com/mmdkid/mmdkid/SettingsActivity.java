@@ -16,18 +16,24 @@ import android.preference.RingtonePreference;
 import android.support.v7.app.ActionBar;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.mmdkid.mmdkid.channel.ChannelActivity;
 import com.mmdkid.mmdkid.update.CheckUpdateUtil;
 
-public class SettingsActivity extends AppCompatPreferenceActivity {
+public class SettingsActivity extends AppCompatPreferenceActivity implements View.OnClickListener{
 
     private static final String TAG = "SettingsActivity";
+    private static final String POLICY_URL = "http://mmdkid.cn/index.php?r=site/policy&theme=app";
 
     private Preference mVersionPreference;
+
+    private Button mQuitView;
+    private TextView mPolicyView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +42,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         addPreferencesFromResource(R.xml.pref_general);
 
         // Add a button to the header list.
-        Button button = new Button(this);
+       /* Button button = new Button(this);
         button.setText(R.string.action_logout);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -47,9 +53,16 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 finish();
             }
         });
-        setListFooter(button);
+        setListFooter(button);*/
         mVersionPreference = findPreference("checkVersion");
         mVersionPreference.setSummary("当前版本"+CheckUpdateUtil.getVersionName(this));
+
+        View view = LayoutInflater.from(this).inflate(R.layout.preference_end,null,false);
+        mQuitView = (Button) view.findViewById(R.id.btQuit);
+        mQuitView.setOnClickListener(this);
+        mPolicyView = (TextView) view.findViewById(R.id.tvPolicy);
+        mPolicyView.setOnClickListener(this);
+        setListFooter(view);
     }
 
     /**
@@ -170,6 +183,22 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 PreferenceManager
                         .getDefaultSharedPreferences(preference.getContext())
                         .getString(preference.getKey(), ""));
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()){
+            case R.id.btQuit:
+                App app = (App)getApplicationContext();
+                app.logout();
+                finish();
+                break;
+            case R.id.tvPolicy:
+                Intent intent = new Intent(this,WebViewActivity.class);
+                intent.putExtra("url",POLICY_URL);
+                startActivity(intent);
+                break;
+        }
     }
 
     /**

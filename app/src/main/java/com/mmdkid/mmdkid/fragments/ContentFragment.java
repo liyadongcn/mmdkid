@@ -1,6 +1,6 @@
 package com.mmdkid.mmdkid.fragments;
 
-import android.app.ProgressDialog;
+
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
@@ -19,7 +19,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,6 +27,7 @@ import com.facebook.drawee.view.SimpleDraweeView;
 import com.mmdkid.mmdkid.R;
 import com.mmdkid.mmdkid.WebViewActivity;
 import com.mmdkid.mmdkid.adapters.ModelRecyclerAdapter;
+import com.mmdkid.mmdkid.helper.ProgressDialog;
 import com.mmdkid.mmdkid.imagepost.ImageOverlayView;
 import com.mmdkid.mmdkid.models.Content;
 import com.mmdkid.mmdkid.models.Model;
@@ -48,8 +48,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.jzvd.JZMediaManager;
-import cn.jzvd.JZUtils;
 import cn.jzvd.JZVideoPlayer;
 
 
@@ -282,7 +280,7 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
                     getMore();
                 }else {
                     // 提示没有更多数可以加载
-                    Toast.makeText(mContext, "no more data.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(mContext, getString(R.string.no_more_data), Toast.LENGTH_LONG).show();
                     mRefreshLayout.setRefreshing(false);
                 }
 
@@ -387,7 +385,7 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
                         getMore();
                     }else {
                         // 提示没有更多数可以加载
-                        Toast.makeText(mContext, "no more data.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(mContext, getString(R.string.no_more_data), Toast.LENGTH_LONG).show();
                         mRefreshLayout.setRefreshing(false);
                     }
                 }

@@ -2,7 +2,6 @@ package com.mmdkid.mmdkid.imagepost;
 
 import android.app.Activity;
 import android.app.Instrumentation;
-import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -25,6 +24,7 @@ import com.mmdkid.mmdkid.LoginActivity;
 import com.mmdkid.mmdkid.R;
 import com.mmdkid.mmdkid.WebViewActivity;
 import com.mmdkid.mmdkid.helper.HtmlUtil;
+import com.mmdkid.mmdkid.helper.ProgressDialog;
 import com.mmdkid.mmdkid.models.Behavior;
 import com.mmdkid.mmdkid.models.Content;
 import com.mmdkid.mmdkid.models.Model;

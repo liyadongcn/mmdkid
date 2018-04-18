@@ -7,8 +7,8 @@ android {
         applicationId "com.mmdkid.mmdkid"
         minSdkVersion 16
         targetSdkVersion 25
-        versionCode 33
-        versionName '0.8.33'
+        versionCode 34
+        versionName '0.8.34'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
@@ -31,11 +31,13 @@ android {
             minifyEnabled true
             signingConfig signingConfigs.config
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            manifestPlaceholders = [qqappid: "1106209187"]
         }
         debug {
             minifyEnabled false
             signingConfig signingConfigs.config
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            manifestPlaceholders = [qqappid: "1106209187"]
         }
     }
 
@@ -78,6 +80,8 @@ android {
         }
     }
 
+
+
 }
 
 dependencies {
@@ -85,7 +89,7 @@ dependencies {
     androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    implementation files('libs/umeng/umeng_social_api.jar')
+/*    implementation files('libs/umeng/umeng_social_api.jar')
     implementation files('libs/umeng/umeng_social_net.jar')
     implementation files('libs/umeng/umeng_social_tool.jar')
     implementation files('libs/umeng/open_sdk_r5788_lite.jar')
@@ -95,7 +99,19 @@ dependencies {
     implementation files('libs/umeng/SocialSDK_Sina_Full.jar')
     implementation files('libs/umeng/weiboSDKCore.jar')
     implementation files('libs/umeng/umeng_social_shareboard.jar')
-    implementation files('libs/umeng/umeng_shareboard_widget.jar')
+    implementation files('libs/umeng/umeng_shareboard_widget.jar')*/
+    //PushSDK必须依赖基础组件库，所以需要加入对应依赖
+    implementation 'com.umeng.sdk:common:1.5.0'
+    //PushSDK必须依赖utdid库，所以需要加入对应依赖
+    implementation 'com.umeng.sdk:utdid:1.1.5.3'
+    //PushSDK
+    implementation 'com.umeng.sdk:push:4.1.0'
+    //友盟分享
+    implementation 'com.umeng.sdk:share-core:latest.integration'
+    implementation 'com.umeng.sdk:share-qq:latest.integration'
+    implementation 'com.umeng.sdk:share-wechat:latest.integration'
+    implementation 'com.umeng.sdk:share-sina:latest.integration'
+
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support:design:27.1.1'
     implementation 'com.android.support:cardview-v7:27.1.1'
@@ -123,7 +139,7 @@ dependencies {
     // mob
     implementation name: 'SMSSDK-3.0.0', ext: 'aar'
     implementation name: 'SMSSDKGUI-3.0.0', ext: 'aar'
-    implementation project(':PushSDK')
+//    implementation project(':PushSDK')
     implementation 'com.zhihu.android:matisse:0.5.0-beta3'
     implementation 'com.squareup.picasso:picasso:2.5.2'
     implementation 'jp.wasabeef:richeditor-android:1.2.2'

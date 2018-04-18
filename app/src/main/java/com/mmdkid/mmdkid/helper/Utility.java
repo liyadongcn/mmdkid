@@ -2,6 +2,8 @@ package com.mmdkid.mmdkid.helper;
 
 import android.content.ContentUris;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -9,7 +11,12 @@ import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
+
+import com.yanzhenjie.permission.Action;
+import com.yanzhenjie.permission.AndPermission;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -26,6 +33,7 @@ import java.util.regex.Pattern;
  */
 
 public class Utility {
+    private static final String TAG = "Utility";
     //获取指定位数的随机字符串(包含小写字母、大写字母、数字,0<length)
     public static String getRandomString(int length ) {
         //随机字符串的随机字符库
@@ -257,5 +265,54 @@ public class Utility {
             fileSizeString = df.format((double) fileS / 1073741824) + "GB";
         }
         return fileSizeString;
+    }
+
+    public static void permissonCheck(final Context context, String permisson) {
+        if (ContextCompat.checkSelfPermission(context, permisson)
+                != PackageManager.PERMISSION_GRANTED) {
+            // 没有权限，申请存储权限。
+            Log.d(TAG,"No this permission. Now to apply it.");
+            AndPermission.with(context)
+                    .permission(permisson)
+                    .onGranted(new Action() {
+                        @Override
+                        public void onAction(List<String> permissions) {
+                            // 取得授权
+                            Log.d(TAG,"Permission is granted by user.");
+                        }
+                    }).onDenied(new Action() {
+                @Override
+                public void onAction(List<String> permissions) {
+                    // 用于拒绝授权
+                    // 弹出对话框告知用户情况
+                    Log.d(TAG,"Permission is denied by user.");
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                    builder.setTitle("提示")
+                            .setMessage("你已拒绝该权限，没有该权限系统将继续运行，但有可能出现系统闪退现象！" )
+                            .setPositiveButton("继续运行", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog,
+                                                    int which) {
+                                    // 如果用户继续：
+
+                                }
+                            })
+                            .setNegativeButton("退出应用", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog,
+                                                    int which) {
+                                    // 如果用户中断：
+                                    System.exit(0);
+                                }
+                            })
+                            .show();
+                }
+            })
+
+                    .start();
+        }else{
+            // 有权限了，去放肆吧。
+            Log.d(TAG,"Already has the permission.");
+        }
     }
 }

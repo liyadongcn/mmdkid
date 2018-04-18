@@ -1,7 +1,6 @@
 package com.mmdkid.mmdkid.fragments.publishManage;
 
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -25,8 +24,9 @@ import com.mmdkid.mmdkid.R;
 import com.mmdkid.mmdkid.WebViewActivity;
 import com.mmdkid.mmdkid.adapters.ModelRecyclerAdapter;
 import com.mmdkid.mmdkid.fragments.RecyclerViewClickListener;
-import com.mmdkid.mmdkid.models.Model;
+import com.mmdkid.mmdkid.helper.ProgressDialog;
 import com.mmdkid.mmdkid.models.ImagePost;
+import com.mmdkid.mmdkid.models.Model;
 import com.mmdkid.mmdkid.models.Token;
 import com.mmdkid.mmdkid.models.User;
 import com.mmdkid.mmdkid.server.Query;
@@ -43,7 +43,7 @@ import java.util.ArrayList;
  * create an instance of this fragment.
  */
 public class ImageFragment extends Fragment {
-    private static final String TAG ="ImageFragment";
+    private static final String TAG = "ImageFragment";
 
     private Context mContext;
     private RecyclerView mRecyclerView;
@@ -71,7 +71,6 @@ public class ImageFragment extends Fragment {
     private String mParam2;
 
     private ImageFragment.OnFragmentInteractionListener mListener;
-
 
     /**
      *  删除操作弹出窗口
@@ -135,20 +134,20 @@ public class ImageFragment extends Fragment {
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter (see also next example)
-        mAdapter = new ModelRecyclerAdapter(fragmentView.getContext(),mDataset);
+        mAdapter = new ModelRecyclerAdapter(fragmentView.getContext(), mDataset);
         mRecyclerView.setAdapter(mAdapter);
 
         // Swipe refresh listener
-        mRefreshLayout = (SwipeRefreshLayout)fragmentView.findViewById(R.id.layout_swipe_refresh);
-        mRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener(){
+        mRefreshLayout = (SwipeRefreshLayout) fragmentView.findViewById(R.id.layout_swipe_refresh);
+        mRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             public void onRefresh() {
                 // 加载更多数据
-                if(mQuery.hasMore()){
+                if (mQuery.hasMore()) {
                     //mConnection.Query(mQuery);
                     mQuery.all();
-                }else {
+                } else {
                     // 提示没有更多数可以加载
-                    Toast.makeText(mContext, "no more data.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(mContext, getString(R.string.no_more_data), Toast.LENGTH_LONG).show();
                     mRefreshLayout.setRefreshing(false);
                 }
 
@@ -160,12 +159,12 @@ public class ImageFragment extends Fragment {
             @Override
             public void onItemClick(View view, int position) {
                 // 判断点击的是否为删除按钮
-                if (view.getId()==R.id.imageDelete){
+                if (view.getId() == R.id.imageDelete) {
                     showNormalDialog((ImagePost) mDataset.get(position));
-                }else{
-                    Intent intent = new Intent(getActivity(),WebViewActivity.class);
-                    intent.putExtra("url",mDataset.get(position).getUrl());
-                    Log.d(TAG,mDataset.get(position).getUrl());
+                } else {
+                    Intent intent = new Intent(getActivity(), WebViewActivity.class);
+                    intent.putExtra("url", mDataset.get(position).getUrl());
+                    Log.d(TAG, mDataset.get(position).getUrl());
                     startActivity(intent);
                 }
             }
@@ -173,7 +172,7 @@ public class ImageFragment extends Fragment {
             @Override
             public void onItemLongClick(View view, int position) {
                 //Toast.makeText(mContext,"Click "+mDataset.get(position).mContent,Toast.LENGTH_SHORT).show();
-                mPopwindow = new PublishManagePopup(getActivity(),mPopItemClick);
+                mPopwindow = new PublishManagePopup(getActivity(), mPopItemClick);
                 mPopwindow.showAtLocation(view, Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
                 mCurrentPosition = position;
             }
@@ -196,13 +195,13 @@ public class ImageFragment extends Fragment {
                         && lastVisibleItemPosition == totalItemCount - 1
                         && visibleItemCount > 0) {
                     //加载更多
-                    if(mQuery.hasMore()){
+                    if (mQuery.hasMore()) {
                         //mConnection.Query(mQuery);
                         mRefreshLayout.setRefreshing(true);
                         mQuery.all();
-                    }else {
+                    } else {
                         // 提示没有更多数可以加载
-                        Toast.makeText(mContext, "no more data.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(mContext, getString(R.string.no_more_data), Toast.LENGTH_LONG).show();
                         mRefreshLayout.setRefreshing(false);
                     }
                 }
@@ -219,7 +218,7 @@ public class ImageFragment extends Fragment {
             Intent intent;
             switch (view.getId()) {
                 case R.id.delete:
-                    if (mCurrentPosition != -1){
+                    if (mCurrentPosition != -1) {
                         showNormalDialog((ImagePost) mDataset.get(mCurrentPosition));
                     }
                     break;
@@ -227,7 +226,7 @@ public class ImageFragment extends Fragment {
         }
     };
 
-    private void showNormalDialog(final ImagePost imagePost){
+    private void showNormalDialog(final ImagePost imagePost) {
         /* @setIcon 设置对话框图标
          * @setTitle 设置对话框标题
          * @setMessage 设置对话框消息提示
@@ -245,13 +244,13 @@ public class ImageFragment extends Fragment {
                         imagePost.delete(mContext, new RESTAPIConnection.OnConnectionListener() {
                             @Override
                             public void onErrorRespose(Class c, String error) {
-                                Toast.makeText(mContext,"删除出错！",Toast.LENGTH_LONG).show();
+                                Toast.makeText(mContext, "删除出错！", Toast.LENGTH_LONG).show();
                                 dialog.dismiss();
                             }
 
                             @Override
                             public void onResponse(Class c, ArrayList responseDataList) {
-                                Toast.makeText(mContext,"删除成功！",Toast.LENGTH_LONG).show();
+                                Toast.makeText(mContext, "删除成功！", Toast.LENGTH_LONG).show();
                                 dialog.dismiss();
                                 mDataset.remove(mCurrentPosition);
                                 mAdapter.notifyDataSetChanged();
@@ -273,7 +272,7 @@ public class ImageFragment extends Fragment {
 
     private void initData() {
         mDataset.clear();
-        App app = (App)mContext.getApplicationContext();
+        App app = (App) mContext.getApplicationContext();
         if (!app.isGuest()) {
             mCurrentUser = app.getCurrentUser();
             mCurrentToken = app.getCurrentToken();
@@ -281,7 +280,7 @@ public class ImageFragment extends Fragment {
             mQuery = ImagePost.find(mContext, new RESTAPIConnection.OnConnectionListener() {
                 @Override
                 public void onErrorRespose(Class c, String error) {
-                    Log.d(TAG,"Get the error response from the server");
+                    Log.d(TAG, "Get the error response from the server");
                     mIsFetching = false;
                     mProgressDialog.dismiss();
 
@@ -289,25 +288,25 @@ public class ImageFragment extends Fragment {
 
                 @Override
                 public void onResponse(Class c, ArrayList responseDataList) {
-                    Log.d(TAG,"Get correct response from the server.");
+                    Log.d(TAG, "Get correct response from the server.");
                     mIsFetching = false;
-                    if(c == ImagePost.class && !responseDataList.isEmpty()){
-                        Log.d(TAG,"Get the content response from the server.");
-                        for(Object obj : responseDataList){
+                    if (c == ImagePost.class && !responseDataList.isEmpty()) {
+                        Log.d(TAG, "Get the content response from the server.");
+                        for (Object obj : responseDataList) {
                             ImagePost imagePost = (ImagePost) obj;
-                            Log.d(TAG,"ImagePost id: " + imagePost.id);
-                            Log.d(TAG,"ImagePost title: " +imagePost.title);
-                            Log.d(TAG,"ImagePost images: " + imagePost.imageList);
+                            Log.d(TAG, "ImagePost id: " + imagePost.id);
+                            Log.d(TAG, "ImagePost title: " + imagePost.title);
+                            Log.d(TAG, "ImagePost images: " + imagePost.imageList);
                             mDataset.add(imagePost);
                             imagePost.setViewType(Model.VIEW_TYPE_PUBLISH_MANAGE_IMAGE);
                         }
                         mAdapter.notifyDataSetChanged();
-                        ((LinearLayoutManager)mRecyclerView.getLayoutManager()).scrollToPositionWithOffset(mDataset.size()-responseDataList.size(),0);
+                        ((LinearLayoutManager) mRecyclerView.getLayoutManager()).scrollToPositionWithOffset(mDataset.size() - responseDataList.size(), 0);
                     }
                     mProgressDialog.dismiss();
                     mRefreshLayout.setRefreshing(false);
                 }
-            }).where("created_by",Integer.toString(mCurrentUser.mId))
+            }).where("created_by", Integer.toString(mCurrentUser.mId))
                     .where("expand", "images");
             mQuery.all();
             mIsFetching = true;
@@ -318,7 +317,7 @@ public class ImageFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        Log.d(TAG,"onResume.....");
+        Log.d(TAG, "onResume.....");
         initData();
     }
 
@@ -360,4 +359,6 @@ public class ImageFragment extends Fragment {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
+
+
 }

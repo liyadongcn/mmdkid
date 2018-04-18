@@ -46,9 +46,4 @@
         android:title="@string/pref_title_check_version"  />
 
 
-
-
-
-
-
 </PreferenceScreen>

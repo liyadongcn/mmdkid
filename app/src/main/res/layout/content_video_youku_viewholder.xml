@@ -124,7 +124,7 @@
                         android:layout_marginLeft="0dp"
                         android:textSize="@dimen/date_font"
                         android:textColor="@color/tip"
-                        android:text="llllll"/>
+                        />
                 </LinearLayout>
 
             </LinearLayout>

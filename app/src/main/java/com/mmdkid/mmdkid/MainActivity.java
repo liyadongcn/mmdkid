@@ -2,10 +2,7 @@ package com.mmdkid.mmdkid;
 
 import android.Manifest;
 import android.app.SearchManager;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -14,9 +11,7 @@ import android.support.annotation.IdRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -35,6 +30,7 @@ import com.mmdkid.mmdkid.fragments.HomeFragment;
 import com.mmdkid.mmdkid.fragments.MeFragment;
 import com.mmdkid.mmdkid.fragments.VideoFragment;
 import com.mmdkid.mmdkid.fragments.gw.ContentFragment;
+import com.mmdkid.mmdkid.helper.Utility;
 import com.mmdkid.mmdkid.models.Token;
 import com.mmdkid.mmdkid.models.User;
 import com.mmdkid.mmdkid.models.login.Login;
@@ -43,11 +39,6 @@ import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnTabReselectListener;
 import com.roughike.bottombar.OnTabSelectListener;
 import com.umeng.message.PushAgent;
-import com.yanzhenjie.permission.Action;
-import com.yanzhenjie.permission.AndPermission;
-import com.yanzhenjie.permission.Permission;
-import com.yanzhenjie.permission.Rationale;
-import com.yanzhenjie.permission.RequestExecutor;
 
 import java.util.List;
 
@@ -98,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
     /**
      *  权限申请询问
      */
-    private Rationale mRationale = new Rationale() {
+   /* private Rationale mRationale = new Rationale() {
         @Override
         public void showRationale(Context context, List<String> permissions,
                                   final RequestExecutor executor) {
@@ -124,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
                     })
                     .show();
         }
-    };
+    };*/
 
 
             @Override
@@ -133,7 +124,12 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
         setContentView(R.layout.activity_main);
 
         // 检查应用是否有存储权限
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        Utility.permissonCheck(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        // 检查应用是否有精确位置权限 并申请
+        // Utility.permissonCheck(this, Manifest.permission.ACCESS_FINE_LOCATION);
+        // 检查并获取粗略位置信息权限
+        Utility.permissonCheck(this, Manifest.permission.ACCESS_COARSE_LOCATION);
+       /* if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
             // 没有权限，申请存储权限。
             Log.d(TAG,"No storage permission. Now to apply it.");
@@ -179,7 +175,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
         }else{
             // 有权限了，去放肆吧。
             Log.d(TAG,"Already has the storage right.");
-        }
+        }*/
         // 初始化界面
         initView();
     }

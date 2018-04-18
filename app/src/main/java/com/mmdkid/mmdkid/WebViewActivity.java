@@ -3,7 +3,6 @@ package com.mmdkid.mmdkid;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
@@ -34,6 +33,7 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.mmdkid.mmdkid.helper.HtmlUtil;
+import com.mmdkid.mmdkid.helper.ProgressDialog;
 import com.mmdkid.mmdkid.models.Comment;
 import com.mmdkid.mmdkid.models.Content;
 import com.mmdkid.mmdkid.models.Diary;

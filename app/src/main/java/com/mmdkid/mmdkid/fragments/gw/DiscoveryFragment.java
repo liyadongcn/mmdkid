@@ -1,6 +1,6 @@
 package com.mmdkid.mmdkid.fragments.gw;
 
-import android.app.ProgressDialog;
+
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -19,6 +19,7 @@ import com.mmdkid.mmdkid.R;
 import com.mmdkid.mmdkid.WebViewActivity;
 import com.mmdkid.mmdkid.adapters.ModelRecyclerAdapter;
 import com.mmdkid.mmdkid.fragments.RecyclerViewClickListener;
+import com.mmdkid.mmdkid.helper.ProgressDialog;
 import com.mmdkid.mmdkid.models.Goods;
 import com.mmdkid.mmdkid.models.Model;
 import com.mmdkid.mmdkid.models.Refresh;
@@ -178,7 +179,7 @@ public class DiscoveryFragment extends Fragment {
                         getMore();
                     }else {
                         // 提示没有更多数可以加载
-                        Toast.makeText(mContext, "no more data.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(mContext, getString(R.string.no_more_data), Toast.LENGTH_LONG).show();
                         mRefreshLayout.setRefreshing(false);
                     }
                 }
@@ -201,7 +202,7 @@ public class DiscoveryFragment extends Fragment {
                     getMore();
                 }else {
                     // 提示没有更多数可以加载
-                    Toast.makeText(mContext, "no more data.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(mContext, getString(R.string.no_more_data), Toast.LENGTH_LONG).show();
                     mRefreshLayout.setRefreshing(false);
                 }
 

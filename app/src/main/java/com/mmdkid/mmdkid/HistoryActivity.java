@@ -1,6 +1,5 @@
 package com.mmdkid.mmdkid;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -16,6 +15,7 @@ import android.widget.Toast;
 
 import com.mmdkid.mmdkid.adapters.ModelRecyclerAdapter;
 import com.mmdkid.mmdkid.fragments.RecyclerViewClickListener;
+import com.mmdkid.mmdkid.helper.ProgressDialog;
 import com.mmdkid.mmdkid.models.Behavior;
 import com.mmdkid.mmdkid.models.Content;
 import com.mmdkid.mmdkid.models.Model;
@@ -156,7 +156,7 @@ public class HistoryActivity extends AppCompatActivity {
                     mQuery.all();
                 }else {
                     // 提示没有更多数可以加载
-                    Toast.makeText(HistoryActivity.this, "no more data.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(HistoryActivity.this, getString(R.string.no_more_data), Toast.LENGTH_LONG).show();
                     mRefreshLayout.setRefreshing(false);
                 }
 
@@ -232,7 +232,7 @@ public class HistoryActivity extends AppCompatActivity {
                         mQuery.all();
                     }else {
                         // 提示没有更多数可以加载
-                        Toast.makeText(HistoryActivity.this, "no more data.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(HistoryActivity.this, getString(R.string.no_more_data), Toast.LENGTH_LONG).show();
                         mRefreshLayout.setRefreshing(false);
                     }
                 }

@@ -238,7 +238,7 @@ public class ContentFragment extends Fragment {
                         getMore();
                     }else {
                         // 提示没有更多数可以加载
-                        Toast.makeText(mContext, "no more data.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(mContext, getString(R.string.no_more_data), Toast.LENGTH_LONG).show();
                         mRefreshLayout.setRefreshing(false);
                     }
                 }
@@ -261,7 +261,7 @@ public class ContentFragment extends Fragment {
                     getMore();
                 }else {
                     // 提示没有更多数可以加载
-                    Toast.makeText(mContext, "no more data.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(mContext, getString(R.string.no_more_data), Toast.LENGTH_LONG).show();
                     mRefreshLayout.setRefreshing(false);
                 }
 
