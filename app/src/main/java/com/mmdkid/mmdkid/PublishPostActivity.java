@@ -44,6 +44,8 @@ import jp.wasabeef.richeditor.RichEditor;
 
 public class PublishPostActivity extends AppCompatActivity {
     private final static String TAG = "PublishPostActivity";
+    private final static String HTML_TAG_START = "<p>";
+    private final static String HTML_TAG_END = "</p>";
 
     private RichEditor mEditor;
     private TextView mPreview;
@@ -209,7 +211,7 @@ public class PublishPostActivity extends AppCompatActivity {
             String key;   // 对应本地文件文件名称
             String value; // 对应服务器文件的url
             String image; // 对应本地文件路径及文件名称
-            mPostHtml = mEditor.getHtml();
+            mPostHtml = HTML_TAG_START + mEditor.getHtml() + HTML_TAG_END; // 调整发布文章的显示 增加p标签
             JSONObject jsonObject = new JSONObject((String)result);
             Iterator iterator = jsonObject.keys();
             while(iterator.hasNext()){

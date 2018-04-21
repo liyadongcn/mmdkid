@@ -107,10 +107,10 @@ dependencies {
     //PushSDK
     implementation 'com.umeng.sdk:push:4.1.0'
     //友盟分享
-    implementation 'com.umeng.sdk:share-core:latest.integration'
-    implementation 'com.umeng.sdk:share-qq:latest.integration'
-    implementation 'com.umeng.sdk:share-wechat:latest.integration'
-    implementation 'com.umeng.sdk:share-sina:latest.integration'
+    implementation 'com.umeng.sdk:share-core:6.9.0'
+    implementation 'com.umeng.sdk:share-qq:6.9.0'
+    implementation 'com.umeng.sdk:share-wechat:6.9.0'
+    implementation 'com.umeng.sdk:share-sina:6.9.0'
 
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support:design:27.1.1'

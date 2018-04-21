@@ -28,16 +28,18 @@
             android:layout_weight="1"
             android:layout_height="0dp"
             />
-
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@color/gray_cc"
+            tools:ignore="Suspicious0dp" />
         <LinearLayout
             android:id="@+id/llCommentForm"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_below="@+id/webViewDetail"
+
             android:layout_gravity="center_horizontal|bottom"
-            android:background="?colorBackgroundFloating"
+
             android:backgroundTint="@color/colorDisable"
             android:clickable="true"
             android:orientation="horizontal">
