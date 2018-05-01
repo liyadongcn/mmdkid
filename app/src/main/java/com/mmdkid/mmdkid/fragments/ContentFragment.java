@@ -24,25 +24,32 @@ import android.widget.Toast;
 
 import com.facebook.drawee.generic.GenericDraweeHierarchyBuilder;
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.mmdkid.mmdkid.App;
 import com.mmdkid.mmdkid.R;
 import com.mmdkid.mmdkid.WebViewActivity;
 import com.mmdkid.mmdkid.adapters.ModelRecyclerAdapter;
 import com.mmdkid.mmdkid.helper.ProgressDialog;
 import com.mmdkid.mmdkid.imagepost.ImageOverlayView;
+import com.mmdkid.mmdkid.models.ActionLog;
 import com.mmdkid.mmdkid.models.Content;
 import com.mmdkid.mmdkid.models.Model;
+import com.mmdkid.mmdkid.models.Recommend;
 import com.mmdkid.mmdkid.models.Refresh;
+import com.mmdkid.mmdkid.models.User;
 import com.mmdkid.mmdkid.models.VideoSource;
 import com.mmdkid.mmdkid.models.YoukuVideo;
 import com.mmdkid.mmdkid.server.ElasticConnection;
 import com.mmdkid.mmdkid.server.ElasticQuery;
 import com.mmdkid.mmdkid.server.QueryBuilder;
 import com.mmdkid.mmdkid.server.Sort;
+import com.mmdkid.mmdkid.singleton.ActionLogs;
 import com.stfalcon.frescoimageviewer.ImageViewer;
 import com.youku.cloud.player.PlayerListener;
 import com.youku.cloud.player.VideoDefinition;
 import com.youku.cloud.player.YoukuPlayerView;
+import com.youku.cloud.player.YoukuUIListener;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -60,7 +67,7 @@ import cn.jzvd.JZVideoPlayer;
  * Use the {@link ContentFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ContentFragment extends Fragment implements ElasticConnection.OnConnectionListener{
+public class ContentFragment extends Fragment implements ElasticConnection.OnConnectionListener,YoukuUIListener {
     private static final String TAG = "ContentFragment";
 
     private Context mContext;
@@ -111,6 +118,8 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
 
     private boolean mIsFetching = false;
 
+    private Recommend mRecommend ; // 推荐
+
     public ContentFragment() {
         // Required empty public constructor
     }
@@ -146,7 +155,7 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-
+        mRecommend = new Recommend(mContext,Content.TYPE_POST);
         // init the data set
         //mDataset = new ArrayList<Content>();
         mDataset = new ArrayList<Model>();
@@ -174,7 +183,14 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
         mConnection = new ElasticConnection(this);
         mQuery = (ElasticQuery) Content.find(mConnection);
         //mQuery.SetQueryBuilder(getQueryCondition());
+        // 设置查询条件
         mQuery.setJsonRequest(getQueryRequest());
+        // 设置排序，缺省为按照时间降序排序
+        if(mParam2.isEmpty()){
+            Sort sort = new Sort();
+            sort.add("created_at",Sort.SORT_DESC);
+            mQuery.setSort(sort);
+        }
         mQuery.all();
 
         mIsFetching = true;
@@ -183,16 +199,18 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
 
     private JSONObject getQueryRequest(){
         JSONObject request=null;
-        if(mParam2.isEmpty()){
-            Sort sort = new Sort();
-            sort.add("created_at",Sort.SORT_DESC);
-            mQuery.setSort(sort);
-        }
+        JSONArray likeArray=null;
+
         switch(mParam1){
             case Content.TYPE_PUSH:
                 Log.d(TAG,"参数2：" + mParam2);
                 if(mParam2.isEmpty()){
-                    request = QueryBuilder.matchAllQuery();
+                    likeArray=mRecommend.getLikeJsonArray();
+                    if (likeArray!=null){
+                        request = QueryBuilder.moreLikeThisQuery(likeArray, new String[]{"title", "content"});
+                    }else {
+                        request = QueryBuilder.matchAllQuery();
+                    }
                     Log.d(TAG,"Request is " + request.toString());
                 }else{
                     request = QueryBuilder.multiMatchQuery( mParam2, new String[]{"title", "content"});
@@ -308,7 +326,7 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
                             Log.d(TAG,content.getContentUrl());
                             String htmlData = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"+ "<html><body><h3>"+content.mTitle+"</h3>"+content.mContent+"</body></html>";
                             intent.putExtra("htmlData",htmlData);
-                            Log.d(TAG,htmlData);
+//                            Log.d(TAG,htmlData);
                             startActivity(intent);
                             break;
                         case Content.TYPE_VIDEO:
@@ -340,6 +358,8 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
                                 mIsPlayingVideo = true;
                                 mVideoPlayingPosition = position;
                             }
+                            // 记录video播放log
+                            ActionLogs.getInstance(getActivity()).add(ActionLog.ACTION_VIEW,content);
                             break;
                         case Content.TYPE_IMAGE:
                             stopVideoPlayer();
@@ -367,9 +387,12 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
                                     .setStartPosition(0)
                                     .setImageMargin(getContext(),R.dimen.image_margin)
                                     .setImageChangeListener(getImageChangeListener())
+                                    .setOnDismissListener(getImageDismissListener())
                                     .setCustomDraweeHierarchyBuilder(draweeHierarchyBuilder)
                                     .setOverlayView(mOverlayView)
                                     .show();
+                            // 开始记录用户图片的浏览
+                            ActionLogs.getInstance(getActivity()).start(ActionLog.ACTION_VIEW,content);
                             break;
                         default:
                             Toast.makeText(mContext,"Can not show this type content",Toast.LENGTH_SHORT).show();
@@ -409,26 +432,7 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
             public void onChildViewDetachedFromWindow(View view) {
                 int postion = mRecyclerView.getChildLayoutPosition(view);
                 if (mIsPlayingVideo && postion == mVideoPlayingPosition){
-                    //if (view.getTag()!=null && view.getTag().equals(VideoSource.VIDEO_SOURCE_YOUKU)){
-                        // 当优酷视频移出可视时 停止播放
-                        /*YoukuPlayerView youkuPlayerView = (YoukuPlayerView) view.findViewById(R.id.videoplayer);
-                        SimpleDraweeView youkuPlayerCoverImage = (SimpleDraweeView) view.findViewById(R.id.cvContentImage);
-                        ImageView youkuPlayerPlayIcon = (ImageView) view.findViewById(R.id.imagePlay);
-                        TextView youkuPlayerTitle = (TextView) view.findViewById(R.id.tvTitle);
-
-                        youkuPlayerView.release();
-                        youkuPlayerCoverImage.setVisibility(View.VISIBLE);
-                        youkuPlayerPlayIcon.setVisibility(View.VISIBLE);
-                        youkuPlayerTitle.setVisibility(View.VISIBLE);
-                        mIsPlayingVideo = false;*/
-//                        stopVideoPlayer();
-//                    }
-                    // 停止当前的jiaozivideo播放 已经移出可视区域
-                    /*JZVideoPlayer jzvd = view.findViewById(R.id.videoplayer_jiaozi);
-                    if (jzvd != null && JZUtils.dataSourceObjectsContainsUri(jzvd.dataSourceObjects, JZMediaManager.getCurrentDataSource())) {
-                        JZVideoPlayer.releaseAllVideos();
-                        mIsPlayingVideo = false;
-                    }*/
+                    // 当视频移出可视时 停止播放
                     stopVideoPlayer();
                     mIsPlayingVideo = false;
                 }
@@ -443,6 +447,8 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
 
         return fragmentView;
     }
+
+
 
     private void startJZVideoPlayer(View view){
         mCurrentJZVideoPlayer = view.findViewById(R.id.videoplayer_jiaozi);
@@ -466,6 +472,7 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
         mCurrentYoukuPlayerTitle.setVisibility(View.GONE);
         mCurrentYoukuPlayerView.setPlayerListener(new MyPlayerListener());
         mCurrentYoukuPlayerView.setShowBackBtn(false);
+        mCurrentYoukuPlayerView.setUIListener(this);
         mCurrentYoukuPlayerView.setPreferVideoDefinition(VideoDefinition.VIDEO_HD);
         mCurrentYoukuPlayerView.playYoukuVideo(vid);
         mCurrentYoukuPlayerShareToView.setVisibility(View.VISIBLE);
@@ -489,10 +496,23 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
             mCurrentYoukuPlayerDescriptionView.setVisibility(View.VISIBLE);
         }
         mIsPlayingVideo = false;
+        // 停止记录video播放log
+//        ActionLogs.getInstance(getActivity()).stop();
     }
 
     private void getMore() {
         if(mIsFetching) return;
+        if(mParam1.equals(Content.TYPE_PUSH)){
+            JSONArray likeJsonArray = mRecommend.getLikeJsonArray();
+            if (likeJsonArray!=null && mRecommend.isChanged()){
+                // 有新的推荐建议 按照新推荐查询
+                JSONObject jsonRequest = new JSONObject();
+                jsonRequest = QueryBuilder.moreLikeThisQuery(likeJsonArray,new String[]{"title","content"});
+                mQuery.setJsonRequest(jsonRequest);
+                mQuery.setSort(null);
+                mQuery.setPageFrom(0);
+            }
+        }
         mQuery.all();
         mIsFetching = true;
     }
@@ -517,6 +537,8 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
         Log.d(TAG,mParam1 +" Fragment onPause");
         if (mCurrentYoukuPlayerView!=null)  mCurrentYoukuPlayerView.onPause();
         //stopVideoPlayer();
+        // 停止记录video播放log
+//        ActionLogs.getInstance(getActivity()).stop();
     }
 
     @Override
@@ -565,6 +587,8 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
             mCurrentYoukuPlayerView.release();
             mCurrentYoukuPlayerView.onDestroy();
         }
+        // 停止记录video播放log
+//        ActionLogs.getInstance(getActivity()).stop();
     }
 
   /*  @Override
@@ -595,14 +619,30 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
         mIsFetching = false;
         if(c == Content.class && !responseDataList.isEmpty()){
             Log.d(TAG,"Get the content response from the server.");
-            mDataset.addAll(0,responseDataList);
+            //mDataset.addAll(0,responseDataList);
+            int count = addResponseList(0,responseDataList); // 去掉重复记录
             setViewType(responseDataList);
-            insertRefresh(responseDataList.size());
+            insertRefresh(count);
             if (mAdapter!=null) mAdapter.notifyDataSetChanged(); // 微博登录调试时增加 否则空指针
             if (mRecyclerView!=null) mRecyclerView.smoothScrollToPosition(0); // 微博登录调试时增加 否则空指针
         }
         mProgressDialog.dismiss();
         if (mRefreshLayout!=null) mRefreshLayout.setRefreshing(false); // 微博登录调试时增加 否则空指针
+    }
+
+    private int addResponseList(int index,ArrayList responseList) {
+        int count =0;
+        for (Object obj : responseList){
+            if (!mDataset.contains(obj)){
+                mDataset.add(index, (Content) obj);
+                index++;
+                count++;
+            }else{
+                Log.d(TAG,"Find the duplicated content"
+                    + ">>>" + ((Content)obj).mTitle);
+            }
+        }
+        return count;
     }
 
     //  插入刷新点，用户点击后自动刷新获得新数据
@@ -711,8 +751,31 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
 
     }
 
-    private class MyPlayerListener extends PlayerListener {
+    @Override
+    public void onBackBtnClick() {
 
+    }
+
+    @Override
+    public void onFullBtnClick() {
+        Log.d(TAG,"Youku full button clicked.");
+        if (mCurrentYoukuPlayerView.isPlaying()){
+            Log.d(TAG,"Youku is playing.");
+            if (mCurrentYoukuPlayerView.isFullScreen()){
+                mCurrentYoukuPlayerView.goSmallScreen();
+            }else {
+                mCurrentYoukuPlayerView.goFullScreen();
+            }
+        }
+    }
+
+    private class MyPlayerListener extends PlayerListener {
+        @Override
+        public void onRealVideoStart() {
+            super.onRealVideoStart();
+            Log.d(TAG,"Youku Real Video Start playing.");
+
+        }
     }
 
     /*
@@ -726,6 +789,19 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
                 mOverlayView.setShareText(mImagePostList.get(position));
                 mOverlayView.setDescription(String.valueOf(position+1)+"/"+ Integer.toString(mImagePostList.size())
                 + " " + mImageDescription);
+            }
+
+        };
+    }
+    /*
+     *   图片浏览消失监听
+     * */
+    private ImageViewer.OnDismissListener getImageDismissListener() {
+        return new ImageViewer.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                // 结束记录用户图片的浏览
+                ActionLogs.getInstance(getActivity()).stop();
             }
         };
     }

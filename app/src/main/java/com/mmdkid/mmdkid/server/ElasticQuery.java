@@ -13,8 +13,11 @@ import java.util.Map;
 
 public class ElasticQuery extends Query {
     private static final String LOG_TAG = "ElasticQuery";
+//    public static final String ELASTIC_QUERY = "query";
+//    public static final String ELASTIC_MORE_LIKE_THIS_QUERY = "more_like_this";
     private QueryBuilder mQueryBuider;
     private JSONObject mJsonRequest;
+//    private String mQueryType = ELASTIC_QUERY;
 
     public ElasticQuery(Connection conn) {
         super(conn);
@@ -26,6 +29,7 @@ public class ElasticQuery extends Query {
 
     public void setJsonRequest(JSONObject jsonObject){
         mJsonRequest = jsonObject;
+//        mQueryType = queryType;
     }
 
     @Override

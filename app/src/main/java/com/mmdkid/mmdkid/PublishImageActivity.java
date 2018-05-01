@@ -36,6 +36,7 @@ import com.mmdkid.mmdkid.adapters.PublishImageAdapter;
 import com.mmdkid.mmdkid.helper.Utility;
 import com.mmdkid.mmdkid.models.Token;
 import com.mmdkid.mmdkid.server.OkHttpManager;
+import com.umeng.analytics.MobclickAgent;
 import com.zhihu.matisse.Matisse;
 
 import java.io.File;
@@ -425,5 +426,19 @@ public class PublishImageActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         mLocationManager.removeUpdates(listener);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //友盟Session启动、App使用时长等基础数据统计
+        MobclickAgent.onResume(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        //友盟Session启动、App使用时长等基础数据统计
+        MobclickAgent.onPause(this);
     }
 }

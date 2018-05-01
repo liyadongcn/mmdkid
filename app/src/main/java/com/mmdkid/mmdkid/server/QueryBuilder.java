@@ -100,4 +100,21 @@ public class QueryBuilder {
         }
         return null;
     }
+
+    public static JSONObject moreLikeThisQuery(JSONArray like,String[]fields){
+        JSONObject jsonObject = new JSONObject();
+        JSONArray array = new JSONArray();
+        for(int i =0 ; i< fields.length; i++){
+            array.put(fields[i]);
+        }
+        try {
+            jsonObject.put("more_like_this",
+                    new JSONObject()
+                    .put("fields",array)
+                    .put("like",like));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return jsonObject;
+    }
 }

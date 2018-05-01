@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -34,6 +35,7 @@ import android.widget.Toast;
 
 import com.mmdkid.mmdkid.helper.HtmlUtil;
 import com.mmdkid.mmdkid.helper.ProgressDialog;
+import com.mmdkid.mmdkid.models.ActionLog;
 import com.mmdkid.mmdkid.models.Comment;
 import com.mmdkid.mmdkid.models.Content;
 import com.mmdkid.mmdkid.models.Diary;
@@ -42,6 +44,8 @@ import com.mmdkid.mmdkid.models.Model;
 import com.mmdkid.mmdkid.models.Token;
 import com.mmdkid.mmdkid.models.User;
 import com.mmdkid.mmdkid.server.RESTAPIConnection;
+import com.mmdkid.mmdkid.singleton.ActionLogs;
+import com.umeng.analytics.MobclickAgent;
 import com.umeng.socialize.ShareAction;
 import com.umeng.socialize.UMShareAPI;
 import com.umeng.socialize.UMShareListener;
@@ -77,6 +81,7 @@ public class WebViewActivity extends AppCompatActivity {
     public static final int FILECHOOSER_RESULTCODE = 5173;
     public static final int FILECHOOSER_RESULTCODE_FOR_ANDROID_5 = 5174;
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -241,8 +246,21 @@ public class WebViewActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        //友盟Session启动、App使用时长等基础数据统计
+        MobclickAgent.onResume(this);
+        //开始记录一个用户使用log
+        ActionLogs.getInstance(this).start(ActionLog.ACTION_VIEW,mModel);
         // 刷新登录信息
         getCurrentLoginUserInfo();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        //友盟Session启动、App使用时长等基础数据统计
+        MobclickAgent.onPause(this);
+        //结束记录一个用户使用log
+        ActionLogs.getInstance(this).stop();
     }
 
     @Override
@@ -390,6 +408,7 @@ public class WebViewActivity extends AppCompatActivity {
         }
     };
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void startWebView(List<String> cookies) {
 
         mWebView = (WebView) findViewById(R.id.webViewDetail);
@@ -466,13 +485,15 @@ public class WebViewActivity extends AppCompatActivity {
 
         mWebView.setWebViewClient(new WebViewClient(){
             public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
-                Toast.makeText(activity, "Oh no! " + description, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(activity, "Oh no! " + description, Toast.LENGTH_SHORT).show();
+                Log.d(TAG,"Oh no! " + description);
             }
 
             @Override
             public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
                 super.onReceivedError(view, request, error);
-                Toast.makeText(activity, "Oh no! " + error.toString(), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(activity, "Oh no! " + error.toString(), Toast.LENGTH_SHORT).show();
+                Log.d(TAG,"Oh no! " +  error.toString());
             }
         });
 

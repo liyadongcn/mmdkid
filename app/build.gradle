@@ -7,8 +7,8 @@ android {
         applicationId "com.mmdkid.mmdkid"
         minSdkVersion 16
         targetSdkVersion 25
-        versionCode 34
-        versionName '0.8.34'
+        versionCode 36
+        versionName '0.8.36'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
@@ -89,17 +89,7 @@ dependencies {
     androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-/*    implementation files('libs/umeng/umeng_social_api.jar')
-    implementation files('libs/umeng/umeng_social_net.jar')
-    implementation files('libs/umeng/umeng_social_tool.jar')
-    implementation files('libs/umeng/open_sdk_r5788_lite.jar')
-    implementation files('libs/umeng/SocialSDK_QQ_Full.jar')
-    implementation files('libs/umeng/SocialSDK_WeiXin_Full.jar')
-    implementation files('libs/umeng/wechat-sdk-android-with-mta-1.1.6.jar')
-    implementation files('libs/umeng/SocialSDK_Sina_Full.jar')
-    implementation files('libs/umeng/weiboSDKCore.jar')
-    implementation files('libs/umeng/umeng_social_shareboard.jar')
-    implementation files('libs/umeng/umeng_shareboard_widget.jar')*/
+
     //PushSDK必须依赖基础组件库，所以需要加入对应依赖
     implementation 'com.umeng.sdk:common:1.5.0'
     //PushSDK必须依赖utdid库，所以需要加入对应依赖
@@ -111,6 +101,8 @@ dependencies {
     implementation 'com.umeng.sdk:share-qq:6.9.0'
     implementation 'com.umeng.sdk:share-wechat:6.9.0'
     implementation 'com.umeng.sdk:share-sina:6.9.0'
+    //友盟分析
+    implementation 'com.umeng.sdk:analytics:7.5.0'
 
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support:design:27.1.1'
@@ -119,7 +111,7 @@ dependencies {
     implementation 'com.android.support:support-v4:27.1.1'
     implementation 'com.roughike:bottom-bar:2.3.1'
     //implementation 'fm.jiecao:jiecaovideoplayer:5.5.4'
-    implementation 'cn.jzvd:jiaozivideoplayer:6.2.3'
+    implementation 'cn.jzvd:jiaozivideoplayer:6.2.9'
     implementation 'com.google.android.gms:play-services-appindexing:9.8.0'
     implementation 'com.android.volley:volley:1.0.0'
     implementation 'com.android.support:multidex:1.0.1'

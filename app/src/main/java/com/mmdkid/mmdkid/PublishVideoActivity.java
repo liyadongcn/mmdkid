@@ -28,6 +28,7 @@ import com.mmdkid.mmdkid.helper.MediaDecoder;
 import com.mmdkid.mmdkid.helper.Utility;
 import com.mmdkid.mmdkid.models.Token;
 import com.mmdkid.mmdkid.server.OkHttpManager;
+import com.umeng.analytics.MobclickAgent;
 import com.zhihu.matisse.Matisse;
 import com.zhihu.matisse.MimeType;
 import com.zhihu.matisse.engine.impl.PicassoEngine;
@@ -321,6 +322,8 @@ public class PublishVideoActivity extends AppCompatActivity implements View.OnCl
     @Override
     protected void onPause() {
         super.onPause();
+        //友盟Session启动、App使用时长等基础数据统计
+        MobclickAgent.onPause(this);
         JZVideoPlayer.releaseAllVideos();
     }
 
@@ -347,4 +350,13 @@ public class PublishVideoActivity extends AppCompatActivity implements View.OnCl
             }
         }).start();
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //友盟Session启动、App使用时长等基础数据统计
+        MobclickAgent.onResume(this);
+    }
+
+
 }

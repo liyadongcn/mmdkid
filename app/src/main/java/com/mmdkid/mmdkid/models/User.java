@@ -28,6 +28,7 @@ public class User extends Model {
     private final static String URI_SIGNUP_EMAIL = "v1/signupemail";
     private final static String URI_AUTO_SINGUP = "v1/auto";
     private final static String URI_RESET_PASSWORD = "resetPassword";
+    private final static String URI_USER_INFO = "v1/userinfo"; // 取得用户信息 可以是非登录用户
     private final static String URI = "v1/users";
     private final static String AUTO_CREATE_SECRET_KEY = "123456";
 
@@ -45,6 +46,7 @@ public class User extends Model {
     public static final String ACTION_SIGNUP_PHONE= "signupphone";
     public static final String ACTION_SIGNUP_EMAIL= "signupemail";
     public static final String ACTION_RESET_PASSWORD= "reset_password";
+    public static final String ACTION_GET_USER_INFO= "userinfo";
 
     public int mId;
     public String mUsername;
@@ -132,7 +134,9 @@ public class User extends Model {
         }
         return null;
     }
-
+    /**
+     *  使用服务器返回的json格式数据 生成一个Users用户类列表
+     */
     public static ArrayList<User> populateModels(JSONObject response){
         Log.d(TAG,"Get response to populate the user model."+response.toString());
         ArrayList<User> arrayList = new ArrayList<User>();
@@ -177,22 +181,9 @@ public class User extends Model {
         return arrayList;
     }
 
-    /*public static ArrayList<User> populateModel(JSONObject response) {
-        Log.d(TAG,"Get response to populate the user model."+response.toString());
-        ArrayList<User> arrayList = new ArrayList<User>();
-        User user = new User();
-        try {
-            user.mUsername = response.getString("user_name");
-            user.mId = response.getInt("id");
-            user.mEmail = response.getString("email");
-            user.mAvatar = response.getString("avatar");
-            arrayList.add(user);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return arrayList;
-    }*/
-
+    /**
+     *  使用服务器返回的json格式数据 生成一个User用户类
+     */
     public static User populateModel(JSONObject response) {
         Log.d(TAG,"Get response to populate the user model."+response.toString());
         try {
@@ -298,25 +289,16 @@ public class User extends Model {
         connection.create(user);
     }
 
-   /* public static void autoSignup(LoginActivity.ShareUserInfo userInfo,Context context,RESTAPIConnection.OnConnectionListener listener){
-        RESTAPIConnection connection = new RESTAPIConnection(context);
-        connection.setListener(listener);
-        User user = new User();
-        user.mAvatar = userInfo.iconurl;
-        user.mNickname = userInfo.name;
-        user.mRole = ROLE_PARENT;
-        connection.action(ACTION_AUTO_SIGNUP,user);
-    }*/
-
-
     public String getDisplayName(){
-        if( mNickname.equals("null") || mNickname.equals("")){
+        if(mNickname==null || mNickname.equals("null") || mNickname.equals("")){
             return mUsername;
         }else{
             return mNickname;
         }
     }
-
+    /**
+     * 生成Json request 用于除查询以外的操作
+     */
     @Override
     public JSONObject getJsonRequest(String action,Connection connection) {
         JSONObject request = new JSONObject();
@@ -402,6 +384,13 @@ public class User extends Model {
                 }
                 Log.d(TAG,"User reset password json object is :" + request.toString());
                 return  request;
+            case User.ACTION_GET_USER_INFO:
+                // 不需要访问Token就能访问用户信息，主要是针对非登录用户可以获得用户信息使用
+                ((RESTAPIConnection) connection).setRequestMethod(Request.Method.GET);
+                connection.URL = connection.URL + URI_USER_INFO + "/" + mId +"?secret="+ AUTO_CREATE_SECRET_KEY;
+                ((RESTAPIConnection) connection).ACCESS_TOKEN ="";
+                Log.d(TAG,"User get user info json object is :" +  connection.URL);
+                return  request;
 
         }
         return null;
@@ -428,15 +417,18 @@ public class User extends Model {
         return null;
     }
 
-
-    /*@Override
-    public void save(String action ,Context context, RESTAPIConnection.OnConnectionListener listener) {
-        RESTAPIConnection connection = new RESTAPIConnection(context);
-        connection.setListener(listener);
-        connection.excute(this.getJsonRequest(action,connection),User.class);
-    }*/
-
     public String getUrl(){
         return "http://www.mmdkid.cn/index.php?r=user/show-me&theme=app&id="+this.mId;
+    }
+    /**
+     *  使用固定约定好的secret信息访问用户信息
+     *  本方法主要针对未登录用户使用用户信息，例如未登录用户能看到信息发布者的头像及名字
+     */
+    public static void getUserInfo(int id,Context context, RESTAPIConnection.OnConnectionListener listener){
+        RESTAPIConnection connection = new RESTAPIConnection(context);
+        connection.setListener(listener);
+        User user = new User();
+        user.mId = id;
+        connection.excute(user.getJsonRequest(User.ACTION_GET_USER_INFO,connection),User.class);
     }
 }

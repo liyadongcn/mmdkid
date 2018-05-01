@@ -243,7 +243,7 @@ public class ImageOverlayView extends RelativeLayout {
             return;
         }
         if (content.mCreatedBy == 0) return;
-        User.find(mContext, new RESTAPIConnection.OnConnectionListener() {
+        /*User.find(mContext, new RESTAPIConnection.OnConnectionListener() {
             @Override
             public void onErrorRespose(Class c, String error) {
                 // 查找用户信息出错
@@ -260,7 +260,25 @@ public class ImageOverlayView extends RelativeLayout {
                     mUserAvatarView.setImageURI(content.mUser.mAvatar);
                 }
             }
-        }).where("id",String.valueOf(content.mCreatedBy)).all();
+        }).where("id",String.valueOf(content.mCreatedBy)).all();*/
+        User.getUserInfo(content.mCreatedBy,mContext, new RESTAPIConnection.OnConnectionListener() {
+            @Override
+            public void onErrorRespose(Class c, String error) {
+                // 查找用户信息出错
+                Log.d(TAG,"Get the create user info failed. " );
+            }
+
+            @Override
+            public void onResponse(Class c, ArrayList responseDataList) {
+                // 查找用户信息成功
+                if (c == User.class && !responseDataList.isEmpty()){
+                    content.mUser = (User) responseDataList.get(0); // 起到缓存的作用
+                    Log.d(TAG,"Get the create user info : " + content.mUser.mId);
+                    mUserNameView.setText(content.mUser.getDisplayName());
+                    mUserAvatarView.setImageURI(content.mUser.mAvatar);
+                }
+            }
+        });
     }
     // 当前用户取消收藏
     private void unstar() {

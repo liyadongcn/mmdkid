@@ -10,9 +10,12 @@ import com.facebook.imagepipeline.core.ImagePipelineConfig;
 import com.facebook.imagepipeline.decoder.SimpleProgressiveJpegConfig;
 import com.mmdkid.mmdkid.channel.ChannelEntity;
 import com.mmdkid.mmdkid.helper.ListDataSave;
+import com.mmdkid.mmdkid.models.ActionLog;
 import com.mmdkid.mmdkid.models.Token;
 import com.mmdkid.mmdkid.models.User;
 import com.mmdkid.mmdkid.server.RESTAPIConnection;
+import com.mmdkid.mmdkid.singleton.ActionLogs;
+import com.umeng.analytics.MobclickAgent;
 import com.umeng.commonsdk.UMConfigure;
 import com.umeng.message.IUmengRegisterCallback;
 import com.umeng.message.PushAgent;
@@ -39,6 +42,7 @@ public class App extends Application {
     private static final String PREF_CHANNELS = "channels";
     private static final String PREF_OTHER_CHANNELS = "otherchannels";
     private static final String PREF_COOKIES = "cookies";
+    private static final String PREF_LOGS = "logs";
 
     private boolean mIsGuest = true;
 
@@ -73,7 +77,8 @@ public class App extends Application {
         //需要查看友盟调试信息时打开
         //Config.DEBUG = true;
         UMShareAPI.get(this);
-
+        //场景类型设置
+        MobclickAgent.setScenarioType(this, MobclickAgent.EScenarioType.E_UM_NORMAL);
        /*
         * 友盟消息推送注册
         * 参考：http://dev.umeng.com/push/android/integration#2_2_7
@@ -221,7 +226,9 @@ public class App extends Application {
         }
 
     }
-
+    /**
+     * 从本地SharedPreferences得到历史搜索词列表
+     */
     public ArrayList<String> getHistoryKeyWords(){
         SharedPreferences settings = getSharedPreferences(PREFS_SEARCH,Context.MODE_PRIVATE);
         Set<String> wordsSet = settings.getStringSet(PREF_HISTORY_KEYWORDS,null);
@@ -233,14 +240,18 @@ public class App extends Application {
             return  list;
         }
     }
-
+    /**
+     * 保存历史搜索词到本地SharedPreferences
+     */
     public void setHistoryKeyWords(ArrayList<String> words){
         SharedPreferences settings = getSharedPreferences(PREFS_SEARCH, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
         editor.putStringSet(PREF_HISTORY_KEYWORDS,new LinkedHashSet<String>(words));
         editor.commit();
     }
-
+    /**
+     * 清空本地SharedPreferences中的历史搜索词列表
+     */
     public void clearHistoryKeyWords(){
         SharedPreferences settings = getSharedPreferences(PREFS_SEARCH, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
@@ -286,7 +297,9 @@ public class App extends Application {
         editor.putStringSet(PREF_HOT_KEYWORDS,null);
         editor.commit();
     }
-
+    /**
+     *  读取用户设置的频道
+     */
     public  ArrayList<ChannelEntity> getChannels(){
         ListDataSave channelListDataSave = new ListDataSave(this,PREFS_NAME);
         List<ChannelEntity> channels = channelListDataSave.getDataList(PREF_CHANNELS,ChannelEntity.class);
@@ -316,19 +329,25 @@ public class App extends Application {
         setChannels(channelEntities);
         return channelEntities;
     }
-
+    /**
+     *  保存用户设置的频道
+     */
     public void setChannels(ArrayList<ChannelEntity> channelEntities){
         ListDataSave channelListDataSave = new ListDataSave(this, App.PREFS_NAME);
         channelListDataSave.setDataList(PREF_CHANNELS,channelEntities);
     }
-
+    /**
+     *  清空用户设置的频道
+     */
     public void clearChannels(){
         SharedPreferences settings = getSharedPreferences(App.PREFS_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
         editor.putString(PREF_CHANNELS,null);
         editor.commit();
     }
-
+    /**
+     *  读取用户未使用的频道
+     */
     public  ArrayList<ChannelEntity> getOtherChannels(){
         ListDataSave channelListDataSave = new ListDataSave(this, App.PREFS_NAME);
         List<ChannelEntity> channels = channelListDataSave.getDataList(PREF_OTHER_CHANNELS,ChannelEntity.class);
@@ -357,10 +376,43 @@ public class App extends Application {
         setOtherChannels(channelEntities);
         return channelEntities;
     }
-
+    /**
+     *  保存用户未设置使用的频道
+     */
     public void setOtherChannels(ArrayList<ChannelEntity> channelEntities){
         ListDataSave channelListDataSave = new ListDataSave(this, App.PREFS_NAME);
         channelListDataSave.setDataList(PREF_OTHER_CHANNELS,channelEntities);
+    }
+
+    /**
+     *  保存用户使用记录
+     */
+    public void setLogs(ArrayList<ActionLog> logList) {
+        ListDataSave logListDataSave = new ListDataSave(this, App.PREFS_NAME);
+        logListDataSave.setDataList(PREF_LOGS, logList);
+    }
+
+    /**
+     *  读取用户使用记录
+     */
+    public ArrayList<ActionLog> getLogs() {
+        ListDataSave logListDataSave = new ListDataSave(this, App.PREFS_NAME);
+        List<ActionLog> logs = logListDataSave.getDataList(PREF_LOGS,ActionLog.class);
+        Log.d(TAG,"Logs is " + logs.toString());
+       /* if (channels==null || channels.isEmpty()){
+            return getDefaultOtherChannels();
+        }
+        Log.d(TAG,"Get the channels from the channels tag.");*/
+        return (ArrayList<ActionLog>) logs;
+    }
+    /**
+     *  清除使用记录
+     */
+    public void clearLogs() {
+        SharedPreferences settings = getSharedPreferences(App.PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString(PREF_LOGS,null);
+        editor.commit();
     }
 }
 

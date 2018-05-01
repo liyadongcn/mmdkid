@@ -23,7 +23,7 @@ public class CheckUpdateUtilTest {
         String[] command = {"chmod", "777", file.getPath() };
         ProcessBuilder builder = new ProcessBuilder(command);
         builder.start();
-        CheckUpdateUtil.installApk(appContext,file);
+        //CheckUpdateUtil.installApk(appContext,file);
     }
 
 }

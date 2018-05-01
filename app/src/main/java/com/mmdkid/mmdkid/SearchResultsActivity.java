@@ -27,6 +27,7 @@ import com.mmdkid.mmdkid.adapters.TextAdapter;
 import com.mmdkid.mmdkid.fragments.ContentFragment;
 import com.mmdkid.mmdkid.models.Content;
 import com.mmdkid.mmdkid.providers.HistorySuggestionsProvider;
+import com.umeng.analytics.MobclickAgent;
 
 import java.util.ArrayList;
 
@@ -420,6 +421,18 @@ public class SearchResultsActivity extends AppCompatActivity implements View.OnC
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //友盟Session启动、App使用时长等基础数据统计
+        MobclickAgent.onResume(this);
+    }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        //友盟Session启动、App使用时长等基础数据统计
+        MobclickAgent.onPause(this);
+    }
 
 }

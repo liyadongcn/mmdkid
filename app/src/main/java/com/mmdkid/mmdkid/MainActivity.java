@@ -34,10 +34,12 @@ import com.mmdkid.mmdkid.helper.Utility;
 import com.mmdkid.mmdkid.models.Token;
 import com.mmdkid.mmdkid.models.User;
 import com.mmdkid.mmdkid.models.login.Login;
+import com.mmdkid.mmdkid.singleton.ActionLogs;
 import com.mmdkid.mmdkid.update.CheckUpdateUtil;
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnTabReselectListener;
 import com.roughike.bottombar.OnTabSelectListener;
+import com.umeng.analytics.MobclickAgent;
 import com.umeng.message.PushAgent;
 
 import java.util.List;
@@ -565,6 +567,8 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
     @Override
     protected void onResume() {
         super.onResume();
+        //友盟Session启动、App使用时长等基础数据统计
+        MobclickAgent.onResume(this);
         Log.d(TAG,"MainActivity is onResume.");
         App app = (App) getApplicationContext();
         if(!app.isGuest()){
@@ -577,6 +581,8 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
     @Override
     protected void onPause() {
         super.onPause();
+        //友盟Session启动、App使用时长等基础数据统计
+        MobclickAgent.onPause(this);
         JZVideoPlayer.releaseAllVideos();
     }
 
@@ -609,6 +615,8 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
                 mBottomBar.getTabWithId(R.id.tab_me).setTitle("未登录");
             }
         }
+        // 读取用户上次的浏览记录
+        ActionLogs.getInstance(this).setLogList(app.getLogs());
     }
 
    /* private void attemptToGetUserInfo(String identity,String accessToken) {

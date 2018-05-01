@@ -38,6 +38,7 @@ public class ElasticConnection extends Connection {
     @Override
     public void Query(final Query query) {
         JSONObject jsonRequest = query.GetRequest();
+        Log.d(TAG,"Elatic Json Request is >>>" + jsonRequest.toString());
         final JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                 (Request.Method.POST, this.URL, jsonRequest, new Response.Listener<JSONObject>() {
 
