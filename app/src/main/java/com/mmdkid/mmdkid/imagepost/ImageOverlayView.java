@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.mmdkid.mmdkid.App;
+import com.mmdkid.mmdkid.HomePageActivity;
 import com.mmdkid.mmdkid.LoginActivity;
 import com.mmdkid.mmdkid.R;
 import com.mmdkid.mmdkid.WebViewActivity;
@@ -62,6 +63,7 @@ public class ImageOverlayView extends RelativeLayout {
     private LinearLayout mCommentLayout;
     private SimpleDraweeView mUserAvatarView;
     private TextView mUserNameView;
+    private TextView mUserDescriptionView;
 
     private boolean mIsStared=false;
     private Behavior mBehaviorStar; // 当前收藏记录
@@ -221,6 +223,8 @@ public class ImageOverlayView extends RelativeLayout {
         mUserAvatarView = (SimpleDraweeView) findViewById(R.id.sdvAvatar);
         // 用户昵称
         mUserNameView = (TextView) findViewById(R.id.tvUsername);
+        // 用户签名
+        mUserDescriptionView = (TextView) findViewById(R.id.tvUserDescription);
         // 初始化用户信息
         initUser();
         // 设置用户头像点击操作
@@ -228,8 +232,11 @@ public class ImageOverlayView extends RelativeLayout {
             @Override
             public void onClick(View view) {
                 if (content.mUser!= null){
-                    Intent intent = new Intent(mContext,WebViewActivity.class);
+                    /*Intent intent = new Intent(mContext,WebViewActivity.class);
                     intent.putExtra("url",content.mUser.getUrl());
+                    mContext.startActivity(intent);*/
+                    Intent intent = new Intent(mContext, HomePageActivity.class);
+                    intent.putExtra("model",content.mUser);
                     mContext.startActivity(intent);
                 }
             }
@@ -240,6 +247,11 @@ public class ImageOverlayView extends RelativeLayout {
         if (content.mUser != null){
             mUserNameView.setText(content.mUser.getDisplayName());
             mUserAvatarView.setImageURI(content.mUser.mAvatar);
+            if(content.mUser.mSignature==null || content.mUser.mSignature.isEmpty()){
+                mUserDescriptionView.setText(R.string.homepage_no_signature);
+            }else{
+                mUserDescriptionView.setText(content.mUser.mSignature);
+            }
             return;
         }
         if (content.mCreatedBy == 0) return;
@@ -276,6 +288,11 @@ public class ImageOverlayView extends RelativeLayout {
                     Log.d(TAG,"Get the create user info : " + content.mUser.mId);
                     mUserNameView.setText(content.mUser.getDisplayName());
                     mUserAvatarView.setImageURI(content.mUser.mAvatar);
+                    if(content.mUser.mSignature==null || content.mUser.mSignature.isEmpty()){
+                        mUserDescriptionView.setText(R.string.homepage_no_signature);
+                    }else{
+                        mUserDescriptionView.setText(content.mUser.mSignature);
+                    }
                 }
             }
         });

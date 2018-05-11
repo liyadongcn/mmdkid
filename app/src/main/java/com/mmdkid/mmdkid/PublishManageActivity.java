@@ -16,7 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.mmdkid.mmdkid.fragments.publishManage.ImageFragment;
+import com.mmdkid.mmdkid.fragments.publishManage.v2.ImageFragment;
 import com.mmdkid.mmdkid.fragments.publishManage.PostFragment;
 import com.mmdkid.mmdkid.fragments.publishManage.VideoFragment;
 

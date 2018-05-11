@@ -16,11 +16,13 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.mmdkid.mmdkid.App;
+import com.mmdkid.mmdkid.HomePageActivity;
 import com.mmdkid.mmdkid.R;
 import com.mmdkid.mmdkid.WebViewActivity;
 import com.mmdkid.mmdkid.adapters.ModelRecyclerAdapter;
 import com.mmdkid.mmdkid.helper.ProgressDialog;
 import com.mmdkid.mmdkid.models.Behavior;
+import com.mmdkid.mmdkid.models.Content;
 import com.mmdkid.mmdkid.models.Model;
 import com.mmdkid.mmdkid.models.Token;
 import com.mmdkid.mmdkid.models.User;
@@ -149,8 +151,11 @@ public class FollowingFragment extends Fragment {
         mRecyclerView.addOnItemTouchListener(new RecyclerViewClickListener(mContext, mRecyclerView, new RecyclerViewClickListener.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                Intent intent = new Intent(getContext(), WebViewActivity.class);
+                /*Intent intent = new Intent(getContext(), WebViewActivity.class);
                 intent.putExtra("url",((User)mDataset.get(position)).getUrl());
+                startActivity(intent);*/
+                Intent intent = new Intent(getActivity(), HomePageActivity.class);
+                intent.putExtra("model",(User)mDataset.get(position));
                 startActivity(intent);
             }
 

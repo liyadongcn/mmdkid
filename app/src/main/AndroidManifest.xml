@@ -7,7 +7,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"
+    <uses-permission
+        android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"
         tools:ignore="ProtectedPermissions" />
 
     <!-- To auto-complete the email text field in the login form with the user's emails -->
@@ -26,7 +27,8 @@
     <uses-permission android:name="com.android.launcher.permission.READ_SETTINGS" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
-    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL"
+    <uses-permission
+        android:name="android.permission.INTERACT_ACROSS_USERS_FULL"
         tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.READ_SMS" />
@@ -170,7 +172,7 @@
         <activity
             android:name=".FollowActivity"
             android:label="@string/title_activity_follow"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".HistoryActivity"
             android:label="@string/title_activity_history"
@@ -223,11 +225,17 @@
             android:name=".PublishManageActivity"
             android:label="@string/title_activity_publish_manager"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
-        <activity android:name=".ProfileActivity"
+        <activity
+            android:name=".ProfileActivity"
             android:label="@string/title_activity_profile"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar" ></activity>
-        <activity android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
-            android:theme="@style/Base.Theme.AppCompat"/> <!-- optional (needed if default theme has no action bar) -->
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
+            android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
+            android:theme="@style/Base.Theme.AppCompat" /> <!-- optional (needed if default theme has no action bar) -->
+        <activity
+            android:name=".HomePageActivity"
+            android:label="@string/title_activity_home_page"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

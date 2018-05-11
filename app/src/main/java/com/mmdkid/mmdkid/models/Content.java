@@ -31,12 +31,6 @@ public class Content extends Model {
     public static final String TYPE_HOT = "hot";
     public static final String TYPE_PUSH = "push";
 
-
-
-  /*  public static final int TYPE_VIDEO_INT = 1;
-    public static final int TYPE_POST_INT = 2;
-    public static final int TYPE_IMAGE_INT = 3;*/
-
     public String mId;
     public String mTitle;
     public String mCreatedAt;
@@ -106,7 +100,7 @@ public class Content extends Model {
             content.mCreatedAt = jsonObject.getString("created_at");
             content.mContent = jsonObject.getString("content");
             if (jsonObject.has("id")) content.mId = jsonObject.getString("id");
-            if (jsonObject.has("source_name")) content.mSource_name = jsonObject.getString("source_name");
+            if (jsonObject.has("source_name") && !jsonObject.isNull("source_name")) content.mSource_name = jsonObject.getString("source_name");
             if (jsonObject.has("source_url")) content.mSource_url = jsonObject.getString("source_url");
             if (jsonObject.has("author")) {
                 content.mAuthor = jsonObject.getString("author");

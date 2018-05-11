@@ -31,8 +31,10 @@ import android.webkit.WebViewClient;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.drawee.view.SimpleDraweeView;
 import com.mmdkid.mmdkid.helper.HtmlUtil;
 import com.mmdkid.mmdkid.helper.ProgressDialog;
 import com.mmdkid.mmdkid.models.ActionLog;
@@ -45,6 +47,7 @@ import com.mmdkid.mmdkid.models.Token;
 import com.mmdkid.mmdkid.models.User;
 import com.mmdkid.mmdkid.server.RESTAPIConnection;
 import com.mmdkid.mmdkid.singleton.ActionLogs;
+
 import com.umeng.analytics.MobclickAgent;
 import com.umeng.socialize.ShareAction;
 import com.umeng.socialize.UMShareAPI;
@@ -60,9 +63,14 @@ public class WebViewActivity extends AppCompatActivity {
 
     private final static String TAG = "WebViewActivity";
 
-    private User mCurrentUser;
+    private User mCurrentUser;  // 当前用户
     private Token mCurrentToken;
     private Model mModel;
+    private User mUser;         // 当前内容发布者
+
+    private SimpleDraweeView mUserAvatarView;// 内容发布者头像
+    private TextView mUserNameView;          // 内容发布者名字
+    private TextView mUserDescriptionView;  // 内容发布者个人签名
 
     private WebView mWebView;
     private ContentLoadingProgressBar mProgressBar;
@@ -138,12 +146,90 @@ public class WebViewActivity extends AppCompatActivity {
             startWebView(null);
         }
 
+        // 用户头像
+        mUserAvatarView = (SimpleDraweeView) findViewById(R.id.sdvAvatar);
+        // 用户昵称
+        mUserNameView = (TextView) findViewById(R.id.tvUsername);
+        // 用户签名
+        mUserDescriptionView = (TextView) findViewById(R.id.tvUserDescription);
+        // 初始化用户信息
+        //showUser();
 
-        //startWebView(null);
+    }
+    private void setUserOnToolbarVisibility(int visibility){
+        // 用户头像
+        mUserAvatarView.setVisibility(visibility);
+        // 用户昵称
+        mUserNameView.setVisibility(visibility);
+        // 用户签名
+        mUserDescriptionView.setVisibility(visibility);
+    }
+    private void showUserOnToolbar() {
+        // 浏览器浏览非content数据
+        if (!(mModel instanceof Content)) return;
+        final Content content = (Content) mModel;
+        if (content.mSource_name!=null && !content.mSource_name.isEmpty()) return; // 转载内容不显示创建者
+        if (content.mUser != null){
+            setUserOnToolbarVisibility(View.VISIBLE);
+            mUserNameView.setText(content.mUser.getDisplayName());
+            mUserAvatarView.setImageURI(content.mUser.mAvatar);
+            if(content.mUser.mSignature==null || content.mUser.mSignature.isEmpty()){
+                mUserDescriptionView.setText(R.string.homepage_no_signature);
+            }else{
+                mUserDescriptionView.setText(content.mUser.mSignature);
+            }
+            // 设置用户头像点击操作
+            mUserAvatarView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (((Content)mModel).mUser!= null){
+                    /*Intent intent = new Intent(mContext,WebViewActivity.class);
+                    intent.putExtra("url",content.mUser.getUrl());
+                    mContext.startActivity(intent);*/
+                        Intent intent = new Intent(WebViewActivity.this, HomePageActivity.class);
+                        intent.putExtra("model",((Content)mModel).mUser);
+                        startActivity(intent);
+                    }
+                }
+            });
+            return;
+        }
+        if (content.mCreatedBy == 0) return;
+        User.getUserInfo(content.mCreatedBy,this, new RESTAPIConnection.OnConnectionListener() {
+            @Override
+            public void onErrorRespose(Class c, String error) {
+                // 查找用户信息出错
+                Log.d(TAG,"Get the create user info failed. " );
+            }
 
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        //client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+            @Override
+            public void onResponse(Class c, ArrayList responseDataList) {
+                // 查找用户信息成功
+                if (c == User.class && !responseDataList.isEmpty()){
+                    content.mUser = (User) responseDataList.get(0); // 起到缓存的作用
+                    Log.d(TAG,"Get the create user info : " + content.mUser.mId);
+                    setUserOnToolbarVisibility(View.VISIBLE);
+                    mUserNameView.setText(content.mUser.getDisplayName());
+                    mUserAvatarView.setImageURI(content.mUser.mAvatar);
+                    if(content.mUser.mSignature==null || content.mUser.mSignature.isEmpty()){
+                        mUserDescriptionView.setText(R.string.homepage_no_signature);
+                    }else{
+                        mUserDescriptionView.setText(content.mUser.mSignature);
+                    }
+                    // 设置用户头像点击操作
+                    mUserAvatarView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            if (((Content)mModel).mUser!= null){
+                                Intent intent = new Intent(WebViewActivity.this, HomePageActivity.class);
+                                intent.putExtra("model",((Content)mModel).mUser);
+                                startActivity(intent);
+                            }
+                        }
+                    });
+                }
+            }
+        });
     }
 
     private void showProgressDialog(boolean show){
@@ -495,6 +581,22 @@ public class WebViewActivity extends AppCompatActivity {
                 //Toast.makeText(activity, "Oh no! " + error.toString(), Toast.LENGTH_SHORT).show();
                 Log.d(TAG,"Oh no! " +  error.toString());
             }
+
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                Uri uri = request.getUrl();
+                Log.d(TAG,"Url is clicked :"+uri.toString());
+                Log.d(TAG,"Url scheme :"+uri.getScheme());
+                Log.d(TAG,"Url path :"+uri.getPath());
+                Log.d(TAG,"Url host :"+uri.getHost());
+                Log.d(TAG,"Url encodedQuery :"+uri.getEncodedQuery());
+                if (uri.getScheme().equals("http") && uri.getHost().equals("www.mmdkid.cn") && uri.getEncodedQuery().contains("r=user%2Fshow-me")) {
+                    showUserHomePage();
+                    //表示告诉系统我们已经拦截了URL并做处理，不需要再触发系统默认的行为
+                    return true;
+                }
+                return super.shouldOverrideUrlLoading(view, request);
+            }
         });
 
         if (TextUtils.isEmpty(url) ) {
@@ -564,5 +666,40 @@ public class WebViewActivity extends AppCompatActivity {
             mUploadMessage5 = null;
         }
     }
+    private void showUserHomePage(){
+        // 浏览器浏览非content数据
+        if (!(mModel instanceof Content)) return;
+        final Content content = (Content) mModel;
+        /*if (content.mSource_name!=null && !content.mSource_name.isEmpty()){
+            Log.d(TAG,"Content source name :" + content.mSource_name);
+            return; // 转载内容不显示创建者
+        }*/
+        if (content.mUser != null){
+            Intent intent = new Intent(WebViewActivity.this, HomePageActivity.class);
+            intent.putExtra("model",((Content)mModel).mUser);
+            startActivity(intent);
+            return;
+        }
+        if (content.mCreatedBy == 0) return;
+        User.getUserInfo(content.mCreatedBy,this, new RESTAPIConnection.OnConnectionListener() {
+            @Override
+            public void onErrorRespose(Class c, String error) {
+                // 查找用户信息出错
+                Log.d(TAG,"Get the create user info failed. " );
+            }
 
+            @Override
+            public void onResponse(Class c, ArrayList responseDataList) {
+                // 查找用户信息成功
+                if (c == User.class && !responseDataList.isEmpty()){
+                    content.mUser = (User) responseDataList.get(0); // 起到缓存的作用
+                    Log.d(TAG,"Get the create user info : " + content.mUser.mId);
+                    Intent intent = new Intent(WebViewActivity.this, HomePageActivity.class);
+                    intent.putExtra("model", content.mUser);
+                    startActivity(intent);
+                }
+            }
+        });
+
+    }
 }

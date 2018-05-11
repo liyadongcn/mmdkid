@@ -1,6 +1,8 @@
 package com.mmdkid.mmdkid.fragments.viewHolders;
 
 import android.content.Context;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.v7.widget.CardView;
 import android.view.View;
 import android.widget.ImageView;
@@ -8,6 +10,7 @@ import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.mmdkid.mmdkid.R;
+import com.mmdkid.mmdkid.models.Content;
 import com.mmdkid.mmdkid.models.ImagePost;
 import com.mmdkid.mmdkid.models.Model;
 
@@ -22,10 +25,12 @@ public class PublishManageImageViewHolder extends ModelViewHolder {
     public TextView mTextViewTitle;
     public TextView mTextViewDate;
     public TextView mTextViewDescription;
+    public TextView mTextViewImageCount;
     public SimpleDraweeView mImageViewContent;
     public ImageView mDeleteView;
     public Context mContext;
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public PublishManageImageViewHolder(View itemView) {
         super(itemView);
         mContext = itemView.getContext();
@@ -34,6 +39,7 @@ public class PublishManageImageViewHolder extends ModelViewHolder {
         mTextViewTitle = (TextView)itemView.findViewById(R.id.cvContentTitle);
         mTextViewDate = (TextView)itemView.findViewById(R.id.cvContentDate);
         mTextViewDescription = (TextView)itemView.findViewById(R.id.tvContentDescription);
+        mTextViewImageCount = (TextView)itemView.findViewById(R.id.tvImageCount);
         mImageViewContent =(SimpleDraweeView)itemView.findViewById(R.id.cvContentImage);
         mDeleteView = (ImageView) itemView.findViewById(R.id.imageDelete);
     }
@@ -42,23 +48,20 @@ public class PublishManageImageViewHolder extends ModelViewHolder {
      *  若image是数组表示多个图像，则使用imageList的首图片作为主图显示
      */
     public void bindHolder(Model model){
-        if(model instanceof ImagePost){
-            final ImagePost content = (ImagePost) model;
-            mTextViewTitle.setText(content.title);
-            mTextViewDate.setText(content.created_at);
-            mTextViewDescription.setText("阅读 "+content.view_count+"  评论 "+content.comment_count+"  点赞 "+content.thumbsup);
-            if (content.thumbnailList==null || content.thumbnailList.isEmpty()){
-                // 没有缩略图 使用原图
-                if(content.imageList==null || content.imageList.isEmpty()){
-                    mImageViewContent.setVisibility(View.GONE);
-                }else{
-                    mImageViewContent.setVisibility(View.VISIBLE);
-                    mImageViewContent.setImageURI(content.imageList.get(0));
-                }
+        if(model instanceof Content){
+            final Content content = (Content) model;
+            mTextViewTitle.setText(content.mTitle);
+            mTextViewDate.setText(content.mCreatedAt);
+            mTextViewDescription.setText("阅读 "+content.mViewCount+"  评论 "+content.mCommentCount+"  点赞 "+content.mThumbsup);
+            if (content.mImageList==null || content.mImageList.isEmpty()){
+                //  没用图
+                mImageViewContent.setVisibility(View.GONE);
+                mTextViewImageCount.setVisibility(View.GONE);
             }else {
                 // 有缩略图 使用缩略图
                 mImageViewContent.setVisibility(View.VISIBLE);
-                mImageViewContent.setImageURI(content.thumbnailList.get(0));
+                mImageViewContent.setImageURI(content.mImageList.get(0));
+                mTextViewImageCount.setText(content.mImageList.size()+"图");
             }
 
         }

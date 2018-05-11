@@ -1,4 +1,4 @@
-package com.mmdkid.mmdkid.fragments.publishManage;
+package com.mmdkid.mmdkid.fragments.publishManage.v2;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -24,21 +24,27 @@ import com.facebook.drawee.generic.GenericDraweeHierarchyBuilder;
 import com.mmdkid.mmdkid.App;
 import com.mmdkid.mmdkid.PublishManagePopup;
 import com.mmdkid.mmdkid.R;
-import com.mmdkid.mmdkid.StarActivity;
-import com.mmdkid.mmdkid.WebViewActivity;
 import com.mmdkid.mmdkid.adapters.ModelRecyclerAdapter;
 import com.mmdkid.mmdkid.fragments.RecyclerViewClickListener;
 import com.mmdkid.mmdkid.helper.ProgressDialog;
 import com.mmdkid.mmdkid.imagepost.ImageOverlayView;
+import com.mmdkid.mmdkid.models.Content;
 import com.mmdkid.mmdkid.models.ImagePost;
 import com.mmdkid.mmdkid.models.Model;
 import com.mmdkid.mmdkid.models.Token;
 import com.mmdkid.mmdkid.models.User;
+import com.mmdkid.mmdkid.server.ElasticConnection;
+import com.mmdkid.mmdkid.server.ElasticQuery;
 import com.mmdkid.mmdkid.server.Query;
+import com.mmdkid.mmdkid.server.QueryBuilder;
 import com.mmdkid.mmdkid.server.RESTAPIConnection;
+import com.mmdkid.mmdkid.server.Sort;
 import com.stfalcon.frescoimageviewer.ImageViewer;
 
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -48,7 +54,7 @@ import java.util.ArrayList;
  * Use the {@link ImageFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ImageFragment extends Fragment {
+public class ImageFragment extends Fragment implements ElasticConnection.OnConnectionListener{
     private static final String TAG = "ImageFragment";
 
     private Context mContext;
@@ -59,8 +65,8 @@ public class ImageFragment extends Fragment {
     private ProgressDialog mProgressDialog;
 
     private ArrayList<Model> mDataset;
-    private Query mQuery;
-    private RESTAPIConnection mConnection;
+    private ElasticQuery mQuery;
+    private ElasticConnection mConnection;
 
     private User mCurrentUser;
     private Token mCurrentToken;
@@ -82,6 +88,11 @@ public class ImageFragment extends Fragment {
      *  删除操作弹出窗口
      */
     private PublishManagePopup mPopwindow;
+
+    private List<String> mImagePostList; // 当前显示的图片列表
+    private String mImageDescription;   // 当前图片的描述
+    private ImageOverlayView mOverlayView; // 叠加在图片上的视图
+
 
     public ImageFragment() {
         // Required empty public constructor
@@ -121,6 +132,7 @@ public class ImageFragment extends Fragment {
         mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         mProgressDialog.setMessage(getString(R.string.loading));
         mProgressDialog.show();
+        initData();
     }
 
     @Override
@@ -166,7 +178,7 @@ public class ImageFragment extends Fragment {
             public void onItemClick(View view, int position) {
                 // 判断点击的是否为删除按钮
                 if (view.getId() == R.id.imageDelete) {
-                    showNormalDialog((ImagePost) mDataset.get(position));
+                    showNormalDialog((Content) mDataset.get(position));
                 } else {
                     /*Intent intent = new Intent(getActivity(), WebViewActivity.class);
                     intent.putExtra("url", mDataset.get(position).getUrl());
@@ -218,7 +230,8 @@ public class ImageFragment extends Fragment {
     }
 
     private void showImagePost(Model model) {
-        if (!(model instanceof ImagePost)) return ;
+        if (!(model instanceof Content)) return ;
+        Content content = (Content)model;
         AnimationDrawable animationDrawable = new AnimationDrawable();
         Drawable drawable = getResources().getDrawable(R.drawable.loading);
         if(drawable != null){
@@ -232,16 +245,32 @@ public class ImageFragment extends Fragment {
         //.setProgressBarImage(new ProgressBarDrawable());
 
         //.setPlaceholderImage(R.drawable.placeholderDrawable);
-//        ImageOverlayView imageOverlayView = new ImageOverlayView(getActivity());
-//        mImagePostList = content.mImageList;
-//        mImageDescription = content.mContent;
-        new ImageViewer.Builder<>(getActivity(), ((ImagePost)model).imageList)
+        mOverlayView = new ImageOverlayView(mContext,content);
+        mImagePostList = content.mImageList;
+        mImageDescription = content.mContent;
+        new ImageViewer.Builder<>(mContext, content.mImageList)
                 .setStartPosition(0)
-                .setImageMargin(getActivity(),R.dimen.image_margin)
-//                .setImageChangeListener(getImageChangeListener())
+                .setImageMargin(getContext(),R.dimen.image_margin)
+                .setImageChangeListener(getImageChangeListener())
                 .setCustomDraweeHierarchyBuilder(draweeHierarchyBuilder)
-//                .setOverlayView(imageOverlayView)
+                .setOverlayView(mOverlayView)
                 .show();
+    }
+
+    /*
+     *   图片浏览监听，可以设置图片描述，以及分享链接
+     * */
+    private ImageViewer.OnImageChangeListener getImageChangeListener() {
+        return new ImageViewer.OnImageChangeListener() {
+            @Override
+            public void onImageChange(int position) {
+                //CustomImage image = images.get(position);
+                mOverlayView.setShareText(mImagePostList.get(position));
+                mOverlayView.setDescription(String.valueOf(position+1)+"/"+ Integer.toString(mImagePostList.size())
+                        + " " + mImageDescription);
+            }
+
+        };
     }
 
     private View.OnClickListener mPopItemClick = new View.OnClickListener() {
@@ -253,14 +282,14 @@ public class ImageFragment extends Fragment {
             switch (view.getId()) {
                 case R.id.delete:
                     if (mCurrentPosition != -1) {
-                        showNormalDialog((ImagePost) mDataset.get(mCurrentPosition));
+                        showNormalDialog((Content) mDataset.get(mCurrentPosition));
                     }
                     break;
             }
         }
     };
 
-    private void showNormalDialog(final ImagePost imagePost) {
+    private void showNormalDialog(final Content content) {
         /* @setIcon 设置对话框图标
          * @setTitle 设置对话框标题
          * @setMessage 设置对话框消息提示
@@ -275,6 +304,8 @@ public class ImageFragment extends Fragment {
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(final DialogInterface dialog, int which) {
+                        ImagePost imagePost = new ImagePost();
+                        imagePost.id = content.mModelId;
                         imagePost.delete(mContext, new RESTAPIConnection.OnConnectionListener() {
                             @Override
                             public void onErrorRespose(Class c, String error) {
@@ -310,38 +341,20 @@ public class ImageFragment extends Fragment {
         if (!app.isGuest()) {
             mCurrentUser = app.getCurrentUser();
             mCurrentToken = app.getCurrentToken();
-
-            mQuery = ImagePost.find(mContext, new RESTAPIConnection.OnConnectionListener() {
-                @Override
-                public void onErrorRespose(Class c, String error) {
-                    Log.d(TAG, "Get the error response from the server");
-                    mIsFetching = false;
-                    mProgressDialog.dismiss();
-
-                }
-
-                @Override
-                public void onResponse(Class c, ArrayList responseDataList) {
-                    Log.d(TAG, "Get correct response from the server.");
-                    mIsFetching = false;
-                    if (c == ImagePost.class && !responseDataList.isEmpty()) {
-                        Log.d(TAG, "Get the content response from the server.");
-                        for (Object obj : responseDataList) {
-                            ImagePost imagePost = (ImagePost) obj;
-                            Log.d(TAG, "ImagePost id: " + imagePost.id);
-                            Log.d(TAG, "ImagePost title: " + imagePost.title);
-                            Log.d(TAG, "ImagePost images: " + imagePost.imageList);
-                            mDataset.add(imagePost);
-                            imagePost.setViewType(Model.VIEW_TYPE_PUBLISH_MANAGE_IMAGE);
-                        }
-                        mAdapter.notifyDataSetChanged();
-                        ((LinearLayoutManager) mRecyclerView.getLayoutManager()).scrollToPositionWithOffset(mDataset.size() - responseDataList.size(), 0);
-                    }
-                    mProgressDialog.dismiss();
-                    mRefreshLayout.setRefreshing(false);
-                }
-            }).where("created_by", Integer.toString(mCurrentUser.mId))
-                    .where("expand", "images");
+            // 设置查询
+            mConnection = new ElasticConnection(this);
+            mQuery = (ElasticQuery) Content.find(mConnection);
+            // 创建查询条件
+            JSONObject request =   new QueryBuilder().boolQuery()
+                    .must(QueryBuilder.termQuery("model_type", Content.TYPE_IMAGE))
+                    .must(QueryBuilder.termQuery("created_by", Integer.toString(mCurrentUser.mId)))
+                    .getJSONQuery();
+            Log.d(TAG,"Image boolQuery is :" + request.toString());
+            mQuery.setJsonRequest(request);
+            // 按照时间排序
+            Sort sort = new Sort();
+            sort.add("created_at",Sort.SORT_DESC);
+            mQuery.setSort(sort);
             mQuery.all();
             mIsFetching = true;
         }
@@ -352,7 +365,7 @@ public class ImageFragment extends Fragment {
     public void onResume() {
         super.onResume();
         Log.d(TAG, "onResume.....");
-        initData();
+
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -377,6 +390,34 @@ public class ImageFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onErrorRespose(Class c, String error) {
+        Log.d(TAG, "Get the error response from the server");
+        mIsFetching = false;
+        mProgressDialog.dismiss();
+    }
+
+    @Override
+    public void onResponse(Class c, ArrayList responseDataList) {
+        Log.d(TAG, "Get correct response from the server.");
+        mIsFetching = false;
+        if (c == Content.class && !responseDataList.isEmpty()) {
+            Log.d(TAG, "Get the content response from the server.");
+            for (Object obj : responseDataList) {
+                Content content = (Content) obj;
+                Log.d(TAG, "Model id: " + content.mModelId);
+                Log.d(TAG, "Model type: " + content.mModelType);
+                Log.d(TAG, "Content images: " + content.mImageList);
+                mDataset.add(content);
+                content.setViewType(Model.VIEW_TYPE_PUBLISH_MANAGE_IMAGE);
+            }
+            mAdapter.notifyDataSetChanged();
+            ((LinearLayoutManager) mRecyclerView.getLayoutManager()).scrollToPositionWithOffset(mDataset.size() - responseDataList.size(), 0);
+        }
+        mProgressDialog.dismiss();
+        mRefreshLayout.setRefreshing(false);
     }
 
     /**
