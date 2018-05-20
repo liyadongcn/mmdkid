@@ -22,6 +22,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.mmdkid.mmdkid.fragments.resetPassword.ResetPasswordFragment;
 import com.mmdkid.mmdkid.helper.Utility;
 import com.mmdkid.mmdkid.models.Auth;
 import com.mmdkid.mmdkid.models.Model;
@@ -185,8 +186,10 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
                 break;
             case R.id.tvForgetPassword:
                 // 忘记密码
-                intent = new Intent(LoginActivity.this,WebViewActivity.class);
+                /*intent = new Intent(LoginActivity.this,WebViewActivity.class);
                 intent.putExtra("url",FORGOT_PASSWORD_URL);
+                startActivity(intent);*/
+                intent = new Intent(LoginActivity.this,ResetPasswordActivity.class);
                 startActivity(intent);
                 break;
             case R.id.register:

@@ -13,16 +13,16 @@
         android:orientation="vertical">
         <FrameLayout
             android:id="@+id/fragmentContainer"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_width="match_parent"
             android:padding="10dp"
-            android:layout_weight="4">
+            android:layout_weight="1">
         </FrameLayout>
         <TextView
             android:id="@+id/tvSwitch"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_marginTop="20dp"
             android:gravity="center"
             android:textStyle="bold"
             android:text="@string/register_email"/>
@@ -30,7 +30,8 @@
             android:id="@+id/tvLogin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
             android:gravity="center"
             android:textStyle="bold"
             android:text="@string/register_already"/>

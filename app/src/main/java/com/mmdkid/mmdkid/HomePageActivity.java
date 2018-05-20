@@ -91,12 +91,10 @@ public class HomePageActivity extends AppCompatActivity {
         tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
         tabLayout.setupWithViewPager(mViewPager);
 
-        mUser = (User) getIntent().getSerializableExtra("model");
-
-        mApp = (App)getApplication();
-        if (!mApp.isGuest()){
-            // 已登录取得当前登录用户
-            mCurrentUser = mApp.getCurrentUser();
+        if (savedInstanceState!=null){
+            mUser = (User) savedInstanceState.getSerializable("model");
+        }else{
+            mUser = (User) getIntent().getSerializableExtra("model");
         }
 
         mAvatar = (SimpleDraweeView) findViewById(R.id.sdvAvatar);
@@ -145,14 +143,62 @@ public class HomePageActivity extends AppCompatActivity {
         });*/
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (mUser!=null){
+            Log.d(TAG,"Save the user model state.");
+            outState.putSerializable("model",mUser);
+        }
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if (savedInstanceState!=null){
+            Log.d(TAG,"Restore the user model state.");
+            mUser = (User)savedInstanceState.getSerializable("model");
+        }
+    }
+    /**
+     * 初始化关注按钮状态
+     */
     private void initFollowActionView() {
+        mApp = (App)getApplication();
+        if (!mApp.isGuest()){
+            // 已登录取得当前登录用户
+            mCurrentUser = mApp.getCurrentUser();
+        }
+        // 设置监听
+        mFollowActionView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mCurrentUser!=null && mUser!=null){
+                    // 用户已经登录
+                    if (mFollowActionView.getText().toString().equals(getString(R.string.homepage_follow))){
+                        // 关注用户
+                        follow(mCurrentUser.mId,mUser.mId);
+                    }else{
+                        // 取消关注
+                        unFollow(mCurrentUser.mId,mUser.mId);
+                    }
+                }
+                else{
+                    // 用户没有登录 弹出登录框
+                    Intent intent = new Intent(HomePageActivity.this, LoginActivity.class);
+                    startActivity(intent);
+                }
+            }
+        });
+
         // 用户是否登录
         if (mApp.isGuest()){
             // 用户未登录直接显示关注按钮
             mFollowActionView.setText(R.string.homepage_follow);
             return;
         }
-        // 是否为自己当前用户
+
+        // 是否为当前用户自己
         if (mCurrentUser!=null && mCurrentUser.mId == mUser.mId){
             mFollowActionView.setVisibility(View.GONE);
             return;
@@ -185,22 +231,6 @@ public class HomePageActivity extends AppCompatActivity {
         .where("model_id", String.valueOf(mUser.mId))
         .all();
 
-        // 设置监听
-        mFollowActionView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mCurrentUser!=null && mUser!=null){
-                    if (mFollowActionView.getText().toString().equals(getString(R.string.homepage_follow))){
-                        // 关注用户
-                        follow(mCurrentUser.mId,mUser.mId);
-                    }else{
-                        // 取消关注
-                        unFollow(mCurrentUser.mId,mUser.mId);
-                    }
-                }
-
-            }
-        });
     }
 
     private void follow(int currentUserId,int userId) {
@@ -260,6 +290,12 @@ public class HomePageActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        initFollowActionView();
     }
 
     @Override

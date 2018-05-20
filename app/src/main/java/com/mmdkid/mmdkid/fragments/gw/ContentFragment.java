@@ -1,6 +1,7 @@
 package com.mmdkid.mmdkid.fragments.gw;
 
-import android.app.ProgressDialog;
+
+
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -20,6 +21,8 @@ import com.mmdkid.mmdkid.R;
 import com.mmdkid.mmdkid.WebViewActivity;
 import com.mmdkid.mmdkid.adapters.ModelRecyclerAdapter;
 import com.mmdkid.mmdkid.fragments.RecyclerViewClickListener;
+
+import com.mmdkid.mmdkid.helper.ProgressDialog;
 import com.mmdkid.mmdkid.models.Model;
 import com.mmdkid.mmdkid.models.Refresh;
 import com.mmdkid.mmdkid.models.gw.Content;

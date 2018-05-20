@@ -2,6 +2,7 @@ package com.mmdkid.mmdkid.fragments.register;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
@@ -30,6 +31,7 @@ import com.mmdkid.mmdkid.models.login.Login;
 import com.mmdkid.mmdkid.server.RESTAPIConnection;
 import com.mob.MobSDK;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -126,7 +128,7 @@ public class RegisterPhoneFragment extends Fragment implements
         MobSDK.init(getContext(), "21b4a5d86b0f4", "928bd431888690ccd317dca6e94d36d7");
 
         // 如果希望在读取通信录的时候提示用户，可以添加下面的代码，并且必须在其他代码调用之前，否则不起作用；如果没这个需求，可以不加这行代码
-        SMSSDK.setAskPermisionOnReadContact(boolShowInDialog);
+        //SMSSDK.setAskPermisionOnReadContact(boolShowInDialog);
 
         // 创建EventHandler对象
         mEventHandler = new EventHandler() {
@@ -143,6 +145,7 @@ public class RegisterPhoneFragment extends Fragment implements
         SMSSDK.registerEventHandler(mEventHandler);
     }
 
+    @SuppressLint("HandlerLeak")
     private Handler mHandler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
@@ -171,13 +174,31 @@ public class RegisterPhoneFragment extends Fragment implements
                 // 服务器网络验证成功
                 if (event == SMSSDK.EVENT_GET_VERIFICATION_CODE) {
                     // 服务器验证码发送成功  处理你自己的逻辑 data为boolean true为智能验证，false为普通下发短信
-                    boolean smartVerfication = (boolean)data;
-                    if (smartVerfication){
-                        Toast.makeText(getContext(), "智能验证", Toast.LENGTH_SHORT).show();
+                    if (data instanceof Throwable) {
+                        Throwable throwable = (Throwable) data;
+                        throwable.printStackTrace();
+                        JSONObject object = null;
+                        try {
+                            object = new JSONObject(throwable.getMessage());
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        String des = object.optString("detail");//错误描述
+                        int status = object.optInt("status");//错误代码
+                        if (status > 0 && !TextUtils.isEmpty(des)) {
+                            Toast.makeText(getContext(), des, Toast.LENGTH_SHORT).show();
+                            showProgress(false);
+                            mGetCodeButton.setClickable(true);
+                            return;
+                        }
                     }else{
-                        Toast.makeText(getContext(), "验证码已发送", Toast.LENGTH_SHORT).show();
-                        mGetCodeButton.setClickable(false);
-                        mHandlerText.sendEmptyMessageDelayed(TIME_MESSAGE,1000);
+                        boolean smartVerfication = (boolean) data;
+                        if (smartVerfication) {
+                            Toast.makeText(getContext(), "智能验证", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(getContext(), "验证码已发送", Toast.LENGTH_SHORT).show();
+                            mHandlerText.sendEmptyMessageDelayed(TIME_MESSAGE, 1000);
+                        }
                     }
 
                 }else if (event == SMSSDK.EVENT_SUBMIT_VERIFICATION_CODE) {
@@ -478,6 +499,7 @@ public class RegisterPhoneFragment extends Fragment implements
                 if (isPhoneValid(mPhoneEditText.getText().toString())){
                     // 发送手机号 取得验证码
                     SMSSDK.getVerificationCode("86",mPhoneEditText.getText().toString());
+                    mGetCodeButton.setClickable(false);
                 }else{
                     Toast.makeText(getContext(), "请输入正确的手机号码", Toast.LENGTH_LONG).show();
                     mPhoneEditText.requestFocus();

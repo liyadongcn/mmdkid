@@ -102,11 +102,21 @@
     <!--String related to register a new user-->
     <string name="register_phone">手机注册</string>
     <string name="register_email">邮箱注册</string>
+    <string name="register_password">密码,由6位(含)以上数字及字母组成</string>
     <string name="prompt_phone_number">手机号</string>
     <string name="prompt_verification_code">验证码</string>
     <string name="prompt_get_verification_code">获取短信验证码</string>
+    <string name="prompt_waiting_verification_code">等待验证码</string>
     <string name="prompt_verification_code_sent">短信验证码已发送</string>
     <string name="register_already">已经有么么哒KID账号?去登录</string>
+
+    <!--String related to reset password-->
+    <string name="reset_password_by_phone">手机找回</string>
+    <string name="reset_password_by_email">邮箱找回</string>
+    <string name="reset_password_next_step">下一步</string>
+    <string name="error_invalid_phone">请输入正确的手机号码</string>
+    <string name="error_phone_not_exist">手机号码未注册</string>
+    <string name="action_reset_password">修改</string>
 
     <!-- Strings related to add kid activity-->
     <string name="error_invalid_realName">This real name is too short</string>
@@ -221,6 +231,7 @@
     <string name="title_activity_publish_manager">我的发布</string>
     <string name="title_activity_profile">个人资料</string>
     <string name="title_activity_home_page">HomePageActivity</string>
+    <string name="title_activity_reset_password">密码重置</string>
     <string name="large_text">
         "Material is the metaphor.\n\n"
 

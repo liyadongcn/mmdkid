@@ -110,7 +110,7 @@
             android:name=".RegisterActivity"
             android:label="@string/title_activity_signup"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
-            android:windowSoftInputMode="stateHidden" />
+            android:windowSoftInputMode="adjustNothing|stateHidden" />
 
         <!-- QQ登录及分享 -->
         <activity
@@ -235,7 +235,11 @@
         <activity
             android:name=".HomePageActivity"
             android:label="@string/title_activity_home_page"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ResetPasswordActivity"
+            android:label="@string/title_activity_reset_password"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

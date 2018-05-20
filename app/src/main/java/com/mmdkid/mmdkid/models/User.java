@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.android.volley.Request;
 import com.mmdkid.mmdkid.App;
+import com.mmdkid.mmdkid.helper.Utility;
 import com.mmdkid.mmdkid.server.Connection;
 import com.mmdkid.mmdkid.server.Query;
 import com.mmdkid.mmdkid.server.RESTAPIConnection;
@@ -27,8 +28,10 @@ public class User extends Model {
     private final static String URI_SIGNUP_PHONE = "v1/signupphone";
     private final static String URI_SIGNUP_EMAIL = "v1/signupemail";
     private final static String URI_AUTO_SINGUP = "v1/auto";
-    private final static String URI_RESET_PASSWORD = "resetPassword";
+    private final static String URI_RESET_PASSWORD = "resetPassword"; // 登录用户修改当前密码
     private final static String URI_USER_INFO = "v1/userinfo"; // 取得用户信息 可以是非登录用户
+    private final static String URI_USER_PHONE = "v1/verifyphone"; // 验证用户手机号码是否已在系统中注册 可以是非登录用户
+    private final static String URI_RESET_PASSWORD_PHONE = "v1/resetpassword"; // 非登录用户通过手机号码修改密码
     private final static String URI = "v1/users";
     private final static String AUTO_CREATE_SECRET_KEY = "123456";
 
@@ -47,6 +50,8 @@ public class User extends Model {
     public static final String ACTION_SIGNUP_EMAIL= "signupemail";
     public static final String ACTION_RESET_PASSWORD= "reset_password";
     public static final String ACTION_GET_USER_INFO= "userinfo";
+    public static final String ACTION_VERIFY_USER_PHONE= "verifyphone";
+    public static final String ACTION__RESET_PASSWORD_PHONE= "reset_password_phone";
 
     public int mId;
     public String mUsername;
@@ -391,7 +396,26 @@ public class User extends Model {
                 ((RESTAPIConnection) connection).ACCESS_TOKEN ="";
                 Log.d(TAG,"User get user info json object is :" +  connection.URL);
                 return  request;
-
+            case User.ACTION_VERIFY_USER_PHONE:
+                // 不需要访问Token就能访问用户信息，主要是针对非登录用户验证手机号是否已经在系统内注册
+                // 忘记密码通过手机号找回密码使用
+                ((RESTAPIConnection) connection).setRequestMethod(Request.Method.GET);
+                connection.URL = connection.URL + URI_USER_PHONE + "/" + mCellphone +"?secret="+ AUTO_CREATE_SECRET_KEY;
+                ((RESTAPIConnection) connection).ACCESS_TOKEN ="";
+                Log.d(TAG,"Verify User Phone json object is :" +  connection.URL);
+                return  request;
+            case User.ACTION__RESET_PASSWORD_PHONE:
+                ((RESTAPIConnection) connection).setRequestMethod(Request.Method.POST);
+                connection.URL = connection.URL +  "/" + URI_RESET_PASSWORD_PHONE;
+                try {
+                    request.put("password",mNewPassword);
+                    request.put("secret",AUTO_CREATE_SECRET_KEY);
+                    request.put("phone",mCellphone);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Log.d(TAG,"User reset password json object by phone is :" + request.toString());
+                return  request;
         }
         return null;
     }
@@ -430,5 +454,41 @@ public class User extends Model {
         User user = new User();
         user.mId = id;
         connection.excute(user.getJsonRequest(User.ACTION_GET_USER_INFO,connection),User.class);
+    }
+    /**
+     *  使用固定约定好的secret信息验证手机号码是否为注册用户号码
+     *  主要用于用户忘记密码通过注册手机号找回密码功能
+     */
+    public static void verifyPhone(String phone,Context context, RESTAPIConnection.OnConnectionListener listener){
+        RESTAPIConnection connection = new RESTAPIConnection(context);
+        connection.setListener(listener);
+        User user = new User();
+        user.mCellphone = phone;
+        connection.excute(user.getJsonRequest(User.ACTION_VERIFY_USER_PHONE,connection),User.class);
+    }
+
+    /**
+     *  使用固定约定好的secret信息,已经短信验证的手机号码，新密码修改该手机号下用户的登录密码
+     *  主要用于用户忘记密码通过注册手机号找回密码功能
+     */
+    public static void resetPasswordByPhone(String phone,String newPassword,Context context, RESTAPIConnection.OnConnectionListener listener){
+        RESTAPIConnection connection = new RESTAPIConnection(context);
+        connection.setListener(listener);
+        User user = new User();
+        user.mCellphone = phone;
+        user.mNewPassword = newPassword;
+        connection.excute(user.getJsonRequest(User.ACTION__RESET_PASSWORD_PHONE,connection),User.class);
+    }
+
+    public static boolean isPhoneValid(String numString){
+        return numString.length()==11 && Utility.isNumeric(numString);
+    }
+
+    public static boolean isCodeValid(String numString){
+        return numString.length()==4 && Utility.isNumeric(numString);
+    }
+
+    public static boolean isPasswordValid(String password) {
+        return password.length() > 5;
     }
 }
