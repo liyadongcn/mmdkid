@@ -102,7 +102,7 @@ public class CheckUpdateUtil {
                         // 版本需要更新
                         Log.d(TAG,"Start updating....");
                         verifyStoragePermissions((Activity) context);
-                        showUpdateDialog(false, context);
+                        showUpdateDialog(true, context);// 强制更新
                         return;
                     }
 

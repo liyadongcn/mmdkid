@@ -62,7 +62,7 @@ public class OkHttpManager extends Object {
         mOkHttpClient = new OkHttpClient().newBuilder()
                 .connectTimeout(10, TimeUnit.SECONDS)//设置超时时间
                 .readTimeout(10, TimeUnit.SECONDS)//设置读取超时时间
-                .writeTimeout(100, TimeUnit.SECONDS)//设置写入超时时间
+                .writeTimeout(200, TimeUnit.SECONDS)//设置写入超时时间
                 .build();
         //初始化Handler
         okHttpHandler = new Handler(context.getMainLooper());

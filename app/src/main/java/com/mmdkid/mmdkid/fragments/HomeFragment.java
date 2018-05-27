@@ -9,6 +9,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -261,6 +262,9 @@ public class HomeFragment extends Fragment {
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
+     * 需要理解instantiateItem源码
+     * 参考：
+     * https://blog.csdn.net/b805887485/article/details/76039443
      */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
@@ -270,7 +274,38 @@ public class HomeFragment extends Fragment {
 
         @Override
         public int getItemPosition(Object object) {
+            if(object instanceof Fragment){
+                String fragmentName = ((Fragment) object).getTag();
+                Log.d(TAG,"Fragment Name >>>" + fragmentName);
+                // 遍历名称
+                int i =0;
+                for(PageTitle title : mPageTitleList){
+                    Log.d(TAG,"ViewPager channel >>>" + createFragmentName(mViewPager.getId(),Long.valueOf(title.id)));
+                    if (createFragmentName(mViewPager.getId(),Long.valueOf(title.id)).equals(fragmentName)){
+                        Log.d(TAG,"Find the fragment with same name>>>" + createFragmentName(mViewPager.getId(),Long.valueOf(title.id)));
+                        return i+4;
+                    }
+                    i++;
+                }
+            }
             return POSITION_NONE;
+        }
+
+        private  String createFragmentName(int viewId, long id) {
+            return "android:switcher:" + viewId + ":" + id +500; // +500 避免页面多时冲突 title的id和viewpager的id冲突
+        }
+        /**
+         *  前4个频道为固定频道
+         *  动态变动的频道使用频道名称作为fragment的标识
+         */
+        @Override
+        public long getItemId(int position) {
+            if (position<4){
+                return position;
+            }else{
+                return Long.valueOf(mPageTitleList.get(position-4).id)+500; // +500 避免页面多时冲突 title的id和viewpager的id冲突
+            }
+
         }
 
         @Override
@@ -301,6 +336,16 @@ public class HomeFragment extends Fragment {
             // Show 5 total pages.
             return 4+mPageTitleList.size();
         }
+
+/*        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
+            FragmentManager manager = ((Fragment) object).getFragmentManager();
+            if (manager != null) {
+                FragmentTransaction trans = manager.beginTransaction();
+                trans.remove((Fragment) object);
+                trans.commit();
+            }
+        }*/
 
         @Override
         public CharSequence getPageTitle(int position) {
