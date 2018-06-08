@@ -47,7 +47,7 @@ public class PublishVideoActivity extends AppCompatActivity implements View.OnCl
     private final int REQUEST_CODE_CHOOSE_VIDEO =10;
     private final int REQUEST_CODE_CHOOSE_COVER =11;
     private final int MAX_FRAME_NUM = 5; // 最大获取的视频的帧数 用于视频封面
-    private final long MAX_VIDEO_SIZE = 50*10024;
+    private final long MAX_VIDEO_SIZE = 50*1024*1024;
 
     private JZVideoPlayerStandard mPlayer;
     private TextView mVideoSelectView;
@@ -61,6 +61,9 @@ public class PublishVideoActivity extends AppCompatActivity implements View.OnCl
     private Uri mSelectedVideo;
     private Uri mSelectedCover;
     private ArrayList<Object> mCoverList;
+
+    private boolean mIsUploading=false; // 是否正在向服务器上载内容
+    private boolean mRequestCancel=false; // 是否用户主动放弃上传内容
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,7 +98,32 @@ public class PublishVideoActivity extends AppCompatActivity implements View.OnCl
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()){
             case android.R.id.home:
-                finish();
+                if (mIsUploading){
+                    // 当前有正在上载的内容 询问用户是否退出
+                    AlertDialog.Builder builder = new AlertDialog.Builder(PublishVideoActivity.this);
+                    builder.setTitle("提示")
+                            .setMessage("正在上传，要放弃吗？")
+                            .setPositiveButton(getString(R.string.action_continue), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog,
+                                                    int which) {
+                                }
+                            })
+                            .setNegativeButton(getString(R.string.action__cancel_uploading), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog,
+                                                    int which) {
+                                    mRequestCancel = true;
+                                    OkHttpManager.getInstance(PublishVideoActivity.this).cancle();
+                                    finish();
+                                }
+                            })
+                            .show();
+                }else {
+                    // 当前没有上载内容直接退出
+                    finish();
+                }
+                break;
             case R.id.action_publish_video:
                 try {
                     publish();
@@ -112,13 +140,19 @@ public class PublishVideoActivity extends AppCompatActivity implements View.OnCl
         boolean cancel = false;
         View focusView = null;
 
+        if(mIsUploading){
+            // 上载过程中 不能再次发布
+            Toast.makeText(this,"正在上载中", Toast.LENGTH_LONG).show();
+            cancel = true;
+        }
+
         if (mSelectedVideo == null){
             // 没有选定视频
             Toast.makeText(this,"还没有选定视频", Toast.LENGTH_LONG).show();
             cancel = true;
         }
 
-        if (Utility.getFileSize(new File(Utility.getPath(this,mSelectedVideo)))/1024>MAX_VIDEO_SIZE){
+        if (Utility.getFileSize(new File(Utility.getPath(this,mSelectedVideo)))>MAX_VIDEO_SIZE){
             // 没有选定视频
             Toast.makeText(this,"视频太大了，要小于50M", Toast.LENGTH_LONG).show();
             cancel = true;
@@ -166,6 +200,7 @@ public class PublishVideoActivity extends AppCompatActivity implements View.OnCl
             paramsMap.put("name",mTitleView.getText().toString());
             paramsMap.put("description",mDescriptionView.getText().toString());
             mProgressBar.setVisibility(View.VISIBLE);
+            mIsUploading = true;
             manager.upLoadFile("media", paramsMap, new OkHttpManager.ReqProgressCallBack<Object>() {
 
                 @Override
@@ -178,6 +213,7 @@ public class PublishVideoActivity extends AppCompatActivity implements View.OnCl
                 public void onReqSuccess(Object result) {
                     Log.d(TAG,"Upload success!");
                     mProgressBar.setVisibility(View.GONE);
+                    mIsUploading = false;
                     Toast.makeText(PublishVideoActivity.this,"发布成功",Toast.LENGTH_LONG).show();
                     finish();
                 }
@@ -185,7 +221,12 @@ public class PublishVideoActivity extends AppCompatActivity implements View.OnCl
                 @Override
                 public void onReqFailed(String errorMsg) {
                     Log.d(TAG,"Upload failed. " + errorMsg);
+                    if (mRequestCancel) {
+                        // 用户主动放弃本次上载
+                        return;
+                    }
                     mProgressBar.setVisibility(View.GONE);
+                    mIsUploading = false;
                     Toast.makeText(PublishVideoActivity.this,"发布失败",Toast.LENGTH_LONG).show();
                     AlertDialog.Builder builder = new AlertDialog.Builder(PublishVideoActivity.this);
                     builder.setTitle("提示")

@@ -4,21 +4,28 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Handler;
 import android.support.v4.view.MotionEventCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.mmdkid.mmdkid.R;
+import com.mmdkid.mmdkid.models.ActionLog;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -28,6 +35,8 @@ import java.util.List;
  * Created by YoKeyword on 15/12/28.
  */
 public class ChannelAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements OnItemMoveListener {
+    private static final String TAG = "ChannelAdapter";
+
     // 我的频道 标题部分
     public static final int TYPE_MY_CHANNEL_HEADER = 0;
     // 我的频道
@@ -60,11 +69,19 @@ public class ChannelAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     // 我的频道点击事件
     private OnMyChannelItemClickListener mChannelItemClickListener;
 
+    private Context mContext;
+
+    // 增加频道
+    private static final int ACTION_NEW = 1;
+    // 编辑频道
+    private static final int ACTION_EDIT = 2;
+
     public ChannelAdapter(Context context, ItemTouchHelper helper, List<ChannelEntity> mMyChannelItems, List<ChannelEntity> mOtherChannelItems) {
         this.mInflater = LayoutInflater.from(context);
         this.mItemTouchHelper = helper;
         this.mMyChannelItems = mMyChannelItems;
         this.mOtherChannelItems = mOtherChannelItems;
+        this.mContext = context;
     }
 
     @Override
@@ -190,12 +207,25 @@ public class ChannelAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
             case TYPE_OTHER_CHANNEL_HEADER:
                 view = mInflater.inflate(R.layout.item_other_channel_header, parent, false);
-                return new RecyclerView.ViewHolder(view) {
-                };
+                final OtherChannelHeaderViewHolder otherChannelHeaderholder = new OtherChannelHeaderViewHolder(view);
+                return otherChannelHeaderholder;
 
             case TYPE_OTHER:
                 view = mInflater.inflate(R.layout.item_other, parent, false);
                 final OtherViewHolder otherHolder = new OtherViewHolder(view);
+                otherHolder.textView.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View view) {
+                        // 其他频道 长按删除或编辑
+                        RecyclerView recyclerView = ((RecyclerView) parent);
+                        RecyclerView.LayoutManager manager = recyclerView.getLayoutManager();
+                        int currentPiosition = otherHolder.getAdapterPosition();
+                        Log.d(TAG,"Long clicked position is :" + currentPiosition);
+                        Log.d(TAG,"Long clicked channel is :" + getChannelEntity(currentPiosition).getName());
+                        showChannelOptionDialog(getPositionInOtherChannel(currentPiosition));
+                        return true; // true 不再处理消息 false 消息继续传递
+                    }
+                });
                 otherHolder.textView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -550,5 +580,221 @@ public class ChannelAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             super(itemView);
             tvBtnEdit = (TextView) itemView.findViewById(R.id.tv_btn_edit);
         }
+    }
+
+    /**
+     * 其他频道  标题部分
+     */
+    class OtherChannelHeaderViewHolder extends RecyclerView.ViewHolder {
+        private TextView tvBtnNew;
+
+        public OtherChannelHeaderViewHolder(View itemView) {
+            super(itemView);
+            tvBtnNew = (TextView) itemView.findViewById(R.id.tv_btn_new_channel);
+            tvBtnNew.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+//                    Toast.makeText(get,"增加自定义频道",Toast.LENGTH_LONG).show();
+                    Log.d(TAG,"增加自定义频道");
+                    showChannelEditDialog(ACTION_NEW,-1);
+                }
+            });
+        }
+    }
+    /**
+     * 其他频道  创建或者编辑一个已有的频道
+     */
+    private void showChannelEditDialog(final int action, final int position){
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(mContext);
+        // Get the layout inflater
+        LayoutInflater inflater = LayoutInflater.from(mContext);;
+        View view = inflater.inflate(R.layout.dialog_channel_edit, null);
+        final EditText channelNameView = (EditText) view.findViewById(R.id.etChannelName);
+        final EditText channelKeyWordsView = (EditText) view.findViewById(R.id.etChannelKeyWords);
+        String title;
+        if (action==ACTION_EDIT){
+            title = "编辑";
+            channelNameView.setText(mOtherChannelItems.get(position).getName());
+            channelKeyWordsView.setText(mOtherChannelItems.get(position).getKeyWords());
+        }else if (action==ACTION_NEW){
+            title = "新建";
+        }else {
+            title = "unkown";
+        }
+        dialogBuilder.setView(view)
+                .setTitle(title)
+                .setPositiveButton("确定", null)
+                .setNegativeButton("取消", null);
+        final AlertDialog dialog = dialogBuilder.create();
+        dialog.show();
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!isChannelNameValid(channelNameView.getText().toString())){
+                    channelNameView.setError("频道名称必须填写！");
+                    return;
+                }
+                if (!isChannelKeyWordsValid(channelKeyWordsView.getText().toString())){
+                    channelKeyWordsView.setError("请输入正确的频道关键词！");
+                    return;
+                }
+                if (action==ACTION_NEW){
+                    // 新增加一个频道
+                    if (hasChannel(channelNameView.getText().toString())){
+                        channelNameView.setError("已有该频道名称,请换一个！");
+                        return;
+                    }
+                    ChannelEntity channelEntity = new ChannelEntity();
+                    channelEntity.setName(channelNameView.getText().toString());
+                    channelEntity.setId(getUniqueChannelId());
+                    channelEntity.setKeyWords(channelKeyWordsView.getText().toString());
+                    Log.d(TAG,"Channel id is :" + channelEntity.getId());
+                    // 加入到otherchannel中
+                    mOtherChannelItems.add(0,channelEntity);
+                }
+                if (action==ACTION_EDIT){
+                    ChannelEntity channelEntity = mOtherChannelItems.get(position);
+                    channelEntity.setName(channelNameView.getText().toString());
+                    channelEntity.setKeyWords(channelKeyWordsView.getText().toString());
+                }
+                notifyDataSetChanged();
+                dialog.dismiss();
+            }
+
+        });
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+    }
+    /**
+     * 其他频道  频道关键词是否合格
+     */
+    private boolean isChannelKeyWordsValid(String s) {
+        return !s.isEmpty();
+    }
+    /**
+     * 其他频道  频道名称是否合格
+     */
+    private boolean isChannelNameValid(String s) {
+        return !s.isEmpty();
+    }
+    /**
+     * 其他频道  给新创建频道一个唯一的编号
+     * 把id值最大的频道的id + 1 给新频道
+     */
+    private long getUniqueChannelId(){
+        ChannelEntity otherMax = Collections.max(mOtherChannelItems,comparator);
+        for(ChannelEntity entity : mOtherChannelItems){
+            Log.d(TAG,"Channel id>>>"+ entity.getId() + ">>>Channel Name>>>" + entity.getName());
+        }
+        Log.d(TAG,"Other channel max id is: " +otherMax.getId()+">>>"+otherMax.getName());
+        ChannelEntity myMax = Collections.max(mMyChannelItems,comparator);
+        for(ChannelEntity entity : mMyChannelItems){
+            Log.d(TAG,"Channel id>>>"+ entity.getId() + ">>>Channel Name>>>" + entity.getName());
+        }
+        Log.d(TAG,"My channel max id is: " + myMax.getId()+">>>"+ myMax.getName());
+        if (otherMax.getId() > myMax.getId()) {
+            return otherMax.getId()+1;
+        }else {
+            return myMax.getId() +1;
+        }
+    }
+    /**
+     * 频道集合比较函数 用于频道列表编号最大值
+     */
+    public static Comparator<ChannelEntity> comparator = new Comparator<ChannelEntity>() {
+
+        @Override
+        public int compare(ChannelEntity a1, ChannelEntity a2) {
+
+            return a1.getId()> a2.getId()? 1 : -1;
+        }
+
+
+    };
+    /**
+     * 根据当前recyclerview的位置信息计算得到频道对象
+     * 减去一个我的频道头，减去我的频道数量，减去其他频道的频道头得到当前点击的频道对象
+     */
+    private ChannelEntity getChannelEntity(int position){
+        return mOtherChannelItems.get(position-mMyChannelItems.size()-1-1);
+    }
+    /**
+     * 根据当前recyclerview的位置信息计算得到频道对象在其他频道中的位置
+     * position表示在recyclerview中的位置
+     */
+    private int getPositionInOtherChannel(int position){
+        return position-mMyChannelItems.size()-1-1;
+    }
+    /**
+     * position表示在otherChannel中的位置
+     */
+    private void showChannelOptionDialog(final int position){
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(mContext);
+        // Get the layout inflater
+        LayoutInflater inflater = LayoutInflater.from(mContext);;
+        View view = inflater.inflate(R.layout.dialog_channel_option, null);
+        final TextView editOptionView = (TextView) view.findViewById(R.id.tvChannelEdit);
+        final TextView deleteOptionView = (TextView) view.findViewById(R.id.tvChannelDelete);
+        dialogBuilder.setView(view);
+        final AlertDialog dialog = dialogBuilder.create();
+        editOptionView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // 编辑当前频道
+                showChannelEditDialog(ACTION_EDIT,position);
+                dialog.dismiss();
+            }
+        });
+        deleteOptionView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // 删除当前频道
+                deleteChannel(position);
+                dialog.dismiss();
+            }
+        });
+        dialog.show();
+    }
+
+    private void deleteChannel(final int position) {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(mContext);
+        dialogBuilder
+                .setTitle("删除频道")
+                .setMessage("确认删除当前频道？")
+                .setPositiveButton("确定", null)
+                .setNegativeButton("取消", null);
+        final AlertDialog dialog = dialogBuilder.create();
+        dialog.show();
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mOtherChannelItems.remove(position);
+                notifyDataSetChanged();
+                dialog.dismiss();
+            }
+
+        });
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+    }
+    /**
+     * 判断频道名称是否已经存在
+     */
+    private boolean hasChannel(String name){
+        for (ChannelEntity channelEntity : mMyChannelItems){
+            if (channelEntity.getName().equals(name)) return true;
+        }
+        for (ChannelEntity channelEntity : mOtherChannelItems){
+            if (channelEntity.getName().equals(name)) return true;
+        }
+        return false;
     }
 }

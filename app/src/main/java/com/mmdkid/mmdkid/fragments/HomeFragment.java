@@ -141,6 +141,7 @@ public class HomeFragment extends Fragment {
                 pageTitle = new PageTitle();
                 pageTitle.name = channel.getName();
                 pageTitle.id = Long.toString(channel.getId());
+                pageTitle.keyWords = channel.getKeyWords();
                 mPageTitleList.add(pageTitle);
             }
         }
@@ -159,6 +160,7 @@ public class HomeFragment extends Fragment {
             pageTitle = new PageTitle();
             pageTitle.name = channel.getName();
             pageTitle.id = Long.toString(channel.getId());
+            pageTitle.keyWords = channel.getKeyWords();
             mPageTitleList.add(pageTitle);
         }
     }
@@ -326,7 +328,13 @@ public class HomeFragment extends Fragment {
                 default:
                     //return PlaceholderFragment.newInstance(position);
                     // 使用标题头作为搜索依据 过滤内容
+                    if (mPageTitleList.get(position-4).keyWords!=null){
+                        if (! mPageTitleList.get(position-4).keyWords.isEmpty()){
+                            return ContentFragment.newInstance(Content.TYPE_PUSH,mPageTitleList.get(position-4).keyWords);
+                        }
+                    }
                     return ContentFragment.newInstance(Content.TYPE_PUSH,mPageTitleList.get(position-4).name);
+
             }
 
         }
@@ -370,5 +378,6 @@ public class HomeFragment extends Fragment {
     private class PageTitle{
         String name;
         String id;
+        String keyWords;
     }
 }

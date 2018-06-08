@@ -66,6 +66,9 @@ public class PublishImageActivity extends AppCompatActivity {
 
     private final static int MESSAGE_UPDATE_ADDRESS = 10;
 
+    private boolean mIsUploading=false; // 是否正在向服务器上载内容
+    private boolean mRequestCancel=false; // 是否用户主动放弃上传内容
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -114,7 +117,32 @@ public class PublishImageActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()){
             case android.R.id.home:
-                finish();
+                if (mIsUploading){
+                    // 当前有正在上载的内容 询问用户是否退出
+                    AlertDialog.Builder builder = new AlertDialog.Builder(PublishImageActivity.this);
+                    builder.setTitle("提示")
+                            .setMessage("正在上传，要放弃吗？")
+                            .setPositiveButton(getString(R.string.action_continue), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog,
+                                                    int which) {
+                                }
+                            })
+                            .setNegativeButton(getString(R.string.action__cancel_uploading), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog,
+                                                    int which) {
+                                    mRequestCancel = true;
+                                    OkHttpManager.getInstance(PublishImageActivity.this).cancle();
+                                    finish();
+                                }
+                            })
+                            .show();
+                }else {
+                    // 当前没有上载内容直接退出
+                    finish();
+                }
+                break;
             case R.id.action_publish_image:
                 try {
                     publish();
@@ -131,6 +159,12 @@ public class PublishImageActivity extends AppCompatActivity {
 
         boolean cancel = false;
         View focusView = null;
+
+        if(mIsUploading){
+            // 上载过程中 不能再次发布
+            Toast.makeText(this,"正在上载中", Toast.LENGTH_LONG).show();
+            cancel = true;
+        }
 
         if (!isTitleValid(mTitleView.getText().toString())){
             // 标题不符合要求
@@ -174,6 +208,7 @@ public class PublishImageActivity extends AppCompatActivity {
             paramsMap.put("content",mDescriptionView.getText().toString());
             paramsMap.put("status",10);
             mProgressBar.setVisibility(View.VISIBLE);
+            mIsUploading =true;
             manager.upLoadFile("image-posts", paramsMap, new OkHttpManager.ReqProgressCallBack<Object>() {
 
                 @Override
@@ -186,6 +221,7 @@ public class PublishImageActivity extends AppCompatActivity {
                 public void onReqSuccess(Object result) {
                     Log.d(TAG,"Upload success!");
                     mProgressBar.setVisibility(View.GONE);
+                    mIsUploading = false;
                     Toast.makeText(PublishImageActivity.this,"发布成功",Toast.LENGTH_LONG).show();
                     finish();
                 }
@@ -193,7 +229,12 @@ public class PublishImageActivity extends AppCompatActivity {
                 @Override
                 public void onReqFailed(String errorMsg) {
                     Log.d(TAG,"Upload failed. " + errorMsg);
+                    if (mRequestCancel) {
+                        // 用户主动放弃本次上载
+                        return;
+                    }
                     mProgressBar.setVisibility(View.GONE);
+                    mIsUploading = false;
                     Toast.makeText(PublishImageActivity.this,"发布失败",Toast.LENGTH_LONG).show();
                     AlertDialog.Builder builder = new AlertDialog.Builder(PublishImageActivity.this);
                     builder.setTitle("提示")

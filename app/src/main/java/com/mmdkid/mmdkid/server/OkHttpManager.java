@@ -422,4 +422,14 @@ public class OkHttpManager extends Object {
             }
         });
     }
+    /**
+     * 取消当前所有的OkHttpClient的请求
+     *
+     */
+    public void cancle(){
+        if (mOkHttpClient!=null){
+            mOkHttpClient.dispatcher().cancelAll();
+            Log.d(TAG,"Cancle all the okhttp calls.");
+        }
+    }
 }

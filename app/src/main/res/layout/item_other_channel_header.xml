@@ -4,12 +4,36 @@
               android:layout_height="48dp">
 
     <TextView
+        android:id="@+id/tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/other_channel"
         android:layout_centerVertical="true"
         android:layout_marginLeft="16dp"
         android:textSize="16sp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/tv"
+        android:layout_marginLeft="16dp"
+        android:layout_toRightOf="@id/tv"
+        android:text="@string/tip_option"
+        android:textColor="@color/tip"
+        android:textSize="12sp"/>
+
+    <TextView
+        android:id="@+id/tv_btn_new_channel"
+        android:layout_width="56dp"
+        android:layout_height="30dp"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="8dp"
+        android:gravity="center"
+        android:textSize="13sp"
+        android:background="@drawable/bg_btn"
+        android:textColor="@color/red_500"
+        android:text="@string/new_channel"/>
 
     <View
         android:layout_width="match_parent"
