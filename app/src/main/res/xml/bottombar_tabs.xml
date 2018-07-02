@@ -11,7 +11,7 @@
         title="视频" />
     <tab
         id="@+id/tab_publish"
-        icon="@drawable/ic_plus"
+        icon="@drawable/ic_cloud_upload"
         title="发布" />
     <tab
         id="@+id/tab_discovery"

@@ -33,6 +33,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mmdkid.mmdkid.adapters.PublishImageAdapter;
+import com.mmdkid.mmdkid.helper.FileUtil;
+import com.mmdkid.mmdkid.helper.ImageUtil;
+import com.mmdkid.mmdkid.helper.ProgressDialog;
 import com.mmdkid.mmdkid.helper.Utility;
 import com.mmdkid.mmdkid.models.Token;
 import com.mmdkid.mmdkid.server.OkHttpManager;
@@ -53,6 +56,7 @@ public class PublishImageActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_CHOOSE = 23;
 
     private ArrayList<Uri> mImageList; // 上传图片的列表，最后一个为增加图片的加号图片
+    private ArrayList<File> mCompressedImageFileList;
 
     private ProgressBar mProgressBar;
     private EditText mTitleView;
@@ -66,8 +70,16 @@ public class PublishImageActivity extends AppCompatActivity {
 
     private final static int MESSAGE_UPDATE_ADDRESS = 10;
 
+    private final static int MESSAGE_COMPRESS_IMAGE_FINISH = 11;
+    private final static int MESSAGE_COMPRESS_IMAGE_START = 12;
+    private final static int MESSAGE_COMPRESS_IMAGE_ERROR = 13;
+
     private boolean mIsUploading=false; // 是否正在向服务器上载内容
     private boolean mRequestCancel=false; // 是否用户主动放弃上传内容
+
+    private ProgressDialog mProgressDialog;
+
+    private boolean mIsCompressing = false; // 正在压缩图片
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,7 +115,7 @@ public class PublishImageActivity extends AppCompatActivity {
 
         mAddressView = (TextView) findViewById(R.id.tvLocation);
         mAddressView.setText(R.string.location_unkown);
-    }
+   }
 
 
     @Override
@@ -148,6 +160,8 @@ public class PublishImageActivity extends AppCompatActivity {
                     publish();
                 } catch (URISyntaxException e) {
                     e.printStackTrace();
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
                 break;
         }
@@ -155,10 +169,16 @@ public class PublishImageActivity extends AppCompatActivity {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-    private void publish() throws URISyntaxException {
+    private void publish() throws Exception {
 
         boolean cancel = false;
         View focusView = null;
+
+        if(mIsCompressing) {
+            // 压缩图片过程中 不能再次发布
+            Toast.makeText(this,"正在压缩图片", Toast.LENGTH_LONG).show();
+            cancel = true;
+        }
 
         if(mIsUploading){
             // 上载过程中 不能再次发布
@@ -186,81 +206,149 @@ public class PublishImageActivity extends AppCompatActivity {
         if (cancel){
             if (focusView!=null) focusView.requestFocus();
         }else{
-            App app = (App)getApplication();
-            if (app.isGuest()){
-                finish();
-                return ;
-            }
-            Token token = app.getCurrentToken();
-            OkHttpManager manager = OkHttpManager.getInstance(this);
-            manager.setAccessToken(token.mAccessToken);
-            IdentityHashMap<String, Object> paramsMap = new IdentityHashMap<String, Object>();
-            for(int i =0 ; i < mImageList.size()-1; i++){
-                //URI jURI = new URI(uri.toString());
-                //File file = new File(jURI);
-                Log.d(TAG,"File uri :" + mImageList.get(i).toString());
-                Log.d(TAG,"File path :" + mImageList.get(i).getPath());
-                Log.d(TAG,"File path :" +Utility.getPath(this,mImageList.get(i)));
-                File file = new File(Utility.getPath(this,mImageList.get(i)));
-                paramsMap.put(new String("file[]"),file);
-            }
-            paramsMap.put("title",mTitleView.getText().toString());
-            paramsMap.put("content",mDescriptionView.getText().toString());
-            paramsMap.put("status",10);
-            mProgressBar.setVisibility(View.VISIBLE);
-            mIsUploading =true;
-            manager.upLoadFile("image-posts", paramsMap, new OkHttpManager.ReqProgressCallBack<Object>() {
+            // 压缩要上传的图片文件
+            compressImages();
 
-                @Override
-                public void onProgress(final long total, final long current) {
-                    Log.d(TAG,"Upload total is : "+total +"---------->"+current);
-                    mProgressBar.setProgress((int)(current *1.0f/total*100)); // 没有1.0f进度条不更新
-                }
-
-                @Override
-                public void onReqSuccess(Object result) {
-                    Log.d(TAG,"Upload success!");
-                    mProgressBar.setVisibility(View.GONE);
-                    mIsUploading = false;
-                    Toast.makeText(PublishImageActivity.this,"发布成功",Toast.LENGTH_LONG).show();
-                    finish();
-                }
-
-                @Override
-                public void onReqFailed(String errorMsg) {
-                    Log.d(TAG,"Upload failed. " + errorMsg);
-                    if (mRequestCancel) {
-                        // 用户主动放弃本次上载
-                        return;
-                    }
-                    mProgressBar.setVisibility(View.GONE);
-                    mIsUploading = false;
-                    Toast.makeText(PublishImageActivity.this,"发布失败",Toast.LENGTH_LONG).show();
-                    AlertDialog.Builder builder = new AlertDialog.Builder(PublishImageActivity.this);
-                    builder.setTitle("提示")
-                            .setMessage("发布失败:" + errorMsg)
-                            .setPositiveButton(getString(R.string.action_retry), new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog,
-                                                    int which) {
-                                    try {
-                                        publish();
-                                    } catch (URISyntaxException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            })
-                            .setNegativeButton(getString(R.string.action_cancel), new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog,
-                                                    int which) {
-                                    finish();
-                                }
-                            })
-                            .show();
-                }
-            });
         }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    private void compressImages() throws Exception {
+        App app = (App)getApplication();
+        if (app.isGuest()){
+            // 用户没有登录 直接返回
+            finish();
+            return ;
+        }
+        if(mImageList==null || mImageList.isEmpty()) return; // 若没有要上传的图片
+        if(mCompressedImageFileList==null){
+            mCompressedImageFileList = new ArrayList<File>();
+        }else{
+            mCompressedImageFileList.clear();
+        }
+        //使用子线程压缩图片
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // 发送开始压缩图片的消息
+                Message msg = Message.obtain();
+                msg.what = MESSAGE_COMPRESS_IMAGE_START;
+                mHandler.sendMessage(msg);
+                try {
+                    for(int i =0 ; i < mImageList.size()-1; i++){
+                        //URI jURI = new URI(uri.toString());
+                        //File file = new File(jURI);
+                        Log.d(TAG,"File uri :" + mImageList.get(i).toString());
+                        Log.d(TAG,"File path :" + mImageList.get(i).getPath());
+                        Log.d(TAG,"File path :" +Utility.getPath(PublishImageActivity.this,mImageList.get(i)));
+                        File file = new File(Utility.getPath(PublishImageActivity.this,mImageList.get(i)));
+                        File compressedFile = ImageUtil.compress(PublishImageActivity.this,file);
+                        // 原始图片情况
+                        int[] demension = ImageUtil.getImageWidthHeight(file.getAbsolutePath());
+                        long size= FileUtil.getFileSize(file);
+                        Log.d(TAG,"Original Image File path >>>" + file.getAbsolutePath());
+                        Log.d(TAG,"Original Image width  height  size >>>" + demension[0] + " "+ demension[1] + " " +size);
+                        // 图片压缩后
+                        demension = ImageUtil.getImageWidthHeight(compressedFile.getAbsolutePath());
+                        size= FileUtil.getFileSize(compressedFile);
+                        Log.d(TAG,"Compressed Image File path >>>" +compressedFile.getAbsolutePath());
+                        Log.d(TAG,"Compressed Image width  height size >>>" + demension[0] + " "+ demension[1] + " " +size );
+                        mCompressedImageFileList.add(compressedFile);
+                }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    msg = Message.obtain();
+                    msg.what = MESSAGE_COMPRESS_IMAGE_ERROR;
+                    mHandler.sendMessage(msg);
+                }
+                // 发送压缩结束的消息
+                msg = Message.obtain();
+                msg.what = MESSAGE_COMPRESS_IMAGE_FINISH;
+                mHandler.sendMessage(msg);
+            }
+        }).start();
+        //showProgressDialog("正在压缩...");
+
+        //dismissProgressDialog();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    private void uploadImages() {
+        App app = (App)getApplication();
+        if (app.isGuest()){
+            // 用户没有登录 直接返回
+            finish();
+            return ;
+        }
+        Token token = app.getCurrentToken();
+        OkHttpManager manager = OkHttpManager.getInstance(this);
+        manager.setAccessToken(token.mAccessToken);
+        IdentityHashMap<String, Object> paramsMap = new IdentityHashMap<String, Object>();
+        // 图片压缩并上传
+        //showProgressDialog("正在压缩...");
+        if (mCompressedImageFileList==null || mCompressedImageFileList.isEmpty()) return;
+        for(int i =0 ; i < mCompressedImageFileList.size()-1; i++){
+            paramsMap.put(new String("file[]"),mCompressedImageFileList.get(i));
+        }
+        //dismissProgressDialog();
+        paramsMap.put("title",mTitleView.getText().toString());
+        paramsMap.put("content",mDescriptionView.getText().toString());
+        paramsMap.put("status",10);
+        mProgressBar.setVisibility(View.VISIBLE);
+        mIsUploading =true;
+        manager.upLoadFile("image-posts", paramsMap, new OkHttpManager.ReqProgressCallBack<Object>() {
+
+            @Override
+            public void onProgress(final long total, final long current) {
+                Log.d(TAG,"Upload total is : "+total +"---------->"+current);
+                mProgressBar.setProgress((int)(current *1.0f/total*100)); // 没有1.0f进度条不更新
+            }
+
+            @Override
+            public void onReqSuccess(Object result) {
+                Log.d(TAG,"Upload success!");
+                mProgressBar.setVisibility(View.GONE);
+                mIsUploading = false;
+                Toast.makeText(PublishImageActivity.this,"发布成功",Toast.LENGTH_LONG).show();
+                finish();
+            }
+
+            @Override
+            public void onReqFailed(String errorMsg) {
+                Log.d(TAG,"Upload failed. " + errorMsg);
+                if (mRequestCancel) {
+                    // 用户主动放弃本次上载
+                    return;
+                }
+                mProgressBar.setVisibility(View.GONE);
+                mIsUploading = false;
+                Toast.makeText(PublishImageActivity.this,"发布失败",Toast.LENGTH_LONG).show();
+                AlertDialog.Builder builder = new AlertDialog.Builder(PublishImageActivity.this);
+                builder.setTitle("提示")
+                        .setMessage("发布失败:" + errorMsg)
+                        .setPositiveButton(getString(R.string.action_retry), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog,
+                                                int which) {
+                                try {
+                                    publish();
+                                } catch (URISyntaxException e) {
+                                    e.printStackTrace();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        })
+                        .setNegativeButton(getString(R.string.action_cancel), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog,
+                                                int which) {
+                                finish();
+                            }
+                        })
+                        .show();
+            }
+        });
     }
 
     private boolean isDescriptionValid(String s) {
@@ -427,14 +515,35 @@ public class PublishImageActivity extends AppCompatActivity {
 
     Handler mHandler = new Handler() {
 
+        @RequiresApi(api = Build.VERSION_CODES.KITKAT)
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             int what = msg.what;
-            if(what == MESSAGE_UPDATE_ADDRESS){
-                //位置变化 更改位置显示
-                mAddressView.setText((CharSequence) msg.obj);
+            switch (what){
+                case MESSAGE_UPDATE_ADDRESS:
+                    //位置变化 更改位置显示
+                    mAddressView.setText((CharSequence) msg.obj);
+                    break;
+                case MESSAGE_COMPRESS_IMAGE_START:
+                    mIsCompressing = true;
+                    showProgressDialog("正在压缩图片...");
+                    break;
+                case MESSAGE_COMPRESS_IMAGE_FINISH:
+                    mIsCompressing = false;
+                    dismissProgressDialog();
+                    // 压缩完成 上传图片
+                    uploadImages();
+                    break;
+                case MESSAGE_COMPRESS_IMAGE_ERROR:
+                    mIsCompressing = false;
+                    dismissProgressDialog();
+                    Toast.makeText(PublishImageActivity.this,"压缩图片错误",Toast.LENGTH_LONG).show();
+                    // 清空压缩图片列表
+                    mCompressedImageFileList.clear();
+                    break;
             }
+
         }
     };
 
@@ -481,5 +590,18 @@ public class PublishImageActivity extends AppCompatActivity {
         super.onPause();
         //友盟Session启动、App使用时长等基础数据统计
         MobclickAgent.onPause(this);
+    }
+
+    private void showProgressDialog(String message){
+        mProgressDialog = new ProgressDialog(this);
+        mProgressDialog.setIndeterminate(true);
+        mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        mProgressDialog.setMessage(message);
+        mProgressDialog.show();
+    }
+    private void dismissProgressDialog(){
+        if (mProgressDialog!=null){
+            mProgressDialog.dismiss();
+        }
     }
 }

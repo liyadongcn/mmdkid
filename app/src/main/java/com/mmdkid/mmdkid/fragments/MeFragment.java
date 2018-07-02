@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -60,10 +62,12 @@ public class MeFragment extends Fragment implements View.OnClickListener{
     private LinearLayout mStar;
     private LinearLayout mFollow;
     private LinearLayout mHistory;
-
+    private LinearLayout mDayNight;
     private LinearLayout mPublishManage;
 
     private boolean isUpdatingUserInfo = false;
+
+    private boolean isNightMode = false;
 
     public MeFragment() {
         // Required empty public constructor
@@ -138,6 +142,9 @@ public class MeFragment extends Fragment implements View.OnClickListener{
 
         mHistory = (LinearLayout) view.findViewById(R.id.llHistory);
         mHistory.setOnClickListener(this);
+
+        mDayNight = (LinearLayout) view.findViewById(R.id.llDayNight);
+        mDayNight.setOnClickListener(this);
 
         mPublishManage = (LinearLayout) view.findViewById(R.id.llPublishManage);
         mPublishManage.setOnClickListener(this);
@@ -249,6 +256,17 @@ public class MeFragment extends Fragment implements View.OnClickListener{
             case R.id.llPublishManage:
                 intent = new Intent(mContext, PublishManageActivity.class);
                 startActivity(intent);
+                break;
+            case R.id.llDayNight:
+                /*if (((App)getActivity().getApplication()).isNightMode()){
+                    ((App)getActivity().getApplication()).setNightMode(false);
+                    ((AppCompatActivity)getActivity()).getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                    ((AppCompatActivity)getActivity()).recreate();
+                }else {
+                    ((App)getActivity().getApplication()).setNightMode(true);
+                    ((AppCompatActivity)getActivity()).getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                    ((AppCompatActivity)getActivity()).recreate();
+                }*/
                 break;
         }
     }

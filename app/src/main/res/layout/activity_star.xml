@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    app:statusBarBackground="@color/bb_inActiveBottomBarItemColor"
+
     tools:context="com.mmdkid.mmdkid.StarActivity">
 
     <include layout="@layout/content_star" />

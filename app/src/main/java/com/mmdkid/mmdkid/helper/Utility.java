@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -17,6 +18,7 @@ import android.util.Log;
 
 import com.yanzhenjie.permission.Action;
 import com.yanzhenjie.permission.AndPermission;
+
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -372,4 +374,5 @@ public class Utility {
     public static long dateToLong(Date date) {
         return date.getTime();
     }
+
 }

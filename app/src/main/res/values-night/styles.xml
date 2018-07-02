@@ -15,9 +15,9 @@
         <item name="windowNoTitle">true</item>
         <!--<item name="android:windowDrawsSystemBarBackgrounds">true</item>-->
         <!--<item name="android:statusBarColor">@android:color/transparent</item>-->
-        <item name="colorPrimary">@color/primary</item>
-        <item name="colorPrimaryDark">@color/primary_dark</item>
-        <item name="colorAccent">@color/accent</item>
+        <item name="colorPrimary">@color/translucent_black_50</item>
+        <item name="colorPrimaryDark">@color/translucent_black_05</item>
+        <item name="colorAccent">@color/translucent_black_75</item>
     </style>
 
 
@@ -56,12 +56,6 @@
         <item name="android:backgroundDimEnabled">false</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="colorAccent">#ffE91E63</item>
-    </style>
-
-    <style name="AppProgressBar" parent="AppTheme">
-        <item name="android:backgroundDimEnabled">false</item>
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="colorAccent">@color/gray</item>
     </style>
 
 </resources>
