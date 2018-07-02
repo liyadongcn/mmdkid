@@ -50,6 +50,8 @@ public class App extends Application {
     public static final String CLIENT_ID_WITH_AD = "5c53df88f2e6681c";
     public static final String CLIENT_SECRET_WITH_AD = "cfe544d362b97ec00da0dfd29aceceec";
 
+    private boolean isNightMode = false;
+
 
    /* @Override
     protected void attachBaseContext(Context base) {
@@ -57,6 +59,13 @@ public class App extends Application {
         MultiDex.install(base);
     }
 */
+   public boolean isNightMode(){
+       return isNightMode;
+   }
+
+   public void setNightMode(boolean nightMode){
+       isNightMode = nightMode;
+   }
 
     @Override
     public void onCreate() {

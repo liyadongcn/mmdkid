@@ -30,6 +30,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,6 +39,7 @@ import com.facebook.drawee.view.SimpleDraweeView;
 import com.mmdkid.mmdkid.helper.HtmlUtil;
 import com.mmdkid.mmdkid.helper.ProgressDialog;
 import com.mmdkid.mmdkid.models.ActionLog;
+import com.mmdkid.mmdkid.models.Behavior;
 import com.mmdkid.mmdkid.models.Comment;
 import com.mmdkid.mmdkid.models.Content;
 import com.mmdkid.mmdkid.models.Diary;
@@ -76,7 +78,11 @@ public class WebViewActivity extends AppCompatActivity {
     private ContentLoadingProgressBar mProgressBar;
     private LinearLayout mCommentForm;
     private EditText mCommentView;
-    private ImageButton   mSendButton;
+    private TextView   mSendButton;
+    private ImageView mStarView;
+
+    private boolean mIsStared=false;
+    private Behavior mBehaviorStar; // 当前收藏记录
 
     private List<String> mCookies;
     private boolean mUsingCookies = true;
@@ -121,11 +127,27 @@ public class WebViewActivity extends AppCompatActivity {
         }
 
         mCommentView = (EditText) findViewById(R.id.comment) ;
-        mSendButton = (ImageButton) findViewById(R.id.send);
+        mSendButton = (TextView) findViewById(R.id.tvPublish);
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 sendComment();
+            }
+        });
+
+        mStarView = (ImageView) findViewById(R.id.ivStar);
+        initStarView();
+        mStarView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mIsStared){
+                    // 取消收藏
+                    unstar();
+                }else{
+                    // 收藏
+                    star();
+                }
+
             }
         });
 
@@ -155,6 +177,112 @@ public class WebViewActivity extends AppCompatActivity {
         // 初始化用户信息
         //showUser();
 
+    }
+    private void initStarView()
+    {
+        if (mModel == null || mModel instanceof com.mmdkid.mmdkid.models.gw.Content ) return;
+        App app = (App) getApplicationContext();
+        if (app.isGuest()) return ;
+        mCurrentUser = app.getCurrentUser();
+        Behavior.find(this, new RESTAPIConnection.OnConnectionListener() {
+            @Override
+            public void onErrorRespose(Class c, String error) {
+                // 查找收藏记录出错
+            }
+
+            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+            @Override
+            public void onResponse(Class c, ArrayList responseDataList) {
+                if (c == Behavior.class && !responseDataList.isEmpty()){
+                    // 找到收藏记录
+                    Log.d(TAG,"Find a star behavior record. ");
+                    mBehaviorStar = (Behavior) responseDataList.get(0);
+                    mStarView.setImageDrawable(getDrawable(R.drawable.star_yellow));
+                    mIsStared =true;
+                }
+                else{
+                    // 没有该收藏记录
+                    Log.d(TAG,"Not find a star behavior record. ");
+                    mStarView.setImageDrawable(getDrawable(R.drawable.ic_star_outline_24dp));
+                }
+            }
+        }).where("user_id",Integer.toString(mCurrentUser.mId))
+                .where("name",Behavior.BEHAVIOR_STAR)
+                .where("model_type",((Content)mModel).mModelType)
+                .where("model_id", String.valueOf(((Content)mModel).mModelId))
+                .all();
+    }
+    // 收藏当前内容
+    private void star() {
+        Log.d(TAG,"Start star....");
+        App app = (App) getApplicationContext();
+        if (app.isGuest()){
+            // 未登录，弹出登录界面
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
+            return;
+        }else {
+            // 已登录，可以收藏
+            mCurrentUser = app.getCurrentUser();
+            final Behavior behavior = new Behavior();
+            behavior.mModelType =((Content)mModel).mModelType;
+            behavior.mModelId = ((Content)mModel).mModelId;
+            behavior.mName = Behavior.BEHAVIOR_STAR;
+            behavior.mUserId = mCurrentUser.mId;
+            behavior.save(Model.ACTION_CREATE,this, new RESTAPIConnection.OnConnectionListener() {
+                @Override
+                public void onErrorRespose(Class c, String error) {
+                    // 存储失败
+                    Log.d(TAG,"Save a behavior failed. " + error);
+                    Toast.makeText(WebViewActivity.this,"收藏失败~",Toast.LENGTH_LONG).show();
+                }
+
+                @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+                @Override
+                public void onResponse(Class c, ArrayList responseDataList) {
+                    // 存储成功
+                    if(c == Behavior.class && !responseDataList.isEmpty()){
+                        mBehaviorStar = (Behavior) responseDataList.get(0);
+                        Log.d(TAG,"Save a behavior success. id is " + mBehaviorStar.mId);
+                        Toast.makeText(WebViewActivity.this,"已收藏",Toast.LENGTH_LONG).show();
+                        mStarView.setImageDrawable(getDrawable(R.drawable.star_yellow));
+                        mIsStared = true;
+                    }
+                }
+            });
+        }
+    }
+    // 取消收藏当前内容
+    private void unstar() {
+        App app = (App) getApplicationContext();
+        if (app.isGuest()){
+            // 未登录，弹出登录界面
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
+            return;
+        }else {
+            // 已登录，可以取消收藏
+            mCurrentUser = app.getCurrentUser();
+            if (mBehaviorStar == null) return;
+            mBehaviorStar.delete(this, new RESTAPIConnection.OnConnectionListener() {
+                @Override
+                public void onErrorRespose(Class c, String error) {
+                    // 取消收藏过程中失败
+                    Log.d(TAG,"Delete a star behavior record failed. ");
+                }
+
+                @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+                @Override
+                public void onResponse(Class c, ArrayList responseDataList) {
+                    // 删除收藏记录成功
+                    Log.d(TAG,"Delete a star behavior record success. ");
+                    mBehaviorStar = null;
+                    mIsStared =false;
+                    Toast.makeText(WebViewActivity.this,"已取消收藏",Toast.LENGTH_LONG).show();
+                    mStarView.setImageDrawable(getDrawable(R.drawable.ic_star_outline_24dp));
+                }
+            });
+        }
     }
     private void setUserOnToolbarVisibility(int visibility){
         // 用户头像
@@ -582,6 +710,7 @@ public class WebViewActivity extends AppCompatActivity {
                 Log.d(TAG,"Oh no! " +  error.toString());
             }
 
+            // 处理网页内连接的点击
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 Uri uri = request.getUrl();
@@ -591,13 +720,27 @@ public class WebViewActivity extends AppCompatActivity {
                 Log.d(TAG,"Url host :"+uri.getHost());
                 Log.d(TAG,"Url encodedQuery :"+uri.getEncodedQuery());
                 if (uri.getScheme().equals("http") && uri.getHost().equals("www.mmdkid.cn") && uri.getEncodedQuery().contains("r=user%2Fshow-me")) {
+                    // 点击用户头像
                     showUserHomePage();
                     //表示告诉系统我们已经拦截了URL并做处理，不需要再触发系统默认的行为
                     return true;
                 }
+                if (uri.getScheme().equals("http") && uri.getHost().equals("www.mmdkid.cn") && uri.getEncodedQuery().contains("r=post%2Fshare-wx")) {
+                    // 点击分享到微信
+                    share(SHARE_MEDIA.WEIXIN);
+                    //表示告诉系统我们已经拦截了URL并做处理，不需要再触发系统默认的行为
+                    return true;
+                }if (uri.getScheme().equals("http") && uri.getHost().equals("www.mmdkid.cn") && uri.getEncodedQuery().contains("r=post%2Fshare-circle")) {
+                    // 点击分享到朋友圈
+                    share(SHARE_MEDIA.WEIXIN_CIRCLE);
+                    //表示告诉系统我们已经拦截了URL并做处理，不需要再触发系统默认的行为
+                    return true;
+                }
+
                 return super.shouldOverrideUrlLoading(view, request);
             }
         });
+
 
         if (TextUtils.isEmpty(url) ) {
             //mWebView.loadData("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"+"<html><body>You scored <b>192</b> points.</body></html>","text/html;charset=UTF-8",null);
@@ -700,6 +843,45 @@ public class WebViewActivity extends AppCompatActivity {
                 }
             }
         });
-
     }
+
+    private void share(SHARE_MEDIA shareMedia){
+        String url;
+        UMImage image;
+        UMWeb web = null;
+        url = getIntent().getStringExtra("url");
+        if(mModel instanceof Content){
+            Content content = (Content) mModel;
+            if (content.mImage!=null && !content.mImage.isEmpty() && !content.mImage.equalsIgnoreCase("null")){
+                // 使用image字段
+                image = new UMImage(WebViewActivity.this, HtmlUtil.getUrl(content.mImage));//网络图片
+            }else if(content.mImageList!=null && !content.mImageList.isEmpty()){
+                // 使用第一张图片
+                image = new UMImage(WebViewActivity.this,  HtmlUtil.getUrl(content.mImageList.get(0)));//网络图片
+            }else{
+                // 使用默认图标
+                image = new UMImage(WebViewActivity.this,R.mipmap.ic_launcher);
+            }
+
+            image.compressStyle = UMImage.CompressStyle.SCALE;//大小压缩，默认为大小压缩，适合普通很大的图
+            url = url+"&showIn=wx"; // 通过该标识显示出app下载提示
+            Log.d(TAG,"Sharing Url is " + url);
+            web = new UMWeb(url);
+            web.setTitle(content.mTitle);//标题
+            web.setThumb(image);  //缩略图
+            String text = HtmlUtil.getTextFromHtml(content.mContent,20);
+            if (text!=null && !text.equals("null")) {
+                web.setDescription(text);//取最多20字作为描述
+            }else{
+                web.setDescription((String) getResources().getText(R.string.share_description_empty));
+            }
+        }
+
+        new ShareAction(WebViewActivity.this)
+                .setPlatform(shareMedia)//传入平台
+                .withMedia(web)//分享内容
+                .setCallback(mShareListener)//回调监听器
+                .share();
+    }
+
 }
