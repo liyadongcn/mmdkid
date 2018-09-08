@@ -7,6 +7,8 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -20,7 +22,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.mmdkid.mmdkid.helper.FileUtil;
 import com.mmdkid.mmdkid.helper.HtmlUtil;
+import com.mmdkid.mmdkid.helper.ImageUtil;
+import com.mmdkid.mmdkid.helper.ProgressDialog;
 import com.mmdkid.mmdkid.helper.Utility;
 import com.mmdkid.mmdkid.models.Model;
 import com.mmdkid.mmdkid.models.Post;
@@ -66,6 +71,15 @@ public class PublishPostActivity extends AppCompatActivity {
     private boolean mIsUploading=false; // 是否正在向服务器上载内容
     private boolean mRequestCancel=false; // 是否用户主动放弃上传内容
 
+    private final static int MESSAGE_COMPRESS_IMAGE_FINISH = 11; // 压缩文章中图片结束
+    private final static int MESSAGE_COMPRESS_IMAGE_START = 12;  // 压缩文章中图片开始
+    private final static int MESSAGE_COMPRESS_IMAGE_ERROR = 13;  // 压缩文章中图片有错误
+
+    private ProgressDialog mProgressDialog;
+
+    private boolean mIsCompressing = false; // 正在压缩图片
+    private ArrayList<File> mCompressedImageFileList; // 压缩后的图片列表
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,6 +107,7 @@ public class PublishPostActivity extends AppCompatActivity {
         return true;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()){
@@ -128,15 +143,24 @@ public class PublishPostActivity extends AppCompatActivity {
                     publish();
                 } catch (URISyntaxException e) {
                     e.printStackTrace();
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
                 break;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void publish() throws URISyntaxException {
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    private void publish() throws Exception {
         boolean cancel = false;
         View focusView = null;
+
+        if(mIsCompressing) {
+            // 压缩图片过程中 不能再次发布
+            Toast.makeText(this,"正在压缩图片", Toast.LENGTH_LONG).show();
+            cancel = true;
+        }
 
         if(mIsUploading){
             // 上载过程中 不能再次发布
@@ -172,8 +196,8 @@ public class PublishPostActivity extends AppCompatActivity {
                 for (String image : mImageList){
                     Log.d(TAG,"Image is :" + image);
                 }
-                // 上传所有的本地文件到服务器 并等待结果
-                uploadImage();
+                // 压缩文章中的图片 根据压缩返回的消息 上传文章
+                compressImages();
             }
 
         }
@@ -181,8 +205,9 @@ public class PublishPostActivity extends AppCompatActivity {
     }
     /**
      *  上传文章中所有的本地图片到服务器
+     *  文章中的图片已经经过压缩
      */
-    private void uploadImage() throws URISyntaxException {
+    private void upload() throws URISyntaxException {
         App app = (App)getApplication();
         if (app.isGuest()){
             Toast.makeText(PublishPostActivity.this,"还没有登录，不能发布!",Toast.LENGTH_LONG).show();
@@ -192,11 +217,11 @@ public class PublishPostActivity extends AppCompatActivity {
         OkHttpManager manager = OkHttpManager.getInstance(this);
         manager.setAccessToken(token.mAccessToken);
         IdentityHashMap<String, Object> paramsMap = new IdentityHashMap<String, Object>();
-        for(int i =0 ; i < mImageList.size(); i++){
-            Log.d(TAG,"File path :" +mImageList.get(i));
-            //URI uri = new URI(mImageList.get(i));
-            File file = new File(HtmlUtil.getString(mImageList.get(i),"file://"));
-            paramsMap.put(new String("file[]"),file);
+        if (mCompressedImageFileList!=null && !mCompressedImageFileList.isEmpty()) {
+            for(int i =0 ; i < mCompressedImageFileList.size(); i++){
+                Log.d(TAG,"Compressed Image path in the post:" +mCompressedImageFileList.get(i).getAbsolutePath());
+                paramsMap.put(new String("file[]"),mCompressedImageFileList.get(i));
+            }
         }
         mProgressBar.setVisibility(View.VISIBLE);
         mIsUploading = true;
@@ -561,5 +586,109 @@ public class PublishPostActivity extends AppCompatActivity {
         super.onPause();
         //友盟Session启动、App使用时长等基础数据统计
         MobclickAgent.onPause(this);
+    }
+
+    Handler mHandler = new Handler() {
+
+        @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            int what = msg.what;
+            switch (what){
+                case MESSAGE_COMPRESS_IMAGE_START:
+                    mIsCompressing = true;
+                    showProgressDialog("正在压缩图片...");
+                    break;
+                case MESSAGE_COMPRESS_IMAGE_FINISH:
+                    mIsCompressing = false;
+                    dismissProgressDialog();
+                    // 压缩图片完成 上传文章和图片
+                    try {
+                        upload();
+                    } catch (URISyntaxException e) {
+                        e.printStackTrace();
+                        Toast.makeText(PublishPostActivity.this,"发布文章错误",Toast.LENGTH_LONG).show();
+                    }
+                    break;
+                case MESSAGE_COMPRESS_IMAGE_ERROR:
+                    mIsCompressing = false;
+                    dismissProgressDialog();
+                    Toast.makeText(PublishPostActivity.this,"压缩文章中图片错误",Toast.LENGTH_LONG).show();
+                    // 清空压缩图片列表
+                    mCompressedImageFileList.clear();
+                    break;
+            }
+
+        }
+    };
+
+    private void showProgressDialog(String message){
+        mProgressDialog = new ProgressDialog(this);
+        mProgressDialog.setIndeterminate(true);
+        mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        mProgressDialog.setMessage(message);
+        mProgressDialog.show();
+    }
+    private void dismissProgressDialog(){
+        if (mProgressDialog!=null){
+            mProgressDialog.dismiss();
+        }
+    }
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    private void compressImages() throws Exception {
+        App app = (App)getApplication();
+        if (app.isGuest()){
+            // 用户没有登录 直接返回
+            finish();
+            return ;
+        }
+        if(mImageList==null || mImageList.isEmpty()) return; // 若没有要上传的图片
+        if(mCompressedImageFileList==null){
+            mCompressedImageFileList = new ArrayList<File>();
+        }else{
+            mCompressedImageFileList.clear();
+        }
+        //使用子线程压缩图片
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // 发送开始压缩图片的消息
+                Message msg = Message.obtain();
+                msg.what = MESSAGE_COMPRESS_IMAGE_START;
+                mHandler.sendMessage(msg);
+                try {
+                    for(int i =0 ; i < mImageList.size(); i++){
+                        //URI jURI = new URI(uri.toString());
+                        //File file = new File(jURI);
+                        Log.d(TAG,"File uri :" + mImageList.get(i).toString());
+                        Log.d(TAG,"File path :" +HtmlUtil.getString(mImageList.get(i),"file://"));
+                        File file = new File(HtmlUtil.getString(mImageList.get(i),"file://"));
+                        File compressedFile = ImageUtil.compress(PublishPostActivity.this,file);
+                        // 原始图片情况
+                        int[] demension = ImageUtil.getImageWidthHeight(file.getAbsolutePath());
+                        long size= FileUtil.getFileSize(file);
+                        Log.d(TAG,"Original Image File path >>>" + file.getAbsolutePath());
+                        Log.d(TAG,"Original Image width  height  size >>>" + demension[0] + " "+ demension[1] + " " +size);
+                        // 图片压缩后
+                        demension = ImageUtil.getImageWidthHeight(compressedFile.getAbsolutePath());
+                        size= FileUtil.getFileSize(compressedFile);
+                        Log.d(TAG,"Compressed Image File path >>>" +compressedFile.getAbsolutePath());
+                        Log.d(TAG,"Compressed Image width  height size >>>" + demension[0] + " "+ demension[1] + " " +size );
+                        mCompressedImageFileList.add(compressedFile);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    // 发送压缩图片错误消息
+                    msg = Message.obtain();
+                    msg.what = MESSAGE_COMPRESS_IMAGE_ERROR;
+                    mHandler.sendMessage(msg);
+                }
+                // 发送压缩结束的消息
+                msg = Message.obtain();
+                msg.what = MESSAGE_COMPRESS_IMAGE_FINISH;
+                mHandler.sendMessage(msg);
+            }
+        }).start();
     }
 }

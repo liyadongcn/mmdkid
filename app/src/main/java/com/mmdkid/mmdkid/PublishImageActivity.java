@@ -69,6 +69,8 @@ public class PublishImageActivity extends AppCompatActivity {
     private Location mCurrentLocation;
 
     private final static int MESSAGE_UPDATE_ADDRESS = 10;
+    private final static int MESSAGE_UPDATE_ADDRESS_LATITUDE = 101;
+    private final static int MESSAGE_UPDATE_ADDRESS_LONGITUDE = 102;
 
     private final static int MESSAGE_COMPRESS_IMAGE_FINISH = 11;
     private final static int MESSAGE_COMPRESS_IMAGE_START = 12;
@@ -235,7 +237,7 @@ public class PublishImageActivity extends AppCompatActivity {
                 msg.what = MESSAGE_COMPRESS_IMAGE_START;
                 mHandler.sendMessage(msg);
                 try {
-                    for(int i =0 ; i < mImageList.size()-1; i++){
+                    for(int i =0 ; i < mImageList.size()-1; i++){ // imageList中包含最后一个加号图片，所以要去掉
                         //URI jURI = new URI(uri.toString());
                         //File file = new File(jURI);
                         Log.d(TAG,"File uri :" + mImageList.get(i).toString());
@@ -287,13 +289,17 @@ public class PublishImageActivity extends AppCompatActivity {
         // 图片压缩并上传
         //showProgressDialog("正在压缩...");
         if (mCompressedImageFileList==null || mCompressedImageFileList.isEmpty()) return;
-        for(int i =0 ; i < mCompressedImageFileList.size()-1; i++){
+        for(int i =0 ; i < mCompressedImageFileList.size(); i++){
             paramsMap.put(new String("file[]"),mCompressedImageFileList.get(i));
         }
         //dismissProgressDialog();
         paramsMap.put("title",mTitleView.getText().toString());
         paramsMap.put("content",mDescriptionView.getText().toString());
         paramsMap.put("status",10);
+        //发布的位置名称
+        paramsMap.put("location",mAddressView.getText().toString());
+        paramsMap.put("latitude",mCurrentLocation.getLatitude());
+        paramsMap.put("longitude",mCurrentLocation.getLongitude());
         mProgressBar.setVisibility(View.VISIBLE);
         mIsUploading =true;
         manager.upLoadFile("image-posts", paramsMap, new OkHttpManager.ReqProgressCallBack<Object>() {

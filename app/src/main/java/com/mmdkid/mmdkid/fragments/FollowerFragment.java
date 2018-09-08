@@ -38,6 +38,7 @@ import java.util.ArrayList;
  * to handle interaction events.
  * Use the {@link FollowerFragment#newInstance} factory method to
  * create an instance of this fragment.
+ * 用户粉丝列表
  */
 public class FollowerFragment extends Fragment {
     private static final String TAG = "FollowerFragment";

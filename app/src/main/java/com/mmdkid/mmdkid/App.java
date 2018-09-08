@@ -3,12 +3,15 @@ package com.mmdkid.mmdkid;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.imagepipeline.core.ImagePipelineConfig;
 import com.facebook.imagepipeline.decoder.SimpleProgressiveJpegConfig;
 import com.mmdkid.mmdkid.channel.ChannelEntity;
+import com.mmdkid.mmdkid.helper.ContactUtil;
+import com.mmdkid.mmdkid.helper.DeviceUtil;
 import com.mmdkid.mmdkid.helper.ListDataSave;
 import com.mmdkid.mmdkid.models.ActionLog;
 import com.mmdkid.mmdkid.models.Token;
@@ -29,20 +32,23 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+
 /*
  * Created by Alexander Krol (troy379) on 29.08.16.
  */
 public class App extends Application {
     private static final String TAG = "mmdApp";
 
-    public static final String PREFS_NAME = "momoda";
-    private static final String PREFS_SEARCH = "com.mmdkid.mmdkid.SEARCH";
+    public static final String  PREFS_NAME = "momoda";
+    private static final String PREFS_SEARCH = "com.mmdkid.mmdkid.SEARCH";// 本地的搜索关键词设置记录
     private static final String PREF_HOT_KEYWORDS = "hotKeyWords";
     private static final String PREF_HISTORY_KEYWORDS = "historyKeyWords";
     private static final String PREF_CHANNELS = "channels";
     private static final String PREF_OTHER_CHANNELS = "otherchannels";
     private static final String PREF_COOKIES = "cookies";
     private static final String PREF_LOGS = "logs";
+    public static final String  PREFS_UPLOAD_INFO = "upload_info"; //有关上传服务器信息的设置记录
+    public static final String  PREF_DEVICE_CONTACT = "device&contact"; //设备及联系人信息是否已经上传服务器
 
     private boolean mIsGuest = true;
 
@@ -422,6 +428,16 @@ public class App extends Application {
         SharedPreferences.Editor editor = settings.edit();
         editor.putString(PREF_LOGS,null);
         editor.commit();
+    }
+    public static void setDeviceContactUploaded(Context context,boolean isUploaded){
+        SharedPreferences settings = context.getSharedPreferences(App.PREFS_UPLOAD_INFO, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putBoolean(PREF_DEVICE_CONTACT,isUploaded);
+        editor.commit();
+    }
+    public static boolean isDeviceContactUploaded(Context context){
+        SharedPreferences settings = context.getSharedPreferences(PREFS_UPLOAD_INFO, Context.MODE_PRIVATE);
+        return  settings.getBoolean(PREF_DEVICE_CONTACT,false);
     }
 }
 

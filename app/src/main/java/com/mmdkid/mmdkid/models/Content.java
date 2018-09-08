@@ -30,6 +30,7 @@ public class Content extends Model {
     public static final String TYPE_IMAGE = "imagepost";
     public static final String TYPE_HOT = "hot";
     public static final String TYPE_PUSH = "push";
+    public static final String TYPE_FOLLOW = "follow";
 
     public String mId;
     public String mTitle;
@@ -160,6 +161,7 @@ public class Content extends Model {
 
     @Override
     public int getViewType(){
+        // 若没有设置显示式样，则给出缺省的式样
         if(mViewType == 0){
             switch(this.mModelType){
                 case TYPE_VIDEO:

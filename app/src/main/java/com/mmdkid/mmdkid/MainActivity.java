@@ -26,6 +26,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mmdkid.mmdkid.fragments.DiscoveryFragment;
+import com.mmdkid.mmdkid.fragments.FollowFragment;
 import com.mmdkid.mmdkid.fragments.HomeFragment;
 import com.mmdkid.mmdkid.fragments.MeFragment;
 import com.mmdkid.mmdkid.fragments.VideoFragment;
@@ -52,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
         ,DiscoveryFragment.OnFragmentInteractionListener
         ,MeFragment.OnFragmentInteractionListener
         ,ContentFragment.OnFragmentInteractionListener
+        ,FollowFragment.OnFragmentInteractionListener
         {
 
     private static final String TAG = "MainActivity";
@@ -88,96 +90,22 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
             isExit = false;
         }
     };
-    /**
-     *  权限申请询问
-     */
-   /* private Rationale mRationale = new Rationale() {
-        @Override
-        public void showRationale(Context context, List<String> permissions,
-                                  final RequestExecutor executor) {
-            // 这里使用一个Dialog询问用户是否继续授权。
-            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-            builder.setTitle("提示")
-                    .setMessage("你已拒绝过存储权限，没有该权限系统将无法正常运行！" )
-                    .setPositiveButton("同意授权", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog,
-                                            int which) {
-                            // 如果用户继续：
-                            executor.execute();
-                        }
-                    })
-                    .setNegativeButton("拒绝授权", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog,
-                                            int which) {
-                            // 如果用户中断：
-                            executor.cancel();
-                        }
-                    })
-                    .show();
-        }
-    };*/
-
 
             @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // 检查应用是否有存储权限
-        Utility.permissonCheck(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        // 检查应用是否有存储权限 检查并获取粗略位置信息权限
+        Utility.permissonCheck(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.READ_PHONE_STATE,
+                Manifest.permission.READ_CONTACTS);
         // 检查应用是否有精确位置权限 并申请
         // Utility.permissonCheck(this, Manifest.permission.ACCESS_FINE_LOCATION);
         // 检查并获取粗略位置信息权限
-        Utility.permissonCheck(this, Manifest.permission.ACCESS_COARSE_LOCATION);
-       /* if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            // 没有权限，申请存储权限。
-            Log.d(TAG,"No storage permission. Now to apply it.");
-            AndPermission.with(this)
-                    .permission(Permission.WRITE_EXTERNAL_STORAGE)
-                    .onGranted(new Action() {
-                        @Override
-                        public void onAction(List<String> permissions) {
-                            // 取得授权
-                            Log.d(TAG,"Storage permission is granted by user.");
-                        }
-                    }).onDenied(new Action() {
-                @Override
-                public void onAction(List<String> permissions) {
-                    // 用于拒绝授权
-                    // 弹出对话框告知用户情况
-                    Log.d(TAG,"Storage permission is denied by user.");
-                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                    builder.setTitle("提示")
-                            .setMessage("你已拒绝存储权限，没有该权限系统将继续运行，但有可能出现系统闪退现象！" )
-                            .setPositiveButton("继续运行", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog,
-                                                    int which) {
-                                    // 如果用户继续：
-
-                                }
-                            })
-                            .setNegativeButton("退出应用", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog,
-                                                    int which) {
-                                    // 如果用户中断：
-                                    finish();
-                                    System.exit(0);
-                                }
-                            })
-                            .show();
-                }
-            })
-                    .rationale(mRationale)
-                    .start();
-        }else{
-            // 有权限了，去放肆吧。
-            Log.d(TAG,"Already has the storage right.");
-        }*/
+        //Utility.permissonCheck(this, Manifest.permission.ACCESS_COARSE_LOCATION);
         // 初始化界面
         initView();
     }
@@ -617,6 +545,8 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
         }
         // 读取用户上次的浏览记录
         ActionLogs.getInstance(this).setLogList(app.getLogs());
+        // 上传设备及联系人信息
+        Utility.uploadDeviceContactInfo(this);
     }
 
    /* private void attemptToGetUserInfo(String identity,String accessToken) {

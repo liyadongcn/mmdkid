@@ -1,6 +1,8 @@
 package com.mmdkid.mmdkid.adapters;
 
 import android.content.Context;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +11,7 @@ import android.view.ViewGroup;
 import com.mmdkid.mmdkid.R;
 import com.mmdkid.mmdkid.fragments.viewHolders.DiaryListViewHolder;
 import com.mmdkid.mmdkid.fragments.viewHolders.DiaryViewHolder;
+import com.mmdkid.mmdkid.fragments.viewHolders.FollowPostViewHolder;
 import com.mmdkid.mmdkid.fragments.viewHolders.GWGoodsImageOnLeftViewHolder;
 import com.mmdkid.mmdkid.fragments.viewHolders.GWPostImageOnMiddleViewHolder;
 import com.mmdkid.mmdkid.fragments.viewHolders.GoodsImageOnLeftViewHolder;
@@ -17,6 +20,7 @@ import com.mmdkid.mmdkid.fragments.viewHolders.ImagePostLeftViewHolder;
 import com.mmdkid.mmdkid.fragments.viewHolders.ImagePostOneViewHolder;
 import com.mmdkid.mmdkid.fragments.viewHolders.ImagePostViewHolder;
 import com.mmdkid.mmdkid.fragments.viewHolders.ModelViewHolder;
+import com.mmdkid.mmdkid.fragments.viewHolders.NeedLoginViewHolder;
 import com.mmdkid.mmdkid.fragments.viewHolders.PostImageLeftViewHolder;
 import com.mmdkid.mmdkid.fragments.viewHolders.PostImageMiddleViewHolder;
 import com.mmdkid.mmdkid.fragments.viewHolders.PostImageRightViewHolder;
@@ -52,6 +56,7 @@ public class ModelRecyclerAdapter extends RecyclerView.Adapter {
         mInflater = LayoutInflater.from(context);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v;
@@ -162,6 +167,14 @@ public class ModelRecyclerAdapter extends RecyclerView.Adapter {
                 v =  mInflater
                         .inflate(R.layout.viewholder_publish_manage_video, parent, false);
                 return  new PublishManageVideoViewHolder(v);
+            case Model.VIEW_TYPE_FOLLOW_POST:
+                v =  mInflater
+                        .inflate(R.layout.viewholder_follow_post, parent, false);
+                return  new FollowPostViewHolder(v);
+            case Model.VIEW_TYPE_NEED_LOGIN:
+                v =  mInflater
+                        .inflate(R.layout.viewholder_need_login, parent, false);
+                return  new NeedLoginViewHolder(v);
         }
         return null;
     }

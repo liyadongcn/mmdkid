@@ -55,9 +55,17 @@ public class Model extends Object implements Serializable{
     public static final int VIEW_TYPE_GWCONTENT_GOODS_IMAGE_ON_LEFT= 90;
     public static final int VIEW_TYPE_GWCONTENT_POST_IMAGE_ON_MIDDLE= 91;
 
+    // 用户发布内容管理的显示式样
     public static final int VIEW_TYPE_PUBLISH_MANAGE_POST= 100;
     public static final int VIEW_TYPE_PUBLISH_MANAGE_IMAGE= 101;
     public static final int VIEW_TYPE_PUBLISH_MANAGE_VIDEO= 102;
+
+    // 关注用户内容的显示式样
+    public static final int VIEW_TYPE_FOLLOW_POST= 200;
+    public static final int VIEW_TYPE_FOLLOW_IMAGE= 201;
+    public static final int VIEW_TYPE_FOLLOW_VIDEO= 202;
+    // 需要登录显示样式
+    public static final int VIEW_TYPE_NEED_LOGIN = 61;
 
     protected int mViewType=0;
 

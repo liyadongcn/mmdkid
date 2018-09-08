@@ -136,7 +136,7 @@
                             fresco:placeholderImage ="@drawable/umeng_socialize_wechat"
                             fresco:roundAsCircle="true"
                             fresco:roundingBorderWidth = "1dp"
-                            fresco:roundingBorderColor = "@android:color/darker_gray"
+                            fresco:roundingBorderColor = "@android:color/holo_green_dark"
                             android:layout_weight="1"/>
 
                         <com.facebook.drawee.view.SimpleDraweeView
@@ -146,7 +146,7 @@
                             fresco:placeholderImage ="@drawable/umeng_socialize_qq"
                             fresco:roundAsCircle="true"
                             fresco:roundingBorderWidth = "1dp"
-                            fresco:roundingBorderColor = "@android:color/darker_gray"
+                            fresco:roundingBorderColor = "@android:color/holo_blue_dark"
                             android:layout_weight="1"/>
 
                         <com.facebook.drawee.view.SimpleDraweeView
@@ -156,7 +156,7 @@
                             fresco:placeholderImage ="@drawable/umeng_socialize_sina"
                             fresco:roundAsCircle="true"
                             fresco:roundingBorderWidth = "1dp"
-                            fresco:roundingBorderColor = "@android:color/darker_gray"
+                            fresco:roundingBorderColor = "@android:color/holo_orange_dark"
                             android:layout_weight="1"/>
 
                     </LinearLayout>

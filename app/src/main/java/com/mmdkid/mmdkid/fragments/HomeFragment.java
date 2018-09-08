@@ -18,6 +18,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.mmdkid.mmdkid.App;
+import com.mmdkid.mmdkid.LoginActivity;
+import com.mmdkid.mmdkid.MainActivity;
 import com.mmdkid.mmdkid.R;
 import com.mmdkid.mmdkid.channel.ChannelActivity;
 import com.mmdkid.mmdkid.channel.ChannelEntity;
@@ -44,6 +46,8 @@ public class HomeFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    private static final int FIXED_TABS_NUMBER = 4; // 首页固定显示tab页总数
 
     private ViewPager mViewPager;
 
@@ -100,11 +104,39 @@ public class HomeFragment extends Fragment {
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) fragmentView.findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
+        mViewPager.setCurrentItem(1);
         mSectionsPagerAdapter.notifyDataSetChanged();
 
         TabLayout tabLayout = (TabLayout) fragmentView.findViewById(R.id.tabs);
         tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
         tabLayout.setupWithViewPager(mViewPager);
+
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+               /* if (tab.getPosition()==0){
+                    // 用户点击了关注页
+                    Log.d(TAG,"User select the follow tab.");
+                    App app = (App) getActivity().getApplication();
+                    if (app.isGuest()){
+                        // 未登录，弹出登录界面
+                        Intent intent = new Intent(getActivity(), LoginActivity.class);
+                        startActivity(intent);
+                        return;
+                    }
+                }*/
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+                Log.d(TAG,"User reselect the follow tab.");
+            }
+        });
 
         FloatingActionButton fab = (FloatingActionButton) fragmentView.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -285,7 +317,7 @@ public class HomeFragment extends Fragment {
                     Log.d(TAG,"ViewPager channel >>>" + createFragmentName(mViewPager.getId(),Long.valueOf(title.id)));
                     if (createFragmentName(mViewPager.getId(),Long.valueOf(title.id)).equals(fragmentName)){
                         Log.d(TAG,"Find the fragment with same name>>>" + createFragmentName(mViewPager.getId(),Long.valueOf(title.id)));
-                        return i+4;
+                        return i+FIXED_TABS_NUMBER;
                     }
                     i++;
                 }
@@ -302,10 +334,10 @@ public class HomeFragment extends Fragment {
          */
         @Override
         public long getItemId(int position) {
-            if (position<4){
+            if (position<FIXED_TABS_NUMBER){
                 return position;
             }else{
-                return Long.valueOf(mPageTitleList.get(position-4).id)+500; // +500 避免页面多时冲突 title的id和viewpager的id冲突
+                return Long.valueOf(mPageTitleList.get(position-FIXED_TABS_NUMBER).id)+500; // +500 避免页面多时冲突 title的id和viewpager的id冲突
             }
 
         }
@@ -315,6 +347,8 @@ public class HomeFragment extends Fragment {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
             switch (position) {
+                /*case 0:
+                    return FollowFragment.newInstance("","");*/
                 case 0:
                     return ContentFragment.newInstance(Content.TYPE_PUSH,"");
                 case 1:
@@ -323,17 +357,16 @@ public class HomeFragment extends Fragment {
                     return ContentFragment.newInstance(Content.TYPE_VIDEO,"");
                 case 3:
                     return ContentFragment.newInstance(Content.TYPE_IMAGE,"");
-              /*  case 4:
-                    return ContentFragment.newInstance(Content.TYPE_POST,"");*/
                 default:
                     //return PlaceholderFragment.newInstance(position);
-                    // 使用标题头作为搜索依据 过滤内容
-                    if (mPageTitleList.get(position-4).keyWords!=null){
-                        if (! mPageTitleList.get(position-4).keyWords.isEmpty()){
-                            return ContentFragment.newInstance(Content.TYPE_PUSH,mPageTitleList.get(position-4).keyWords);
+                    // 使用标题关键字作为搜索依据 过滤内容
+                    // 若没有关键字则使用标题名称检索过滤内容
+                    if (mPageTitleList.get(position-FIXED_TABS_NUMBER).keyWords!=null){
+                        if (! mPageTitleList.get(position-FIXED_TABS_NUMBER).keyWords.isEmpty()){
+                            return ContentFragment.newInstance(Content.TYPE_PUSH,mPageTitleList.get(position-FIXED_TABS_NUMBER).keyWords);
                         }
                     }
-                    return ContentFragment.newInstance(Content.TYPE_PUSH,mPageTitleList.get(position-4).name);
+                    return ContentFragment.newInstance(Content.TYPE_PUSH,mPageTitleList.get(position-FIXED_TABS_NUMBER).name);
 
             }
 
@@ -342,7 +375,7 @@ public class HomeFragment extends Fragment {
         @Override
         public int getCount() {
             // Show 5 total pages.
-            return 4+mPageTitleList.size();
+            return FIXED_TABS_NUMBER+mPageTitleList.size();
         }
 
 /*        @Override
@@ -358,6 +391,8 @@ public class HomeFragment extends Fragment {
         @Override
         public CharSequence getPageTitle(int position) {
             switch (position) {
+               /* case 0:
+                    return "关注";*/
                 case 0:
                     return "推荐";
                 case 1:
@@ -366,10 +401,8 @@ public class HomeFragment extends Fragment {
                     return "视频";
                 case 3:
                     return "图片";
-               /* case 4:
-                    return "文章";*/
                 default:
-                    return mPageTitleList.get(position-4).name;
+                    return mPageTitleList.get(position-FIXED_TABS_NUMBER).name;
             }
             //return null;
         }

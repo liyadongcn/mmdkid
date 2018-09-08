@@ -18,6 +18,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Timer;
 import java.util.TimerTask;
+/**
+ * 单例模式
+ * 定时上传浏览记录并定时保存浏览记录到本地
+ * 不能上传的浏览记录将被删除
+ * 上传图片及视频的观看记录，图片及视频的观看为本地直接观看服务器端没有记录
+ */
 
 public class ActionLogs {
     private static final String TAG = "ActionLogs";
