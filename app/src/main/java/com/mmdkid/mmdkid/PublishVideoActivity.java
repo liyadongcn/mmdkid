@@ -1,14 +1,26 @@
 package com.mmdkid.mmdkid;
 
+import android.Manifest;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -34,8 +46,12 @@ import com.zhihu.matisse.MimeType;
 import com.zhihu.matisse.engine.impl.PicassoEngine;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Locale;
 
 import cn.jzvd.JZVideoPlayer;
 import cn.jzvd.JZVideoPlayerStandard;
@@ -64,6 +80,13 @@ public class PublishVideoActivity extends AppCompatActivity implements View.OnCl
 
     private boolean mIsUploading=false; // 是否正在向服务器上载内容
     private boolean mRequestCancel=false; // 是否用户主动放弃上传内容
+
+    // 发布内容的位置信息
+    private LocationManager mLocationManager;
+    private String mAddressText;
+    private Location mCurrentLocation;
+    // 位置信息改变
+    private final static int MESSAGE_UPDATE_ADDRESS = 10;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -199,6 +222,9 @@ public class PublishVideoActivity extends AppCompatActivity implements View.OnCl
             paramsMap.put(new String("file"),cover);
             paramsMap.put("name",mTitleView.getText().toString());
             paramsMap.put("description",mDescriptionView.getText().toString());
+            paramsMap.put("location",mAddressText);
+            paramsMap.put("latitude",mCurrentLocation.getLatitude());
+            paramsMap.put("longitude",mCurrentLocation.getLongitude());
             mProgressBar.setVisibility(View.VISIBLE);
             mIsUploading = true;
             manager.upLoadFile("media", paramsMap, new OkHttpManager.ReqProgressCallBack<Object>() {
@@ -398,6 +424,195 @@ public class PublishVideoActivity extends AppCompatActivity implements View.OnCl
         //友盟Session启动、App使用时长等基础数据统计
         MobclickAgent.onResume(this);
     }
+    @Override
+    protected void onStart() {
+        super.onStart();
 
+        // Check if the GPS setting is currently enabled on the device.
+        // This verification should be done during onStart() because the system calls this method
+        // when the user returns to the activity, which ensures the desired location provider is
+        // enabled each time the activity resumes from the stopped state.
+        // 获取位置服务管理器
+        mLocationManager =
+                (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        //当前gps是否可用
+        final boolean gpsEnabled = mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+
+        if (!gpsEnabled) {
+            // Build an alert dialog here that requests that the user enable
+            // the location services, then when the user clicks the "OK" button,
+            // call enableLocationSettings()
+            // 转到gps设置界面，让用户设置
+            //new EnableGpsDialogFragment().show(getSupportFragmentManager(), "enableGpsDialog");
+        }
+
+        setup();
+    }
+
+    //用户位置改变监听器
+    private final LocationListener listener = new LocationListener() {
+
+
+        @Override
+        public void onLocationChanged(Location location) {
+            // A new location update is received.  Do something useful with it.  Update the UI with
+            // the location update.
+            //当位置改变时更新用户位置信息
+            updateUILocation(location);
+            mCurrentLocation = location;
+        }
+
+
+        @Override
+        public void onProviderDisabled(String provider) {
+        }
+
+
+        @Override
+        public void onProviderEnabled(String provider) {
+        }
+
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+        }
+    };
+
+    // Set up fine and/or coarse location providers depending on whether the fine provider or
+    // both providers button is pressed.
+    private void setup() {
+        Location gpsLocation = null;
+        Location networkLocation = null;
+        mLocationManager.removeUpdates(listener);
+        mAddressText = getString(R.string.location_unkown);
+        // Get coarse and fine location updates.
+        // Request updates from both fine (gps) and coarse (network) providers.
+        gpsLocation = requestUpdatesFromProvider(
+                LocationManager.GPS_PROVIDER, R.string.location_not_support_gps);
+        //获取 network location实例
+        networkLocation = requestUpdatesFromProvider(
+                LocationManager.NETWORK_PROVIDER, R.string.location_not_support_network);
+
+        // If both providers return last known locations, compare the two and use the better
+        // one to update the UI.  If only one provider returns a location, use it.
+        if (gpsLocation != null && networkLocation != null) {
+            updateUILocation(gpsLocation);
+        } else if (gpsLocation != null) {
+            updateUILocation(gpsLocation);
+        } else if (networkLocation != null) {
+            updateUILocation(networkLocation);
+        }
+
+    }
+
+    /**
+     * Method to register location updates with a desired location provider.  If the requested
+     * provider is not available on the device, the app displays a Toast with a message referenced
+     * by a resource id.
+     *
+     * @param provider Name of the requested provider.
+     * @param errorResId Resource id for the string message to be displayed if the provider does
+     *                   not exist on the device.
+     * @return A previously returned {@link android.location.Location} from the requested provider,
+     *         if exists.
+     */
+    //注册位置改变监听器
+    private Location requestUpdatesFromProvider(final String provider, final int errorResId) {
+        Location location = null;
+        if (mLocationManager.isProviderEnabled(provider)) {
+            //注册监听器
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                    && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return null;
+            }
+            mLocationManager.requestLocationUpdates(provider, 10000, 10, listener);
+            //最后一次的位置信息会被保存
+            location = mLocationManager.getLastKnownLocation(provider);
+        } else {
+            Toast.makeText(this, errorResId, Toast.LENGTH_LONG).show();
+        }
+        return location;
+    }
+
+    private void updateUILocation(Location location) {
+        doReverseGeocoding(location);
+    }
+
+    private void doReverseGeocoding(Location location) {
+        // Since the geocoding API is synchronous and may take a while.  You don't want to lock
+        // up the UI thread.  Invoking reverse geocoding in an AsyncTask.
+        (new PublishVideoActivity.ReverseGeocodingTask(this)).execute(new Location[] {location});
+    }
+
+    // AsyncTask encapsulating the reverse-geocoding API.  Since the geocoder API is blocked,
+    // we do not want to invoke it from the UI thread.
+    private class ReverseGeocodingTask extends AsyncTask<Location, Void, Void> {
+        Context mContext;
+
+
+        public ReverseGeocodingTask(Context context) {
+            super();
+            mContext = context;
+        }
+
+
+        @Override
+        protected Void doInBackground(Location... params) {
+            Geocoder geocoder = new Geocoder(mContext, Locale.getDefault());
+
+
+            Location loc = params[0];
+            List<Address> addresses = null;
+            try {
+                addresses = geocoder.getFromLocation(loc.getLatitude(), loc.getLongitude(), 1);
+            } catch (IOException e) {
+                e.printStackTrace();
+                // Update address field with the exception.
+                Message.obtain(mHandler, MESSAGE_UPDATE_ADDRESS, e.toString()).sendToTarget();
+            }
+            if (addresses != null && addresses.size() > 0) {
+                Address address = addresses.get(0);
+                // Format the first line of address (if available), city, and country name.
+                String addressText = String.format("%s, %s, %s",
+                        address.getMaxAddressLineIndex() > 0 ? address.getAddressLine(0) : "",
+                        address.getLocality(),
+                        address.getCountryName());
+                // Update address field on UI.
+                Message.obtain(mHandler, MESSAGE_UPDATE_ADDRESS, addressText).sendToTarget();
+            }
+            return null;
+        }
+    }
+
+    // Stop receiving location updates whenever the Activity becomes invisible.
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mLocationManager.removeUpdates(listener);
+    }
+
+    Handler mHandler = new Handler() {
+
+        @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            int what = msg.what;
+            switch (what){
+                case MESSAGE_UPDATE_ADDRESS:
+                    //位置变化 更改位置显示
+                    mAddressText= (String) msg.obj;
+                    break;
+            }
+
+        }
+    };
 
 }

@@ -69,8 +69,6 @@ public class PublishImageActivity extends AppCompatActivity {
     private Location mCurrentLocation;
 
     private final static int MESSAGE_UPDATE_ADDRESS = 10;
-    private final static int MESSAGE_UPDATE_ADDRESS_LATITUDE = 101;
-    private final static int MESSAGE_UPDATE_ADDRESS_LONGITUDE = 102;
 
     private final static int MESSAGE_COMPRESS_IMAGE_FINISH = 11;
     private final static int MESSAGE_COMPRESS_IMAGE_START = 12;
