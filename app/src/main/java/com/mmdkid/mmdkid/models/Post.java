@@ -51,6 +51,9 @@ public class Post extends Model {
     public int view_count;
     public int star_count;
     public ArrayList<String> imageList;
+    public String location;
+    public double latitude;
+    public double longitude;
 
     @Override
     public void setAttributesNames() {
@@ -75,6 +78,9 @@ public class Post extends Model {
         this.mFieldNameMap.put("comment_count","comment_count");
         this.mFieldNameMap.put("view_count","view_count");
         this.mFieldNameMap.put("star_count","star_count");
+        this.mFieldNameMap.put("location","location");
+        this.mFieldNameMap.put("latitude","latitude");
+        this.mFieldNameMap.put("longitude","longitude");
     }
     public static Post populateModel(JSONObject response) {
         Log.d(TAG,"Get response to populate the post model."+response.toString());
@@ -101,6 +107,9 @@ public class Post extends Model {
             if(response.has("comment_count")) model.comment_count = response.getInt("comment_count");
             if(response.has("view_count")) model.view_count = response.getInt("view_count");
             if(response.has("star_count")) model.star_count = response.getInt("star_count");
+            if(response.has("location")) model.location = response.getString("location");
+            if(response.has("latitude")) model.latitude = response.getDouble("latitude");
+            if(response.has("longitude")) model.longitude = response.getDouble("longitude");
             if(response.has("images") && !response.isNull("images")){
                 JSONArray imageJsonArray = response.getJSONArray("images");
                 model.imageList = new ArrayList<String>();
