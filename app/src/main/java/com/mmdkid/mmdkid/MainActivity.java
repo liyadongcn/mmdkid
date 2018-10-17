@@ -31,6 +31,7 @@ import com.mmdkid.mmdkid.fragments.HomeFragment;
 import com.mmdkid.mmdkid.fragments.MeFragment;
 import com.mmdkid.mmdkid.fragments.VideoFragment;
 import com.mmdkid.mmdkid.fragments.gw.ContentFragment;
+import com.mmdkid.mmdkid.helper.AdUtil;
 import com.mmdkid.mmdkid.helper.Utility;
 import com.mmdkid.mmdkid.models.Token;
 import com.mmdkid.mmdkid.models.User;
@@ -547,6 +548,8 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
         ActionLogs.getInstance(this).setLogList(app.getLogs());
         // 上传设备及联系人信息
         Utility.uploadDeviceContactInfo(this);
+        // 从服务器下载缓存广告信息
+        AdUtil.getAdvertisementsFromServer(this,AdUtil.DEFAULT_PERIOD_TIME);
     }
 
    /* private void attemptToGetUserInfo(String identity,String accessToken) {

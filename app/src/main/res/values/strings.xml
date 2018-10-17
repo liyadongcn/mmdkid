@@ -92,6 +92,9 @@
     </string>
 
     <!--String related to password change-->
+    <string name="skip_ad">跳过广告</string>
+
+    <!--String related to password change-->
     <string name="original_password">请输入原始密码</string>
     <string name="new_password">请输入新密码</string>
     <string name="confirm_new_password">确认新密码</string>
@@ -334,5 +337,9 @@
         "For example, position the FAB to one side of stream of a cards so the FAB won’t interfere "
         "when a user tries to pick up one of cards.\n\n"
     </string>
+
+    <string name="title_activity_guide">GuideActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
 
 </resources>

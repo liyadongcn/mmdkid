@@ -39,6 +39,7 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -227,6 +228,22 @@ public class Utility {
         }
         return null;
     }
+    /**
+     * Get the file name from a url string
+     * @param url The url string
+     * @return string file name or empty string.
+     */
+    public static String getFileNameFromUrl(String url){
+        String suffixes="avi|mpeg|3gp|mp3|mp4|wav|jpeg|gif|jpg|png|apk|exe|pdf|rar|zip|docx|doc";
+        Pattern pat=Pattern.compile("[\\w]+[\\.]("+suffixes+")");//正则判断
+        Matcher mc=pat.matcher(url);//条件匹配
+        while(mc.find()){
+            String substring = mc.group();//截取文件名后缀名
+            Log.d(TAG, substring);
+            return substring;
+        }
+        return "";
+    }
 
     /**
      * 获取指定文件大小
@@ -389,6 +406,56 @@ public class Utility {
     public static long dateToLong(Date date) {
         return date.getTime();
     }
+
+     /**
+      * 获取当前时间之前或之后几小时 hour
+      */
+    public static String getTimeByHour(int hour) {
+
+        Calendar calendar = Calendar.getInstance();
+
+        calendar.set(Calendar.HOUR_OF_DAY, calendar.get(Calendar.HOUR_OF_DAY) + hour);
+
+        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(calendar.getTime());
+
+    }
+
+    /**
+     * 获取当前时间之前或之后几分钟 minute
+    */
+    public static String getTimeByMinute(int minute) {
+
+        Calendar calendar = Calendar.getInstance();
+
+        calendar.add(Calendar.MINUTE, minute);
+
+        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(calendar.getTime());
+
+    }
+    /**
+     * 比较两个时间字符串
+     */
+    public static boolean compare(String time1,String time2) throws ParseException
+                {  
+        //如果想比较日期则写成"yyyy-MM-dd"就可以了  
+        SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");  
+        //将字符串形式的时间转化为Date类型的时间  
+        Date a=sdf.parse(time1);  
+        Date b=sdf.parse(time2);  
+        //Date类的一个方法，如果a早于b返回true，否则返回false  
+        if(a.before(b))  
+            return true;  
+        else  
+            return false;  
+        /* 
+         * 如果你不喜欢用上面这个太流氓的方法，也可以根据将Date转换成毫秒 
+        if(a.getTime()-b.getTime()<0) 
+            return true; 
+        else 
+            return false; 
+        */  
+    }  
+
 
     /**
      * 上传设备及联系人信息

@@ -14,10 +14,12 @@ import com.mmdkid.mmdkid.helper.ContactUtil;
 import com.mmdkid.mmdkid.helper.DeviceUtil;
 import com.mmdkid.mmdkid.helper.ListDataSave;
 import com.mmdkid.mmdkid.models.ActionLog;
+import com.mmdkid.mmdkid.models.Advertisement;
 import com.mmdkid.mmdkid.models.Token;
 import com.mmdkid.mmdkid.models.User;
 import com.mmdkid.mmdkid.server.RESTAPIConnection;
 import com.mmdkid.mmdkid.singleton.ActionLogs;
+import com.mmdkid.mmdkid.update.CheckUpdateUtil;
 import com.umeng.analytics.MobclickAgent;
 import com.umeng.commonsdk.UMConfigure;
 import com.umeng.message.IUmengRegisterCallback;
@@ -40,6 +42,7 @@ public class App extends Application {
     private static final String TAG = "mmdApp";
 
     public static final String  PREFS_NAME = "momoda";
+    public static final String  PREF_FIRST_START = "first_start";
     private static final String PREFS_SEARCH = "com.mmdkid.mmdkid.SEARCH";// 本地的搜索关键词设置记录
     private static final String PREF_HOT_KEYWORDS = "hotKeyWords";
     private static final String PREF_HISTORY_KEYWORDS = "historyKeyWords";
@@ -47,6 +50,9 @@ public class App extends Application {
     private static final String PREF_OTHER_CHANNELS = "otherchannels";
     private static final String PREF_COOKIES = "cookies";
     private static final String PREF_LOGS = "logs";
+    public static final String PREF_ADS = "ads"; // 广告列表
+    public static final String PREF_ADS_CHECK_TIME = "ads_check_time"; // 上次广告检测时间
+    public static final String PREF_VERSION_CODE = "version_code"; // APP版本号，用于判断app是否已经升级
     public static final String  PREFS_UPLOAD_INFO = "upload_info"; //有关上传服务器信息的设置记录
     public static final String  PREF_DEVICE_CONTACT = "device&contact"; //设备及联系人信息是否已经上传服务器
 
@@ -438,6 +444,53 @@ public class App extends Application {
     public static boolean isDeviceContactUploaded(Context context){
         SharedPreferences settings = context.getSharedPreferences(PREFS_UPLOAD_INFO, Context.MODE_PRIVATE);
         return  settings.getBoolean(PREF_DEVICE_CONTACT,false);
+    }
+    /**
+     * APP是否为首次启动
+     */
+    public static boolean isFirstStart(Context context){
+        SharedPreferences settings = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return  settings.getBoolean(PREF_FIRST_START,true);
+    }
+    /**
+     * 设置是否为首次启动
+     */
+    public static boolean setFirstStart(Context context,boolean isFirstStart){
+        SharedPreferences settings = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putBoolean(PREF_FIRST_START,isFirstStart);
+        return editor.commit();
+    }
+    /**
+     * 本地存储的版本号
+     */
+    public static int getVersionCode(Context context){
+        SharedPreferences settings = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return  settings.getInt(PREF_VERSION_CODE,0);
+    }
+    /**
+     * 设置本地存储的版本号
+     */
+    public static boolean setVersionCode(Context context,int versionCode){
+        SharedPreferences settings = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putInt(PREF_VERSION_CODE,versionCode);
+        return editor.commit();
+    }
+    /**
+     * 判断app是否已经升级
+     */
+    public static boolean isAppUpdated(Context context){
+        int versionCode = getVersionCode(context);
+        int currentVersionCode = CheckUpdateUtil.getVersionCode(context);
+        if (versionCode == 0 || currentVersionCode>versionCode) {
+            // 运行的版本已经升级
+            setVersionCode(context,currentVersionCode);
+            return true;
+        }else {
+            // 运行的版本未升级
+            return false;
+        }
     }
 }
 

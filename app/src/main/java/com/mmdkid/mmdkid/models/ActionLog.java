@@ -1,36 +1,1 @@
-package com.mmdkid.mmdkid.models;
-
-import android.location.Location;
-
-public class ActionLog extends Object {
-    public static final String ACTION_VIEW = "view";
-    public static final String ACTION_STAR = "star";
-    public static final String ACTION_COMMENT = "comment";
-    public static final String ACTION_TUMBSUP = "thumbsup";
-    public static final String ACTION_TUMBSDOWN = "thumbsdown";
-
-    //ç”¨æˆ·ID
-    public int mUserID;
-    //å†…å®¹åœ¨elasticä¸Šçš„å”¯ä¸€ID
-    public String mElasticDocID;
-    //ç”¨æˆ·åŠ¨ä½œ
-    public String mAction;
-    //å¼€å§‹æ—¶é—´æˆ³
-    public long mStartTimestamp;
-    //ç»“æŸæ—¶é—´æˆ³
-    public long mStopTimestamp;
-    //å†…å®¹åœ¨æ•°æ®åº“ä¸­ç±»å‹
-    public String mModelType;
-    //å†…å®¹é•¿åº¦
-    public int mContentLength;
-    //é˜…è¯»é€Ÿåº¦ è¶Šæ…¢è¶Šæ„Ÿå…´è¶£
-    public double mReadingSpeed;
-    //å†…å®¹åœ¨æ•°æ®åº“ä¸­å”¯ä¸€ID
-    public int mModelID;
-    //ç”¨æˆ·å½“å‰æ‰€å¤„ä½ç½®
-    public Location mLocation;
-    //æŒç»­æ—¶é—´é•¿åº¦
-    public long mDuration;
-    //æ˜¯å¦å·²ç»ä¿å­˜åˆ°æœåŠ¡å™¨
-    public boolean mIsSaved = false;
-}
+package com.mmdkid.mmdkid.models;import android.location.Location;public class ActionLog extends Object {    public static final String ACTION_VIEW = "view";    public static final String ACTION_STAR = "star";    public static final String ACTION_COMMENT = "comment";    public static final String ACTION_TUMBSUP = "thumbsup";    public static final String ACTION_TUMBSDOWN = "thumbsdown";    //ÓÃ»§ID    public int mUserID;    //ÄÚÈİÔÚelasticÉÏµÄÎ¨Ò»ID    public String mElasticDocID;    //ÓÃ»§¶¯×÷    public String mAction;    //¿ªÊ¼Ê±¼ä´Á    public long mStartTimestamp;    //½áÊøÊ±¼ä´Á    public long mStopTimestamp;    //ÄÚÈİÔÚÊı¾İ¿âÖĞÀàĞÍ    public String mModelType;    //ÄÚÈİ³¤¶È    public int mContentLength;    //ÔÄ¶ÁËÙ¶È Ô½ÂıÔ½¸ĞĞËÈ¤    public double mReadingSpeed;    //ÄÚÈİÔÚÊı¾İ¿âÖĞÎ¨Ò»ID    public int mModelID;    //ÓÃ»§µ±Ç°Ëù´¦Î»ÖÃ    public Location mLocation;    //³ÖĞøÊ±¼ä³¤¶È    public long mDuration;    //ÊÇ·ñÒÑ¾­±£´æµ½·şÎñÆ÷    public boolean mIsSaved = false;}

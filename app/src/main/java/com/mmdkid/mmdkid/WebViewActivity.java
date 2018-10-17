@@ -95,6 +95,9 @@ public class WebViewActivity extends AppCompatActivity {
     public static final int FILECHOOSER_RESULTCODE = 5173;
     public static final int FILECHOOSER_RESULTCODE_FOR_ANDROID_5 = 5174;
 
+    // 指明当前webview显示一个广告
+    public static final int SHOW_TYPE_ADVERTISEMENT = 1;
+
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -499,8 +502,18 @@ public class WebViewActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             // Respond to the action bar's Up/Home button
             case android.R.id.home:
-                finish();
-                break;
+                int showType = getIntent().getIntExtra("showType",0);
+                if (showType == SHOW_TYPE_ADVERTISEMENT){
+                    // 当前显示的是广告页 返回时启动主程序
+                    Intent intent = new Intent(WebViewActivity.this, MainActivity.class);
+                    startActivity(intent);
+                    finish();
+                    break;
+                }else{
+                    finish();
+                    break;
+                }
+
             case R.id.action_share:
                 // 分享当前页面内容
                 //Log.d(TAG,"Model is " + ((Content)mModel).mImage);
