@@ -2,13 +2,13 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 27
-    buildToolsVersion '27.0.3'
+    buildToolsVersion '28.0.3'
     defaultConfig {
         applicationId "com.mmdkid.mmdkid"
         minSdkVersion 16
-        targetSdkVersion 25
-        versionCode 47
-        versionName '0.8.47'
+        targetSdkVersion 26
+        versionCode 48
+        versionName '0.8.48'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
@@ -40,6 +40,9 @@ android {
             manifestPlaceholders = [qqappid: "1106209187"]
         }
     }
+//    tasks.withType(JavaCompile) {
+//        options.encoding = "UTF-8"
+//    }
 
     // 选项是为elasticsearch包准备的 否则会出现duplicate错误
     packagingOptions {
@@ -112,7 +115,7 @@ dependencies {
     //implementation 'fm.jiecao:jiecaovideoplayer:5.5.4'
     implementation 'cn.jzvd:jiaozivideoplayer:6.2.9'
     implementation 'com.google.android.gms:play-services-appindexing:9.8.0'
-    implementation 'com.android.volley:volley:1.0.0'
+    implementation 'com.android.volley:volley:1.1.0'
     implementation 'com.android.support:multidex:1.0.1'
     implementation 'com.squareup.okhttp3:okhttp:3.6.0'
     implementation 'com.github.stfalcon:frescoimageviewer:0.5.0'
