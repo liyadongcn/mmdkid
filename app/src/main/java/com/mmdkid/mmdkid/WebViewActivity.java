@@ -60,7 +60,10 @@ import com.umeng.socialize.media.UMWeb;
 
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * 可加载的内容包括content
+ * content的评论内容
+ */
 public class WebViewActivity extends AppCompatActivity {
 
     private final static String TAG = "WebViewActivity";
@@ -80,6 +83,8 @@ public class WebViewActivity extends AppCompatActivity {
     private EditText mCommentView;
     private TextView   mSendButton;
     private ImageView mStarView;
+    private ImageView mThumbupView;
+    private ImageView mShareView;
 
     private boolean mIsStared=false;
     private Behavior mBehaviorStar; // 当前收藏记录
@@ -115,21 +120,22 @@ public class WebViewActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("");
 
         mUsingCookies = getIntent().getBooleanExtra("cookies",true);
-
+        // 内容对象content content的类型又包括：文章、图片、视频；评论页，只包含对内容的评论；
         mModel = (Model) getIntent().getSerializableExtra("model");
-
+        // 当前登录用户的信息
         getCurrentLoginUserInfo();
-
+        // 内容加载进度条
         mProgressBar = (ContentLoadingProgressBar) findViewById(R.id.progressBar);
-
+        // 评论区域
         mCommentForm = (LinearLayout) findViewById(R.id.llCommentForm);
         if (mModel == null || mModel instanceof com.mmdkid.mmdkid.models.gw.Content ){
             mCommentForm.setVisibility(View.GONE);
         }else {
             mCommentForm.setVisibility(View.VISIBLE);
         }
-
+        // 评论编辑
         mCommentView = (EditText) findViewById(R.id.comment) ;
+        // 评论发送
         mSendButton = (TextView) findViewById(R.id.tvPublish);
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -137,7 +143,7 @@ public class WebViewActivity extends AppCompatActivity {
                 sendComment();
             }
         });
-
+        // 收藏
         mStarView = (ImageView) findViewById(R.id.ivStar);
         initStarView();
         mStarView.setOnClickListener(new View.OnClickListener() {
@@ -153,17 +159,23 @@ public class WebViewActivity extends AppCompatActivity {
 
             }
         });
-
-       /* FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        // 分享
+        mShareView = (ImageView) findViewById(R.id.ivShare);
+        mShareView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                shareOnSelection();
             }
-        });*/
-
-
+        });
+        // 点赞
+        mThumbupView = (ImageView) findViewById(R.id.ivThumbup);
+        mThumbupView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                thumbUp();
+            }
+        });
+        // 登录用户的cookies信息
         if(mCookies!=null && !mCookies.isEmpty() && mUsingCookies){
             startWebView(mCookies);
         }else{
@@ -181,6 +193,8 @@ public class WebViewActivity extends AppCompatActivity {
         //showUser();
 
     }
+
+
     private void initStarView()
     {
         if (mModel == null || mModel instanceof com.mmdkid.mmdkid.models.gw.Content ) return;
@@ -206,7 +220,7 @@ public class WebViewActivity extends AppCompatActivity {
                 else{
                     // 没有该收藏记录
                     Log.d(TAG,"Not find a star behavior record. ");
-                    mStarView.setImageDrawable(getDrawable(R.drawable.ic_star_outline_24dp));
+                    mStarView.setImageDrawable(getDrawable(R.drawable.ic_star_outline_gray));
                 }
             }
         }).where("user_id",Integer.toString(mCurrentUser.mId))
@@ -282,7 +296,7 @@ public class WebViewActivity extends AppCompatActivity {
                     mBehaviorStar = null;
                     mIsStared =false;
                     Toast.makeText(WebViewActivity.this,"已取消收藏",Toast.LENGTH_LONG).show();
-                    mStarView.setImageDrawable(getDrawable(R.drawable.ic_star_outline_24dp));
+                    mStarView.setImageDrawable(getDrawable(R.drawable.ic_star_outline_gray));
                 }
             });
         }
@@ -495,10 +509,7 @@ public class WebViewActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        String url;
-        UMImage image;
-        UMWeb web = null;
-        url = getIntent().getStringExtra("url");
+
         switch (item.getItemId()) {
             // Respond to the action bar's Up/Home button
             case android.R.id.home:
@@ -515,77 +526,8 @@ public class WebViewActivity extends AppCompatActivity {
                 }
 
             case R.id.action_share:
-                // 分享当前页面内容
-                //Log.d(TAG,"Model is " + ((Content)mModel).mImage);
-                if(mModel instanceof Content){
-                    Content content = (Content) mModel;
-                    if (content.mImage!=null && !content.mImage.isEmpty() && !content.mImage.equalsIgnoreCase("null")){
-                        // 使用image字段
-                        image = new UMImage(WebViewActivity.this, HtmlUtil.getUrl(content.mImage));//网络图片
-                    }else if(content.mImageList!=null && !content.mImageList.isEmpty()){
-                        // 使用第一张图片
-                        image = new UMImage(WebViewActivity.this,  HtmlUtil.getUrl(content.mImageList.get(0)));//网络图片
-                    }else{
-                        // 使用默认图标
-                        image = new UMImage(WebViewActivity.this,R.mipmap.ic_launcher);
-                    }
-
-                    image.compressStyle = UMImage.CompressStyle.SCALE;//大小压缩，默认为大小压缩，适合普通很大的图
-                    url = url+"&showIn=wx"; // 通过该标识显示出app下载提示
-                    Log.d(TAG,"Sharing Url is " + url);
-                    web = new UMWeb(url);
-                    web.setTitle(content.mTitle);//标题
-                    web.setThumb(image);  //缩略图
-                    String text = HtmlUtil.getTextFromHtml(content.mContent,20);
-                    if (text!=null && !text.equals("null")) {
-                        web.setDescription(text);//取最多20字作为描述
-                    }else{
-                        web.setDescription((String) getResources().getText(R.string.share_description_empty));
-                    }
-                }
-                if (mModel instanceof Goods) {
-                    Goods goods = (Goods) mModel;
-                    web = new UMWeb(url);
-                    web.setTitle(goods.title);//标题
-                    if (goods.imageList!= null && !goods.imageList.isEmpty() ){
-                        image = new UMImage(WebViewActivity.this, goods.imageList.get(0));//网络图片
-                        image.compressStyle = UMImage.CompressStyle.SCALE;//大小压缩，默认为大小压缩，适合普通很大的图
-                        web.setThumb(image);  //缩略图
-                    }
-                    if (goods.editorComment!=null && !goods.editorComment.equals("null")) {
-                        //取最多20字作为描述
-                        web.setDescription(goods.editorComment.length()>20? goods.editorComment.substring(0,20):goods.editorComment) ;
-                    }else{
-                        web.setDescription((String) getResources().getText(R.string.share_description_empty));
-                    }
-                }
-                if (mModel instanceof com.mmdkid.mmdkid.models.gw.Content){
-                    com.mmdkid.mmdkid.models.gw.Content gwContent = (com.mmdkid.mmdkid.models.gw.Content)mModel;
-                    web = new UMWeb(url);
-                    web.setTitle(gwContent.mTitle);//标题
-                    if (gwContent.mImage!=null && !gwContent.mImage.isEmpty()){
-                        image = new UMImage(WebViewActivity.this, gwContent.mImage);//网络图片
-                        image.compressStyle = UMImage.CompressStyle.SCALE;//大小压缩，默认为大小压缩，适合普通很大的图
-                        web.setThumb(image);  //缩略图
-                    }else if (gwContent.mImageList!= null && !gwContent.mImageList.isEmpty() ){
-                        image = new UMImage(WebViewActivity.this, gwContent.mImageList.get(0));//网络图片
-                        image.compressStyle = UMImage.CompressStyle.SCALE;//大小压缩，默认为大小压缩，适合普通很大的图
-                        web.setThumb(image);  //缩略图
-                    }
-                    web.setDescription((String) getResources().getText(R.string.share_description_empty));
-                   /* if (goods.editorComment!=null && !goods.editorComment.equals("null")) {
-                        //取最多20字作为描述
-                        web.setDescription(goods.editorComment.length()>20? goods.editorComment.substring(0,20):goods.editorComment) ;
-                    }else{
-                        web.setDescription("");
-                    }*/
-                }
-                new ShareAction(WebViewActivity.this)
-                        //.withText("hello")
-                        .withMedia(web)
-                        .setDisplayList(SHARE_MEDIA.WEIXIN,SHARE_MEDIA.WEIXIN_CIRCLE,SHARE_MEDIA.QQ,SHARE_MEDIA.SINA)
-                        .setCallback(mShareListener)
-                        .open();
+                // 分享当前内容
+                shareOnSelection();
                 break;
                 
         }
@@ -857,7 +799,9 @@ public class WebViewActivity extends AppCompatActivity {
             }
         });
     }
-
+    /**
+     * 指定分享的渠道，直接分享
+     */
     private void share(SHARE_MEDIA shareMedia){
         String url;
         UMImage image;
@@ -896,5 +840,99 @@ public class WebViewActivity extends AppCompatActivity {
                 .setCallback(mShareListener)//回调监听器
                 .share();
     }
+    /**
+     * 分享当前内容，显示分享面板，用户选择分享渠道
+     */
+    private void shareOnSelection(){
+        // 分享当前页面内容
+        //Log.d(TAG,"Model is " + ((Content)mModel).mImage);
+        String url;
+        UMImage image;
+        UMWeb web = null;
 
+        if(mModel instanceof Content){
+            Content content = (Content) mModel;
+            url = content.getContentUrl();
+            if (content.mImage!=null && !content.mImage.isEmpty() && !content.mImage.equalsIgnoreCase("null")){
+                // 使用image字段
+                image = new UMImage(WebViewActivity.this, HtmlUtil.getUrl(content.mImage));//网络图片
+            }else if(content.mImageList!=null && !content.mImageList.isEmpty()){
+                // 使用第一张图片
+                image = new UMImage(WebViewActivity.this,  HtmlUtil.getUrl(content.mImageList.get(0)));//网络图片
+            }else{
+                // 使用默认图标
+                image = new UMImage(WebViewActivity.this,R.mipmap.ic_launcher);
+            }
+
+            image.compressStyle = UMImage.CompressStyle.SCALE;//大小压缩，默认为大小压缩，适合普通很大的图
+            url = url+"&showIn=wx"; // 通过该标识显示出app下载提示
+            Log.d(TAG,"Sharing Url is " + url);
+            web = new UMWeb(url);
+            web.setTitle(content.mTitle);//标题
+            web.setThumb(image);  //缩略图
+            String text = HtmlUtil.getTextFromHtml(content.mContent,20);
+            if (text!=null && !text.equals("null")) {
+                web.setDescription(text);//取最多20字作为描述
+            }else{
+                web.setDescription((String) getResources().getText(R.string.share_description_empty));
+            }
+        }
+        if (mModel instanceof Goods) {
+            url = getIntent().getStringExtra("url");
+            Goods goods = (Goods) mModel;
+            web = new UMWeb(url);
+            web.setTitle(goods.title);//标题
+            if (goods.imageList!= null && !goods.imageList.isEmpty() ){
+                image = new UMImage(WebViewActivity.this, goods.imageList.get(0));//网络图片
+                image.compressStyle = UMImage.CompressStyle.SCALE;//大小压缩，默认为大小压缩，适合普通很大的图
+                web.setThumb(image);  //缩略图
+            }
+            if (goods.editorComment!=null && !goods.editorComment.equals("null")) {
+                //取最多20字作为描述
+                web.setDescription(goods.editorComment.length()>20? goods.editorComment.substring(0,20):goods.editorComment) ;
+            }else{
+                web.setDescription((String) getResources().getText(R.string.share_description_empty));
+            }
+        }
+        if (mModel instanceof com.mmdkid.mmdkid.models.gw.Content){
+            url = getIntent().getStringExtra("url");
+            com.mmdkid.mmdkid.models.gw.Content gwContent = (com.mmdkid.mmdkid.models.gw.Content)mModel;
+            web = new UMWeb(url);
+            web.setTitle(gwContent.mTitle);//标题
+            if (gwContent.mImage!=null && !gwContent.mImage.isEmpty()){
+                image = new UMImage(WebViewActivity.this, gwContent.mImage);//网络图片
+                image.compressStyle = UMImage.CompressStyle.SCALE;//大小压缩，默认为大小压缩，适合普通很大的图
+                web.setThumb(image);  //缩略图
+            }else if (gwContent.mImageList!= null && !gwContent.mImageList.isEmpty() ){
+                image = new UMImage(WebViewActivity.this, gwContent.mImageList.get(0));//网络图片
+                image.compressStyle = UMImage.CompressStyle.SCALE;//大小压缩，默认为大小压缩，适合普通很大的图
+                web.setThumb(image);  //缩略图
+            }
+            web.setDescription((String) getResources().getText(R.string.share_description_empty));
+                   /* if (goods.editorComment!=null && !goods.editorComment.equals("null")) {
+                        //取最多20字作为描述
+                        web.setDescription(goods.editorComment.length()>20? goods.editorComment.substring(0,20):goods.editorComment) ;
+                    }else{
+                        web.setDescription("");
+                    }*/
+        }
+        new ShareAction(WebViewActivity.this)
+                //.withText("hello")
+                .withMedia(web)
+                .setDisplayList(SHARE_MEDIA.WEIXIN,SHARE_MEDIA.WEIXIN_CIRCLE,SHARE_MEDIA.QQ,SHARE_MEDIA.SINA)
+                .setCallback(mShareListener)
+                .open();
+    }
+    /**
+     * 点赞当前内容
+     */
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    private void thumbUp() {
+        if(mModel instanceof Content){
+            Content content = (Content)mModel;
+            mWebView.loadUrl(content.getThumbsupUrl());
+            Toast.makeText(this,"已点赞",Toast.LENGTH_LONG).show();
+            mThumbupView.setImageDrawable(getDrawable(R.drawable.thumb_up_outline_red));
+        }
+    }
 }

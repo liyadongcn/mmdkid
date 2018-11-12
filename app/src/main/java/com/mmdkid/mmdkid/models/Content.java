@@ -209,4 +209,17 @@ public class Content extends Model {
         if (!(obj instanceof Content)) return false;
         return this.mId.equals(((Content)obj).mId);
     }
+
+    public String getThumbsupUrl(){
+        switch(this.mModelType){
+            case TYPE_VIDEO:
+                return SERVER_URL+"media/thumbsup&id="+mModelId+"&theme=app";
+            case TYPE_IMAGE:
+                return SERVER_URL+"imagepost/thumbsup&id="+mModelId+"&theme=app";
+            case TYPE_POST:
+                return SERVER_URL+"post/thumbsup&id="+mModelId+"&theme=app";
+            default:
+                return "";
+        }
+    }
 }

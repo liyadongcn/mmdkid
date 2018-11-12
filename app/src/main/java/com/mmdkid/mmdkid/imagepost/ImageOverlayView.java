@@ -64,6 +64,7 @@ public class ImageOverlayView extends RelativeLayout {
     private SimpleDraweeView mUserAvatarView;
     private TextView mUserNameView;
     private TextView mUserDescriptionView;
+    private ImageView mShareView;
 
     private boolean mIsStared=false;
     private Behavior mBehaviorStar; // 当前收藏记录
@@ -157,7 +158,9 @@ public class ImageOverlayView extends RelativeLayout {
 
     private void init() {
         View view = inflate(getContext(), R.layout.view_image_overlay, this);
+        // 图片描述
         tvDescription = (TextView) view.findViewById(R.id.tvDescription);
+        // 分享菜单
         view.findViewById(R.id.btnShare).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -172,6 +175,16 @@ public class ImageOverlayView extends RelativeLayout {
                 actionKey(KeyEvent.KEYCODE_BACK);
             }
         });
+        // 分享
+        mShareView = (ImageView) findViewById(R.id.ivShare);
+        mShareView.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                actionKey(KeyEvent.KEYCODE_BACK);
+                sendShareContent();
+            }
+        });
+        // 收藏
         mStarView = (ImageView)  view.findViewById(R.id.ivStar);
         initStarView();
         mStarView.setOnClickListener(new OnClickListener() {
@@ -187,7 +200,7 @@ public class ImageOverlayView extends RelativeLayout {
 
             }
         });
-        // 评论图标
+        // 评论
         mCommentView = (ImageView)view.findViewById(R.id.ivComment);
         mCommentView.setOnClickListener(new OnClickListener() {
             @Override

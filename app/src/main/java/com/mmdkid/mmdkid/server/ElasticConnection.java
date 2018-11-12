@@ -3,8 +3,11 @@ package com.mmdkid.mmdkid.server;
 import android.app.Activity;
 import android.content.Context;
 import android.support.v4.app.Fragment;
+import android.util.Base64;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -18,6 +21,8 @@ import org.json.JSONObject;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by LIYADONG on 2017/6/9.
@@ -26,6 +31,7 @@ import java.util.ArrayList;
 public class ElasticConnection extends Connection {
     private static final String TAG = "ElasticConnection";
     private static final String SERVER_URL = "http://211.149.212.21:9200/momoda/_search";
+    //private static final String SERVER_URL = "https://192.168.1.140:9200/momoda/_search";
     private Context mContext;
     public int REQUEST_METHOD = Request.Method.POST;
 
@@ -39,6 +45,7 @@ public class ElasticConnection extends Connection {
     public void Query(final Query query) {
         JSONObject jsonRequest = query.GetRequest();
         Log.d(TAG,"Elatic Json Request is >>>" + jsonRequest.toString());
+        Log.d(TAG,"Elatic url is:  >>>" + this.URL);
         final JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                 (Request.Method.POST, this.URL, jsonRequest, new Response.Listener<JSONObject>() {
 
@@ -80,21 +87,28 @@ public class ElasticConnection extends Connection {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         // TODO Auto-generated method stub
-                        //Toast.makeText(mContext, error.toString(), Toast.LENGTH_LONG).show();
-                       /* if(mProgressDialog!=null) {
-                            mProgressDialog.setMessage(error.toString());
-                            mProgressDialog.dismiss();
-                        }
-                        if(mRefreshLayout!=null) mRefreshLayout.setRefreshing(false);
-                        if(mListener!=null) mListener.onErrorRespose(error.toString());*/
+                        Toast.makeText(mContext,"服务器访问错误~",Toast.LENGTH_LONG).show();
                         Log.e(TAG, error.getMessage(), error);
                         if(error.networkResponse!=null){
                             byte[] htmlBodyBytes = error.networkResponse.data;
                             Log.e(TAG, new String(htmlBodyBytes), error);
+
                         }
                         if(mListener!=null) mListener.onErrorRespose(query.mModelClass,error.toString());
                     }
-                });
+                }){
+            /*@Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                //return super.getHeaders();
+                HashMap<String, String> params = new HashMap<String, String>();
+                String creds = String.format("%s:%s","admin","admin");
+                String auth = "Basic " + Base64.encodeToString(creds.getBytes(), Base64.DEFAULT);
+                Log.d(TAG,"Auth is :" + auth);
+                params.put("Authorization", auth);
+                params.put("Content-Type", "application/json");
+                return params;
+            }*/
+        };
         // Access the RequestQueue through your singleton class.
         InternetSingleton.getInstance(mContext).addToRequestQueue(jsonObjectRequest);
 

@@ -61,6 +61,10 @@ public class GuideActivity extends AppCompatActivity  implements ViewPager.OnPag
      * 最后一个引导页上的浮动按钮 点击进入APP
      */
     private FloatingActionButton mFAB;
+    /**
+     * 进入主程序按钮
+     */
+    private TextView mLaunchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +102,18 @@ public class GuideActivity extends AppCompatActivity  implements ViewPager.OnPag
         });
         //隐藏浮动按钮 最后一页才显示
         mFAB.hide();
+
+        mLaunchView = (TextView) findViewById(R.id.tvLaunch);
+        mLaunchView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //点击进入APP
+                Intent intent = new Intent(GuideActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+        mLaunchView.setVisibility(View.GONE);
     }
     private void initDots(){
         LinearLayout layout = (LinearLayout)findViewById(R.id.dot_Layout);
@@ -163,9 +179,11 @@ public class GuideActivity extends AppCompatActivity  implements ViewPager.OnPag
             }
         }
         if (position == mDotViews.length-1){
-            mFAB.show();
+            //mFAB.show();
+            mLaunchView.setVisibility(View.VISIBLE);
         }else{
-            mFAB.hide();
+            //mFAB.hide();
+            mLaunchView.setVisibility(View.GONE);
         }
     }
 

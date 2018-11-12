@@ -700,6 +700,11 @@ public class ContentFragment extends Fragment implements ElasticConnection.OnCon
 
                         break;
                     case Content.TYPE_IMAGE:
+                        /**
+                         * 此处content的imagelist有可能为空，也就是有脏数据
+                         * 包含没有图片的内容，应该做出判断并删除该对象，同时删除库中的数据
+                         * TODO ...... 2018/11/08
+                         */
                         if (content.mImageList.size() <3){
                             content.setViewType(Model.VIEW_TYPE_CONTENT_IMAGE_ONE);
                         }/*else if (content.mImageList.size() >=3 && content.mImageList.size() <4 ) {

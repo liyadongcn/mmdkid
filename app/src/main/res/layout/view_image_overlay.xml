@@ -132,6 +132,14 @@
                 <!--android:src="@drawable/ic_send_white_24dp"/>-->
 
             <ImageView
+                android:id="@+id/ivComment"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_weight="1"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/ic_comment_outline_white"/>
+
+            <ImageView
                 android:id="@+id/ivStar"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
@@ -140,12 +148,14 @@
                 android:src="@drawable/ic_star_outline_24dp_white"/>
 
             <ImageView
-                android:id="@+id/ivComment"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_weight="1"
+                android:id="@+id/ivShare"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
                 android:layout_gravity="center_vertical"
-                android:src="@drawable/ic_comment_outline_white"/>
+                android:layout_marginLeft="10dp"
+                android:src="@drawable/ic_share_variant"/>
+
+
         </LinearLayout>
 
     </LinearLayout>

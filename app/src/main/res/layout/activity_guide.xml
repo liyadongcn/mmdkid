@@ -16,6 +16,17 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+       <TextView
+           android:id="@+id/tvLaunch"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:text="立即体验"
+           android:layout_alignParentBottom="true"
+           android:layout_centerHorizontal="true"
+           android:gravity="center"
+           android:layout_marginBottom="45dp"
+           android:textColor="@color/white"
+           android:background="@drawable/shape_border_red_bg_white"/>
        <LinearLayout
            android:id="@+id/dot_Layout"
            android:layout_width="wrap_content"
@@ -24,7 +35,7 @@
            android:layout_alignParentBottom="true"
            android:layout_centerHorizontal="true"
            android:gravity="center"
-           android:layout_marginBottom="45dip"
+           android:layout_marginBottom="20dp"
            >
 
        </LinearLayout>

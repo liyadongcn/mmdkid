@@ -61,6 +61,7 @@ public class SplashActivity extends AppCompatActivity {
      */
     private boolean isClicked =false;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

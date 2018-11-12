@@ -1,8 +1,11 @@
 package com.mmdkid.mmdkid;
 
 import android.app.Application;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -28,11 +31,20 @@ import com.umeng.socialize.PlatformConfig;
 import com.umeng.socialize.UMShareAPI;
 import com.youku.cloud.player.YoukuPlayerConfig;
 
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 
 /*
@@ -63,6 +75,8 @@ public class App extends Application {
     public static final String CLIENT_SECRET_WITH_AD = "cfe544d362b97ec00da0dfd29aceceec";
 
     private boolean isNightMode = false;
+
+    public static final String NOTIFICATION_CHANNEL_ID = "channel";
 
 
    /* @Override
@@ -155,6 +169,31 @@ public class App extends Application {
                 .setSmallImageDiskCacheConfig(smallImageDiskCacheConfig)
                 .build();
         Fresco.initialize(context, config);*/
+
+        // 生成通知渠道
+        createNotificationChannel();
+
+        // 忽略https访问中的证书认证 未验证成功该功能2018/11/08
+        //handleSSLHandshake();
+    }
+    /**
+     * 生成通知渠道
+     * 参考:https://developer.android.google.cn/training/notify-user/build-notification#java
+     */
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = getString(R.string.notification_channel_name);
+            String description = getString(R.string.notification_channel_description);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
     }
 
     public User getCurrentUser(){
@@ -492,5 +531,39 @@ public class App extends Application {
             return false;
         }
     }
+    /**
+     * 忽略证书验证
+     * 未验证成功该功能 2018/11/08
+     */
+    public static void handleSSLHandshake() {
+        try {
+            TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
+                public X509Certificate[] getAcceptedIssuers() {
+                    return new X509Certificate[0];
+                }
+
+                @Override
+                public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                }
+
+                @Override
+                public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                }
+            }};
+
+            SSLContext sc = SSLContext.getInstance("SSL");
+            // trustAllCerts信任所有的证书
+            sc.init(null, trustAllCerts, new SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+            HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
+                @Override
+                public boolean verify(String hostname, SSLSession session) {
+                    return true;
+                }
+            });
+        } catch (Exception ignored) {
+        }
+    }
+
 }
 

@@ -70,10 +70,11 @@ public class AdUtil {
         SharedPreferences settings = context.getSharedPreferences(App.PREFS_NAME, Context.MODE_PRIVATE);
         String checkTime = settings.getString(App.PREF_ADS_CHECK_TIME,"");
         if (checkTime.isEmpty()){
-            // 缺省返回当前时间前一天的广告信息
-           checkTime = Utility.getTimeByHour(-24);
+            Log.d(TAG,"Check time is empty.");
+            // 缺省返回当前时间前两天的广告信息
+           checkTime = Utility.getTimeByHour(-48);
+           setAdCheckTime(context,checkTime);
         }
-        checkTime = Utility.getTimeByHour(-48);
         Log.d(TAG,"Check time :"+checkTime);
         return  checkTime;
     }
@@ -107,8 +108,6 @@ public class AdUtil {
             @Override
             public void run() {
                 Log.d(TAG,"Start to get the advertisements from the server.");
-                // 记录广告检测时间
-                setAdCheckTime(context,Utility.dateToString(new Date(),"yyyy-MM-dd HH:mm:ss"));
                 Advertisement.getAdvertisements(context, getAdCheckTime(context), new RESTAPIConnection.OnConnectionListener() {
                     @Override
                     public void onErrorRespose(Class c, String error) {
@@ -118,6 +117,8 @@ public class AdUtil {
                     @Override
                     public void onResponse(Class c, ArrayList responseDataList) {
                         Log.d(TAG,"Get the advertisements from the server success.Records number: " + responseDataList.size() );
+                        // 记录广告检测时间
+                        setAdCheckTime(context,Utility.dateToString(new Date(),"yyyy-MM-dd HH:mm:ss"));
                         if(c==Advertisement.class && !responseDataList.isEmpty()){
                             // 获得新广告
                             Advertisement advertisement;
@@ -154,9 +155,11 @@ public class AdUtil {
         File file = new File(cachePath);
         if (file.exists() && file.isDirectory()){
             // 缓存目录存在
+            Log.d(TAG,"缓存目录存在");
             return cachePath;
         }else {
             // 缓存目录不存在则创建该目录
+            Log.d(TAG,"缓存目录不存在则创建该目录");
             if (file.mkdir()){
                 return cachePath;
             }else{

@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
+import android.graphics.Point;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -21,12 +22,16 @@ import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.mmdkid.mmdkid.App;
 import com.mmdkid.mmdkid.BuildConfig;
 import com.mmdkid.mmdkid.R;
 import com.mmdkid.mmdkid.helper.NetWorkUtil;
@@ -102,7 +107,7 @@ public class CheckUpdateUtil {
                         // 版本需要更新
                         Log.d(TAG,"Start updating....");
                         verifyStoragePermissions((Activity) context);
-                        showUpdateDialog(true, context);// 强制更新
+                        showUpdateDialog(false, context);// 强制更新
                         return;
                     }
 
@@ -179,7 +184,7 @@ public class CheckUpdateUtil {
         Window window = mAlertDialog.getWindow();
         //window.setGravity(Gravity.BOTTOM);
         //window.setLayout(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT);
-        View view = View.inflate(context, R.layout.dialog_update, null);
+       /* View view = View.inflate(context, R.layout.dialog_update, null);
         window.setContentView(view);
 
         TextView log_head = (TextView) view.findViewById(R.id.log_head);
@@ -187,7 +192,29 @@ public class CheckUpdateUtil {
         log_head.setText("V" + new_version + "更新日志：");
         msg_tv.setText(update_log);
         Button update = (Button) view.findViewById(R.id.yes_btn);
-        Button notNow = (Button) view.findViewById(R.id.no_btn);
+        Button notNow = (Button) view.findViewById(R.id.no_btn);*/
+        // 升级对话框布局
+        View view = View.inflate(context, R.layout.dialog_update_cool, null);
+        window.setContentView(view);
+        // 设置升级对话框背景透明
+        window.setBackgroundDrawableResource(android.R.color.transparent);
+        // 设置升级对话框的宽度为屏幕的0.8
+        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        Display display = wm.getDefaultDisplay(); //获取屏幕宽高
+        Point point = new Point();
+        display.getSize(point);
+        WindowManager.LayoutParams layoutParams = window.getAttributes(); //获取当前对话框的参数值
+        layoutParams.width = (int) (point.x * 0.8); //宽度设置为屏幕宽度的0.8
+//        layoutParams.height = (int) (point.y * 0.5); //高度设置为屏幕高度的0.5
+        window.setAttributes(layoutParams);
+
+
+        TextView title = (TextView) view.findViewById(R.id.tv_title);
+        TextView description = (TextView) view.findViewById(R.id.tv_description);
+        title.setText("发现新版本V" + new_version + "可以下载啦！");
+        description.setText(update_log);
+        Button update = (Button) view.findViewById(R.id.btn_update);
+        ImageButton notNow = (ImageButton) view.findViewById(R.id.ib_close);
         update.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -287,6 +314,9 @@ public class CheckUpdateUtil {
      */
     private static void installAPK(Context context,File file) {
         Intent intent = new Intent(Intent.ACTION_VIEW);
+       /* if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Toast.makeText(context,"需要安装权限",Toast.LENGTH_LONG).show();
+        }*/
         //判断是否是AndroidN以及更高的版本
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -329,7 +359,7 @@ public class CheckUpdateUtil {
                 FileOutputStream fileOutputStream = null;
                 try {
                     //创建通知栏下载提示
-                    builder = new NotificationCompat.Builder(context);
+                    builder = new NotificationCompat.Builder(context,App.NOTIFICATION_CHANNEL_ID);
                     builder.setSmallIcon(R.mipmap.ic_launcher)
                             .setLargeIcon(BitmapFactory.decodeResource(context.getResources(),R.mipmap.ic_launcher))
                             .setOngoing(true)

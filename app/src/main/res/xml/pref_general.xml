@@ -39,11 +39,13 @@
         android:title="@string/pref_title_add_friends_to_messages" />-->
     <Preference
         android:key="channels"
-        android:title="@string/favorites_title"/>
+        android:title="@string/favorites_title"
+        />
 
     <Preference
         android:key="checkVersion"
-        android:title="@string/pref_title_check_version"  />
+        android:title="@string/pref_title_check_version"
+        android:layout="@layout/preference_version"/>
 
 
 </PreferenceScreen>
