@@ -74,7 +74,7 @@
     <string name="prompt_password">密码</string>
     <string name="prompt_password_repeat">重复密码</string>
     <string name="action_sign_in">登录</string>
-    <string name="action_sign_up">注册</string>
+    <string name="action_sign_up">注册新用户</string>
     <string name="action_forgot">忘记密码</string>
     <string name="oauth_login">使用第三方账号登录</string>
     <string name="action_sign_in_short">登录</string>
@@ -149,6 +149,7 @@
     </string>
 
     <string name="pref_title_check_version">检查版本</string>
+    <string name="pref_title_ads_browsing">封面广告</string>
     <string name="pref_title_policy">么么哒KID用户使用协议</string>
     <string name="pref_title_web">@么么哒 mmdkid.cn</string>
     <string name="pref_action_quit">退出登录</string>
@@ -347,4 +348,5 @@
 
     <string name="notification_channel_name">channelName</string>
     <string name="notification_channel_description">channelDescription</string>
+    <string name="title_activity_ads">AdsActivity</string>
 </resources>

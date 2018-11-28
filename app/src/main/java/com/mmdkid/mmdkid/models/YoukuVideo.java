@@ -22,7 +22,7 @@ public class YoukuVideo extends VideoSource {
         }
     }
 
-    public static String getVid(Content content){
+    public static String getVid(com.mmdkid.mmdkid.models.Content content){
         if (content.mSource_name!=null && content.mSource_name.equals(VideoSource.VIDEO_SOURCE_YOUKU)){
             return content.mVideo;
         }else {
@@ -30,4 +30,14 @@ public class YoukuVideo extends VideoSource {
         }
 
     }
+
+    public static String getVid(com.mmdkid.mmdkid.models.v2.Content content){
+        if (content.mSource_name!=null && content.mSource_name.equals(VideoSource.VIDEO_SOURCE_YOUKU)){
+            return content.mVideo;
+        }else {
+            return null;
+        }
+
+    }
+
 }

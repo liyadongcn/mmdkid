@@ -47,5 +47,10 @@
         android:title="@string/pref_title_check_version"
         android:layout="@layout/preference_version"/>
 
+    <Preference
+        android:key="browseAds"
+        android:title="@string/pref_title_ads_browsing"
+        android:layout="@layout/preference_advertisement"/>
+
 
 </PreferenceScreen>

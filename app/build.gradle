@@ -7,8 +7,8 @@ android {
         applicationId "com.mmdkid.mmdkid"
         minSdkVersion 16
         targetSdkVersion 26
-        versionCode 48
-        versionName '0.8.48'
+        versionCode 50
+        versionName '0.8.50'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
@@ -77,7 +77,7 @@ android {
     // added during execution.
     android.applicationVariants.all { variant ->
         //获取当前时间的"YYYY-MM-dd"格式。
-        def createTime = new Date().format("YYYYMMdd", TimeZone.getTimeZone("GMT+08:00"))
+        def createTime = new Date().format("yyMMddHHmmss", TimeZone.getTimeZone("GMT+08:00"))
         variant.outputs.all {
             outputFileName = "mmdkid_v${variant.versionName}_${createTime}_${variant.name}.apk"
         }

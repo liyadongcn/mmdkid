@@ -29,6 +29,7 @@ public class Behavior extends Model {
 	public static final String BEHAVIOR_LIKE="like";
 	public static final String BEHAVIOR_LASTVIEW="last_view";
 	public static final String BEHAVIOR_VIEW="view";
+    public static final String BEHAVIOR_THUMBSUP="thumbsup";
 
     public int mId;
     public int mUserId;

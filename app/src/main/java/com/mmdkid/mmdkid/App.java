@@ -52,19 +52,34 @@ import javax.net.ssl.X509TrustManager;
  */
 public class App extends Application {
     private static final String TAG = "mmdApp";
-
+    /**
+     * 有关APP的设置
+     */
     public static final String  PREFS_NAME = "momoda";
     public static final String  PREF_FIRST_START = "first_start";
+    private static final String PREF_COOKIES = "cookies";
+    private static final String PREF_LOGS = "logs";
+    /**
+     * 有关搜索的设置
+     */
     private static final String PREFS_SEARCH = "com.mmdkid.mmdkid.SEARCH";// 本地的搜索关键词设置记录
     private static final String PREF_HOT_KEYWORDS = "hotKeyWords";
     private static final String PREF_HISTORY_KEYWORDS = "historyKeyWords";
+    /**
+     * 有关频道的设置
+     */
     private static final String PREF_CHANNELS = "channels";
     private static final String PREF_OTHER_CHANNELS = "otherchannels";
-    private static final String PREF_COOKIES = "cookies";
-    private static final String PREF_LOGS = "logs";
+    /**
+     * 有关广告的设置
+     */
+    public static final String PREFS_ADS = "ads_info"; // 广告库名
     public static final String PREF_ADS = "ads"; // 广告列表
     public static final String PREF_ADS_CHECK_TIME = "ads_check_time"; // 上次广告检测时间
     public static final String PREF_VERSION_CODE = "version_code"; // APP版本号，用于判断app是否已经升级
+    /**
+     * 有关上传服务器的设置
+     */
     public static final String  PREFS_UPLOAD_INFO = "upload_info"; //有关上传服务器信息的设置记录
     public static final String  PREF_DEVICE_CONTACT = "device&contact"; //设备及联系人信息是否已经上传服务器
 

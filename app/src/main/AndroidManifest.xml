@@ -34,7 +34,7 @@
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.GET_TASKS" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
     <application
         android:name=".App"
@@ -244,7 +244,11 @@
         <activity
             android:name=".GuideActivity"
             android:label="@string/title_activity_guide"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".AdsActivity"
+            android:label="@string/title_activity_ads"
+            android:theme="@style/ThemeFullScreen"></activity>
     </application>
 
 </manifest>

@@ -90,7 +90,7 @@ public class GuideActivity extends AppCompatActivity  implements ViewPager.OnPag
         //初始化引导页上的小圆点
         initDots();
 
-        mFAB = (FloatingActionButton) findViewById(R.id.fab);
+       /* mFAB = (FloatingActionButton) findViewById(R.id.fab);
         mFAB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -101,7 +101,7 @@ public class GuideActivity extends AppCompatActivity  implements ViewPager.OnPag
             }
         });
         //隐藏浮动按钮 最后一页才显示
-        mFAB.hide();
+        mFAB.hide();*/
 
         mLaunchView = (TextView) findViewById(R.id.tvLaunch);
         mLaunchView.setOnClickListener(new View.OnClickListener() {

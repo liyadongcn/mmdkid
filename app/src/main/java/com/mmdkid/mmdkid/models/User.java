@@ -69,6 +69,7 @@ public class User extends Model {
     public int mGender;
     public String mBirthday;
     public String mScenario ="default";
+    public int mThumbsupCount;
 
     public String mNewPassword; // 只用于用户更改密码
 
@@ -90,6 +91,7 @@ public class User extends Model {
         this.mFieldNameMap.put("mBirthday","birthday");
         this.mFieldNameMap.put("mCellphone","cellphone");
         this.mFieldNameMap.put("mSignature","signature");
+        this.mFieldNameMap.put("mThumbsupCount","thumbsup_count");
     }
 
     public static Query find(Connection connection)
@@ -204,6 +206,7 @@ public class User extends Model {
             if(response.has("cellphone") && !response.isNull("cellphone")) user.mCellphone = response.getString("cellphone");
             if(response.has("role")) user.mRole = response.getInt("role");
             if(response.has("signature") && !response.isNull("signature")) user.mSignature = response.getString("signature");
+            if(response.has("thumbsup_count") && !response.isNull("thumbsup_count")) user.mThumbsupCount = response.getInt("thumbsup_count");
             return user;
         } catch (JSONException e) {
             e.printStackTrace();
@@ -225,6 +228,7 @@ public class User extends Model {
         editor.putInt("following",this.mFollowing);
         editor.putInt("follower",this.mFollower);
         editor.putInt("role",this.mRole);
+        editor.putInt("thumbsup_count",this.mThumbsupCount);
         editor.commit();
     }
 
@@ -244,6 +248,7 @@ public class User extends Model {
         user.mCellphone=settings.getString("cellphone","");
         user.mEmail=settings.getString("email","");
         user.mSignature=settings.getString("signature","");
+        user.mThumbsupCount=settings.getInt("thumbsup_count",0);
         if (user.mUsername.isEmpty() && user.mCellphone.isEmpty() && user.mEmail.isEmpty()) return null;
         return user;
     }

@@ -40,6 +40,7 @@ import java.util.Set;
 
 /**
  * 关注用户发表的内容列表
+ * 关注tab页
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
  * {@link FollowFragment.OnFragmentInteractionListener} interface

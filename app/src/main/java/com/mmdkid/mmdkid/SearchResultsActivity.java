@@ -1,5 +1,6 @@
 package com.mmdkid.mmdkid;
 
+import android.annotation.SuppressLint;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +13,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -43,10 +45,12 @@ public class SearchResultsActivity extends AppCompatActivity implements View.OnC
     private TextAdapter mHistoryAdapter;
     private GridView mHotView;
     private TextAdapter mHotAdapter;
-    private TextView mHistoryText;
-    private TextView mHotText;
+
     private SearchView  mSearchView;
     private TextView mHistoryDelView;
+
+    private CardView mHistoryCard;
+    private CardView mHotCard;
 
     private App mApp;
 
@@ -103,7 +107,7 @@ public class SearchResultsActivity extends AppCompatActivity implements View.OnC
 
         mHotList = mApp.getHotKeyWords();
 
-        mHistoryText = (TextView) findViewById(R.id.tvHistoryCaption);
+        mHistoryCard = (CardView) findViewById(R.id.cvHistory);
         mHistoryView = (GridView) findViewById(R.id.gridviewHistory);
         mHistoryAdapter = new TextAdapter(this,mHistoryList);
         mHistoryView.setAdapter(mHistoryAdapter);
@@ -118,7 +122,7 @@ public class SearchResultsActivity extends AppCompatActivity implements View.OnC
             }
         });
 
-        mHotText = (TextView) findViewById(R.id.tvHotCaption);
+        mHotCard = (CardView) findViewById(R.id.cvHot);
         mHotView = (GridView) findViewById(R.id.gridviewHot);
         mHotAdapter = new TextAdapter(this,mHotList);
         mHotView.setAdapter(mHotAdapter);
@@ -154,6 +158,7 @@ public class SearchResultsActivity extends AppCompatActivity implements View.OnC
         return super.onOptionsItemSelected(item);
     }
 
+    @SuppressLint("ResourceAsColor")
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -168,7 +173,14 @@ public class SearchResultsActivity extends AppCompatActivity implements View.OnC
                 searchManager.getSearchableInfo(getComponentName()));
         mSearchView.setIconifiedByDefault(false);
         mSearchView.setSubmitButtonEnabled(true);
-        //mSearchView.setBackgroundColor(getResources().getColor(R.color.white));
+/*      // 适用于一般searchview
+        int id = mSearchView.getContext().getResources().getIdentifier("android:id/search_src_text", null, null);
+        TextView textView = (TextView) mSearchView.findViewById(id);
+        textView.setText("dfdfdf");*/
+/*       // 适用于searchview v7包
+        SearchView.SearchAutoComplete textView = (SearchView.SearchAutoComplete)mSearchView.findViewById(R.id.search_src_text);
+        textView.setBackgroundColor(getResources().getColor(R.color.white));*/
+//        mSearchView.setBackgroundColor(getResources().getColor(R.color.white));
 //        mSearchView.setBackground(getResources().getDrawable(R.drawable.search_border));
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -264,11 +276,13 @@ public class SearchResultsActivity extends AppCompatActivity implements View.OnC
     }
 
     private void showSuggestedView(int visibility){
-        mHistoryView.setVisibility(visibility);
+       /* mHistoryView.setVisibility(visibility);
         mHotView.setVisibility(visibility);
         mHistoryText.setVisibility(visibility);
         mHotText.setVisibility(visibility);
-        mHistoryDelView.setVisibility(visibility);
+        mHistoryDelView.setVisibility(visibility);*/
+       mHistoryCard.setVisibility(visibility);
+       mHotCard.setVisibility(visibility);
     }
 
     private void showResultView(int visibility){

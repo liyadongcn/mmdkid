@@ -52,14 +52,25 @@
 
     </LinearLayout>
 
-    <Button
-        android:id="@+id/btnShare"
-        style="@style/SimpleButtonStyle"
+    <!--<Button-->
+        <!--android:id="@+id/btnShare"-->
+        <!--style="@style/SimpleButtonStyle"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_alignParentRight="true"-->
+        <!--android:layout_alignParentEnd="true"-->
+        <!--android:text="@string/action_share"/>-->
+    <TextView
+        android:id="@+id/tvFollowAction"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:text="@string/action_share"/>
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="10dp"
+        android:textColor="@color/white"
+        android:background="@drawable/shape_border_red_bg_white_text"
+        android:text="@string/homepage_follow"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -80,7 +91,8 @@
             android:layout_height="wrap_content"
             android:scrollbars="vertical"
             android:singleLine="false"
-            android:maxLines="10"/>
+            android:maxLines="10"
+            android:layout_marginBottom="10dp"/>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -107,10 +119,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_weight="2">
+                android:background="@drawable/shape_border_gray_bg_white"
+                android:layout_weight="4">
                 <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
                     android:layout_gravity="center_vertical"
                     android:src="@drawable/ic_pencil_white"/>
                 <TextView
@@ -140,6 +153,14 @@
                 android:src="@drawable/ic_comment_outline_white"/>
 
             <ImageView
+                android:id="@+id/ivThumbsup"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_weight="1"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/thumb_up_outline_white"/>
+
+            <ImageView
                 android:id="@+id/ivStar"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
@@ -153,6 +174,7 @@
                 android:layout_height="28dp"
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="10dp"
+
                 android:src="@drawable/ic_share_variant"/>
 
 

@@ -59,6 +59,7 @@ public class MeFragment extends Fragment implements View.OnClickListener{
     private TextView mUsername;
     private TextView mFollower;
     private TextView mFollowing;
+    private TextView mThumbsup;
     private LinearLayout mStar;
     private LinearLayout mFollow;
     private LinearLayout mHistory;
@@ -136,6 +137,7 @@ public class MeFragment extends Fragment implements View.OnClickListener{
         mUsername = (TextView) view.findViewById(R.id.tvUsername);
         mFollower = (TextView) view.findViewById(R.id.tvFollower);
         mFollowing = (TextView) view.findViewById(R.id.tvFollowing);
+        mThumbsup = (TextView) view.findViewById(R.id.tvThumbsup);
 
         mFollow = (LinearLayout) view.findViewById(R.id.llFollow);
         mFollow.setOnClickListener(this);
@@ -174,6 +176,7 @@ public class MeFragment extends Fragment implements View.OnClickListener{
             mUsername.setOnClickListener(null);
             mFollower.setText(String.valueOf(mCurrentUser.mFollower));
             mFollowing.setText(String.valueOf(mCurrentUser.mFollowing));
+            mThumbsup.setText(String.valueOf(mCurrentUser.mThumbsupCount));
             Log.d(TAG,"User display name is " + mCurrentUser.getDisplayName());
             Log.d(TAG,"User nicke name is " + mCurrentUser.mNickname);
             Log.d(TAG,"User user name is " + mCurrentUser.mUsername);
@@ -193,6 +196,7 @@ public class MeFragment extends Fragment implements View.OnClickListener{
             mAvatar.setOnClickListener(null);
             mFollower.setText("");
             mFollowing.setText("");
+            mThumbsup.setText("");
         }
 
     }

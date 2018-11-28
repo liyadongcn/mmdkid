@@ -50,8 +50,8 @@ public class AdUtil {
     /**
      * 获取本地缓存的广告
      */
-    private static ArrayList<Advertisement> getAdvertisements(Context context){
-        ListDataSave adListDataSave = new ListDataSave(context, App.PREFS_NAME);
+    public static ArrayList<Advertisement> getAdvertisements(Context context){
+        ListDataSave adListDataSave = new ListDataSave(context, App.PREFS_ADS);
         List<Advertisement> ads = adListDataSave.getDataList(App.PREF_ADS,Advertisement.class);
         Log.d(TAG,"Logs is " + ads.toString());
         return (ArrayList<Advertisement>) ads;
@@ -60,14 +60,23 @@ public class AdUtil {
      * 保存广告到本地
      */
     private static void setAdvertisements(Context context, ArrayList<Advertisement> adList){
-        ListDataSave adListDataSave = new ListDataSave(context, App.PREFS_NAME);
-        adListDataSave.setDataList(App.PREF_ADS, adList);
+        if (adList==null || adList.isEmpty()){
+            // 删除广告列表
+            SharedPreferences settings = context.getSharedPreferences(App.PREFS_ADS, Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = settings.edit();
+            editor.remove(App.PREF_ADS);
+            editor.commit();
+        }else{
+            // 保存广告列表
+            ListDataSave adListDataSave = new ListDataSave(context, App.PREFS_ADS);
+            adListDataSave.setDataList(App.PREF_ADS, adList);
+        }
     }
     /**
      * 获取本地保存的上次广告检测时间
      */
     private static String getAdCheckTime(Context context){
-        SharedPreferences settings = context.getSharedPreferences(App.PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences settings = context.getSharedPreferences(App.PREFS_ADS, Context.MODE_PRIVATE);
         String checkTime = settings.getString(App.PREF_ADS_CHECK_TIME,"");
         if (checkTime.isEmpty()){
             Log.d(TAG,"Check time is empty.");
@@ -82,7 +91,7 @@ public class AdUtil {
      * 保存上次广告检测时间
      */
     private static boolean setAdCheckTime(Context context,String checkTime){
-        SharedPreferences settings = context.getSharedPreferences(App.PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences settings = context.getSharedPreferences(App.PREFS_ADS, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
         editor.putString(App.PREF_ADS_CHECK_TIME,checkTime);
         return editor.commit();
@@ -95,6 +104,13 @@ public class AdUtil {
         if (!advertisement.isCacheValid()) return false;
         if (adList==null){
             adList = new ArrayList<Advertisement>();
+        }
+        // 去掉重复广告信息
+        for (int i = 0; i < adList.size(); i++){
+            if (advertisement.mId == adList.get(i).mId){
+                adList.remove(i);
+                i--;
+            }
         }
         adList.add(advertisement);
         setAdvertisements(context,adList);
@@ -169,6 +185,7 @@ public class AdUtil {
     }
     /**
      * 获取当前可播放广告
+     * 并删除无效广告
      */
     public static Advertisement getAdvertisement(Context context){
 //        Advertisement advertisement = new Advertisement();
@@ -182,11 +199,13 @@ public class AdUtil {
         for (int i =0 ; i<adList.size(); i++){
             if (!adList.get(i).isCacheValid()) {
                 // 删除无效广告
+                Log.d(TAG,"Delete one invalid advertisment");
                 adList.remove(i);
                 i--;
             }
         }
         // 存储有效广告到本地
+        Log.d(TAG,"Save the valid advertsements. total:" +adList.size() );
         setAdvertisements(context,adList);
         if (adList.isEmpty()){
             return null;
@@ -197,6 +216,7 @@ public class AdUtil {
     }
     /**
      * 获取广告网络图片并保存到本地
+     * 使用fresco下载网络图片
      */
     private static void saveImageFromDataSource(final Advertisement advertisement, final String localSavePath, final Context context){
         String url = advertisement.mImgUrl;

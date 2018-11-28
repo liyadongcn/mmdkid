@@ -29,8 +29,10 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Vie
 
     private static final String TAG = "SettingsActivity";
     private static final String POLICY_URL = "http://mmdkid.cn/index.php?r=site/policy&theme=app";
-
+    // APP版本
     private Preference mVersionPreference;
+    // 封面广告
+    private Preference mAdsPreference;
 
     private Button mQuitView;
     private TextView mPolicyView;
@@ -98,6 +100,10 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Vie
         }else if (preference.getKey().equals("channels")){
             Log.d(TAG,"Favorite channels is clicked." );
             Intent intent = new Intent(SettingsActivity.this, ChannelActivity.class);
+            startActivity(intent);
+        }else if (preference.getKey().equals("browseAds")){
+            Log.d(TAG,"Brows ads is clicked." );
+            Intent intent = new Intent(SettingsActivity.this, AdsActivity.class);
             startActivity(intent);
         }
         return super.onPreferenceTreeClick(preferenceScreen, preference);

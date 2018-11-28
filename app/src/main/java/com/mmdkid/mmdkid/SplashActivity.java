@@ -147,6 +147,7 @@ public class SplashActivity extends AppCompatActivity {
                 }
             }else{
                 // 广告图片不存在 直接进入主程序
+                Log.d(TAG,"No valid advertisment.");
                 toMainActivity();
             }
         }else{

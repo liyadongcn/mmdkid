@@ -32,6 +32,8 @@ import com.mmdkid.mmdkid.server.RESTAPIConnection;
 import java.util.ArrayList;
 
 /**
+ * 粉丝列表
+ *
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
  * {@link FollowingFragment.OnFragmentInteractionListener} interface
